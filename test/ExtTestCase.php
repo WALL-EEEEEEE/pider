@@ -11,14 +11,18 @@ namespace UnitTest;
 abstract class ExtTestCase extends \PHPUnit\Framework\TestCase
 {
     protected static $ObjectCached =  null;
-	protected function assertException(callable $callback, $expectedException = 'Exception', $expectedCode = null, $expectedMessage = null)
+	protected function assertException(callable $callback,$args,$expectedException = 'Exception', $expectedCode = null, $expectedMessage = null)
 	{
 		$expectedException = ltrim((string) $expectedException, '\\');
 		if (!class_exists($expectedException) && !interface_exists($expectedException)) {
 			$this->fail(sprintf('An exception of type "%s" does not exist.', $expectedException));
 		}
 		try {
-			$callback();
+            if (is_array($args)) {
+                $callback(...$args);
+            } else {
+                $callback($args);
+            }
 		} catch (\Exception $e) {
 			$class = get_class($e);
 			$message = $e->getMessage();
@@ -50,7 +54,7 @@ abstract class ExtTestCase extends \PHPUnit\Framework\TestCase
 
     protected function call($class,$method,$method_args = array(),$args=array(),$cached = false ) {
 
-        if (!is_string($method) || !is_array($args)) {
+        if (!is_string($method)) {
             return false;
         }
         $refcls = new \ReflectionClass($class);
@@ -64,7 +68,7 @@ abstract class ExtTestCase extends \PHPUnit\Framework\TestCase
         }
         $refmethod = $refcls->getMethod($method);
         $refmethod->setAccessible(true);
-        return $refmethod->invokeArgs($class, $args);
+        return $refmethod->invokeArgs($class, $method_args);
     }
 
     protected function getProperty($class,$field,$args=array(),$cached = false){
@@ -97,29 +101,34 @@ abstract class ExtTestCase extends \PHPUnit\Framework\TestCase
     }
 
     protected function setProperty($class,$field,$value,$cached = false) {
-        if (!is_string($class) || !is_string($field)) {
+        if (!is_string($field)) {
             return false;
         }
         $refcls = new \ReflectionClass($class);
         if ( !empty(static::$ObjectCached) && $refcls->isInstance(static::$ObjectCached) && $cached ) {
             $class = static::$ObjectCached;
         } else {
-            $class = new $class();
+            if (!is_object($class)) {
+                $class = $refcls->newInstanceArgs($args);
+            }
+            static::$ObjectCached = $class;
         }
         $refprop = $refcls->getProperty($field);
         $refprop->setAccessible(true);
         $refprop->setValue($class,$value);
     }
 
-    protected function getInAccessibleMethod($class,$method,$cached = false ){
-        if (!is_string($class) || !is_string($method)) {
+    protected function getInAccessibleMethod($class,$method,$args = array(),$cached = false ){
+        if ( !is_string($method)) {
             return false;
         }
         $refcls = new \ReflectionClass($class);
         if ( !empty(static::$ObjectCached) &&  $refcls->isInstance(static::$ObjectCached) && $cached) {
             $class = static::$ObjectCached;
         } else {
-            $class = new $class();
+            if (!is_object($class)) {
+                $class = $refcls->newInstanceArgs($args);
+            }
             static::$ObjectCached = $class;
         }
         $refprop = $refcls->getMethod($method);

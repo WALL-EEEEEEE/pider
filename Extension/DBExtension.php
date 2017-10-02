@@ -66,15 +66,22 @@ class DBExtension extends db implements DBDriver {
     }
 
 
+    /***
+     * set current table 
+     */
+    public function table($tablename) {
+        $this->table = $tablename;
+    }
     /**
      * This function is used to check if tables  exist in database,default to assure the current table stored in $this->table's existence.
+     * throw an ErrorException if table not exists
      */
     public function  Assuretable($table = ''){
         if (empty($this->table) && empty($table)) {
-            return false;
+            throw new \ErrorException('Error: Assured Table Can not be empty!');
         }
         $table = empty($table)?$this->table:$table;
-        if (empty($this->cached_tables)) {
+        if (empty($this->cached_tables) || (!empty($this->cached_fields) && !in_array($table,$this->cached_tables))) {
             $this->__tables();
         }
         if (!in_array($table,$this->cached_tables)) {
@@ -83,19 +90,63 @@ class DBExtension extends db implements DBDriver {
     }
 
     /**
-     *This function is used to check if fields exist in database
-     *
+     * This function is used to check if tables  exist in database,default to assure the current table stored in $this->table's existence.
+     * true, if exists, vice versa.
      */
-    public function Assurefield($field) {
-        if (empty($this->table) && empty($field)) {
+    public function  Existstable($table = ''){
+        if (empty($this->table) && empty($table)) {
+            throw new \ErrorException('Error: Table to be detected existence  Can not be empty!');
+        }
+        $table = empty($table)?$this->table:$table;
+        if (empty($this->cached_tables) || (!empty($this->cached_fields) && !in_array($table,$this->cached_tables))) {
+            $this->__tables();
+        }
+        if (!in_array($table,$this->cached_tables)) {
             return false;
         }
-        if (empty($this->cached_fields)) {
+        return true;
+    }
+
+ 
+
+    /**
+     *This function is used to check if fields exist in database
+     * throw a ErrorException if not exists
+     */
+    public function Assurefield($field) {
+        if (empty($this->table)) {
+            throw new \ErrorException('Error: Assured filed\'s table is not specified');
+        }
+        if (empty($field)) {
+            throw new \ErrorException('Error: Assured filed can\'t be empty');
+        }
+        if (empty($this->cached_fields) || (!empty($this->cached_fields) && !in_array($field,$this->cached_fields))) {
             $this->__fields();
         }
-        if (!in_array($field,$this->cached_fields) ) {
-            throw new \ErrorException('Error: No Such Such Field In Table '.$this->table.'!');
+        if (!array_key_exists($field,$this->cached_fields) ) {
+            throw new \ErrorException('Error: No Such Field In Table '.$this->table.'!');
         }
+    }
+
+
+    /**
+     * This function is used to check if fields exist in database
+     */
+    public function Existsfield($field) {
+        if (empty($this->table)) {
+            throw new \ErrorException('Error: Table of field, to be detected for existence,  is not specified');
+        }
+        if (empty($field)) {
+            throw new \ErrorException('Error: Field to be detected for existence, can\'t be empty');
+        }
+        if (empty($this->cached_fields) || (!empty($this->cached_fields) && !in_array($field,$this->cached_fields))) {
+            $this->__fields();
+        }
+        if (!array_key_exists($field,$this->cached_fields) ) {
+            return false;
+        }
+        return true;
+
     }
 
     /**
@@ -125,7 +176,8 @@ class DBExtension extends db implements DBDriver {
         if (empty($this->table)) {
             throw new \ErrorException('Error: No Table Name Specified!');
         }
-        if (empty($this->cached_tables)) {
+        //assure the cached_tables is newest
+        if (empty($this->cached_tables) || (!empty($this->cached_tables) && !in_array($this->table,$this->cached_tables))) {
             $this->__tables();
         }
         if (!in_array($this->table,$this->cached_tables)) {
@@ -148,6 +200,9 @@ class DBExtension extends db implements DBDriver {
             }
         }
         $this->cached_fields = $fields;
+        if (empty($fields)) {
+            return false;
+        }
         return $fields;
     }
 }
