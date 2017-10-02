@@ -20,6 +20,7 @@ class Model {
     public function __set($name,$value){
         $this->set($name,$value);
     }
+
     public function __get($name){
        return $this->get($name);
     }
@@ -81,20 +82,26 @@ class Model {
      *
      */
     public function update() {
-       return  $this->DBDriver->update($this->mapping_table, $this->mapping_fields);
+       $this->__assure();
+       $update_datas = array();
+       foreach($this->mapping_fields as $name => $field) {
+           $update_datas[$field]= $this->members[$name]['value'];
+       }
+       var_dump($update_datas);
+       return  $this->DBDriver->update($this->mapping_table, $update_datas,true);
     }
     /**
      *
      * Collecte members data of current model and insert data to database
      */
     public function add() {
+        $this->__assure();
         return $this->DBDriver->add($this->mapping_table,$this->mapping_fields);
     }
+
     private function member_exist($name){
         return array_key_exists($name,$this->members) && $this->members[$name]['name'] == $name;
     }
-
-
     public function linkTable($table) {
         if (!is_string($table) || empty($table)) {
             throw new \InvalidArgumentException("Maptable method only accept a non-empty string as parameter!");
@@ -108,19 +115,54 @@ class Model {
         }
         $this->mapping_fields = $fields;
     }
+
     //Collecting members of submodel
     private function _members() {
         $refcls = new \ReflectionClass(static::class);
+        if (static::class != self::class) {
+            $refprops= $refcls->getDefaultProperties();
+            if (!empty($refprops)) {
+                foreach($refprops as $name => $value) {
+                    $this->members[$name]['name'] = $name ;
+                    $this->members[$name]['value'] = $value;
+                    $this->members[$name]['property'] = self::REQUIRED;
+                }
+            }
+        }
     }
+
+    private function __assure() {
+        $this->__mapping_fields();
+        $this->__mapping_table();
+        $this->__assure_table();
+        $this->__assure_fields();
+    }
+    //syncronize  current mapping_table with database table
+    private function __assure_table() {
+        $this->DBDriver->Assuretable($this->mapping_table);
+        $this->DBDriver->table($this->mapping_table);
+    }
+
+    //syncronize current mapping_fields with database fields
+    private function __assure_fields() {
+        foreach($this->mapping_fields as $name => $field) {
+            if($this->members[$name]['property'] == self::REQUIRED ) {
+                $this->DBDriver->AssureFields($field);
+            } else {
+                if (!$this->DBDriver->Existsfield($field)) {
+                    unset($this->mapping_fields[$name]);
+                }
+            }
+        }
+    }
+
     /**
      * 
-     * This function is used to generate a mapping between model members and database field
-     *
      */
     private function __mapping_fields() {
         if (!empty($this->members)) {
             foreach($this->members as $name => $member) {
-                if (!empty($this->mapping_fields) && !array_key_exists($name,$this->mapping_fields)) {
+                if ((!empty($this->mapping_fields) && !array_key_exists($name,$this->mapping_fields)) || empty($this->mapping_fields) ) {
                     $this->mapping_fields[$name]  = $member['name'];
                 }
             }

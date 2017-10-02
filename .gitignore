@@ -1,5 +1,11 @@
-phpspider
+phpspider/config
+phpspider/data
+phpspider/demo
+phpspider/*.php
+phpspider/*.sql
+phpspider/*.md
 assets
 cache
 bin
 tags
+Util/Api.php
