@@ -1,0 +1,204 @@
+<?php
+ini_set("memory_limit", "1024M");
+require dirname(__FILE__).'/../phpspider/core/init.php';
+require dirname(__FILE__).'/../ext/db_ext.php';
+require dirname(__FILE__).'/../util/http.php';
+require dirname(__FILE__).'/../util/api.php';
+require dirname(__FILE__).'/../util/common.php';
+require dirname(__FILE__).'/../model/website.php';
+
+use ext\db_ext;
+use util\http;
+use util\api;
+use model\website;
+//采集淘宝标准库中商品信息
+
+//指定网站ID,更新数据库使用
+$GLOBALS['website']['id'] = 11;
+$GLOBALS['fix_times'] = 0;
+db_ext::switch_db('jhbian_spider');
+
+function get_html($urls = ""){
+    $urls = empty($urls) ? api::get_standard_products_url(1000,"taobao.com"):$urls;
+    $url_hit = 0;
+    while ( $url_hit < count($urls)) {
+        $url = $urls[$url_hit];
+        requests::$input_encoding = "GBK";
+        requests::$output_encoding = "UTF-8";
+        requests::set_useragents(
+            array(
+                'Mozilla/5.0 (Windows; U; Windows NT 5.2) Gecko/2008070208 Firefox/3.0.1',
+                'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; Trident/4.0)',
+                'Mozilla/5.0 (Windows; U; Windows NT 5.2) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.2.149.27 Safari/525.13',
+                'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.12) Gecko/20080219 Firefox/2.0.0.12 Navigator/9.0.0.6',
+                'Mozilla/5.0 (Windows; U; Windows NT 5.2) AppleWebKit/525.13 (KHTML, like Gecko) Version/3.1 Safari/525.13',
+                'Mozilla/5.0 (iPhone; U; CPU like Mac OS X) AppleWebKit/420.1 (KHTML, like Gecko) Version/3.0 Mobile/4A93 Safari/419.3',
+                'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0)',
+                'Mozilla/5.0 (Macintosh; PPC Mac OS X; U; en) Opera 8.0',)
+        );
+        $proxy_ip = api::getIp();
+        if ($proxy_ip) {
+            requests::set_proxies(
+                array("http"=>$proxy_ip,
+                    "https"=>$proxy_ip
+                ));
+            http::set_proxies(array(
+                "http"=>$proxy_ip,
+                "https"=>$proxy_ip
+            ));
+        } else {
+            printf("%s\n","Error: A unexpected error occurred when get the proxy ip");
+            log::error("Error: A unexpected error occurred when get the proxy ip");
+        }
+        $url_content = requests::get($url);
+        //整理html内容数据，准备插入数据库
+        $html_data['uid'] = spawn_guid();
+        $html_data['website_id'] = $GLOBALS['website']['id'];
+        $html_data['url'] =  $url;
+        $html_data['html'] = mysql_escape_string($url_content);
+        $html_data['ctime'] = date("Y-m-d h:i:s");
+        $html_data['runtime']= date("Y-m-d H:i:s");
+
+        //将接口中返回的手机URL抓换成PCURL, 以及不怎么标准的URL替换成规范的URL
+        //http:\/\/item.taobao.com\/item.htm?id=20172326620
+        //http:\/\/h5.m.taobao.com\/awp\/core\/detail.htm?id=20172326620
+        $url = preg_replace("/https?:\/\/h5\.m\.taobao\.com\/awp\/core\/detail\.htm\?.*id=(\d+).*/i","http://item.taobao.com/item.htm?id=\\1",$url);
+        $url = preg_replace("/https?:\/\/item\.taobao\.com\/item\.htm\?.*id=(\d+).*/i","http://item.taobao.com/item.htm?id=\\1",$url);
+        preg_match("/https?:\/\/item\.taobao\.com\/item\.htm\?id=(\d+)/i",$url,$matches);
+        if (isset($matches[1]) && !empty($matches[1]) ) {
+            $html_data['product_id'] = $matches[1];
+        } else {
+            echo "Error parse the product id from url link $url!\n";
+            log::error("Error parse the product id from url link $url!\n");
+            $url_hit++;
+            echo "已完成".round($url_hit/count($urls)*100,2)."%\n";
+            continue;
+        }
+        //获取http头信息
+        $http_arr = http::get_http_header($url,"GET");
+        //整理http头信息
+        $html_data['http_code'] = $http_arr['http_code'];
+        $html_data['modify_date'] = $http_arr['last_modified'];
+        $html_data['content_length'] = $http_arr['content_length'];
+        $html_data['etag'] = $http_arr['etag'];
+        $http_result = db::insert("all_html",$html_data);
+        if ($http_result === false) {
+            log::error('Error occurred when insert html data into database');
+            exit(1);
+        }
+        $url_hit++;
+        echo "已完成".round($url_hit/count($urls)*100,2)."%\n";
+    }
+}
+
+/**
+ * 重新获取由于标准库中的URL不标准，而无法解析解析product_id的html
+ */
+function get_malformation() {
+    $logfile = basename(__FILE__,'.php').'.log';
+    $fpath = 'runstatus/'.$logfile;
+    if (!is_file($fpath) && !is_readable($fpath)) {
+        printf("%s\n","File read error:$fpath don't exist!");
+        return false;
+    }
+    $awk_command= "awk '{if(match($0,/&id=([0-9]+)/,m)) print m[1]}'"." $fpath";
+    exec($awk_command,$awk_result,$status);
+    if ($status != 0) {
+        printf("%s\n", "Parse Error: Can't parse product id from $fpath log file!");
+        return false;
+    }
+
+    if (count($awk_result) > 0) {
+        $merge_urls = array();
+        foreach($awk_result as $v) {
+            $merge_urls[] = "http://detail.tmall.com/item.htm?id=".$v;
+        }
+        get_html($merge_urls);
+    }
+
+}
+
+function fix() {
+    $website = new website($GLOBALS['website']['id']);
+    if ($GLOBALS['fix_times'] > 100) {
+        return false;
+    }
+    $empty_htmls = $website->get_html("html=''");
+    if (empty($empty_htmls) || count($empty_htmls) <= 0) {
+        return false;
+    }
+    $url_hit = 0;
+    while ( $url_hit < count($empty_htmls)) {
+        $url = $empty_htmls[$url_hit]['url'];
+        requests::$input_encoding="GBK";
+        requests::$output_encoding = "UTF-8";
+        requests::set_useragents(
+            array(
+                'Mozilla/5.0 (Windows; U; Windows NT 5.2) Gecko/2008070208 Firefox/3.0.1',
+                'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; Trident/4.0)',
+                'Mozilla/5.0 (Windows; U; Windows NT 5.2) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.2.149.27 Safari/525.13',
+                'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.12) Gecko/20080219 Firefox/2.0.0.12 Navigator/9.0.0.6',
+                'Mozilla/5.0 (Windows; U; Windows NT 5.2) AppleWebKit/525.13 (KHTML, like Gecko) Version/3.1 Safari/525.13',
+                'Mozilla/5.0 (iPhone; U; CPU like Mac OS X) AppleWebKit/420.1 (KHTML, like Gecko) Version/3.0 Mobile/4A93 Safari/419.3',
+                'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0)',
+                'Mozilla/5.0 (Macintosh; PPC Mac OS X; U; en) Opera 8.0',)
+        );
+        $proxy_ip = api::getIp();
+        if ($proxy_ip) {
+            requests::set_proxies(
+                array("http"=>$proxy_ip,
+                    "https"=>$proxy_ip
+                ));
+            http::set_proxies(array(
+                "http"=>$proxy_ip,
+                "https"=>$proxy_ip
+            ));
+        } else {
+            var_dump("Error: A unexpected error occurred when get the proxy ip");
+            log::error("Error: A unexpected error occurred when get the proxy ip");
+        }
+        $url_content = requests::get($url);
+        //整理html内容数据，准备插入数据库
+        $html_data['uid'] = $empty_htmls[$url_hit]["uid"];
+        $html_data['html'] = mysql_escape_string($url_content);
+        $html_data['runtime']= date("Y-m-d H:i:s");
+        //获取http头信息
+        $http_arr = http::get_http_header($url,"GET");
+        //整理http头信息
+        $html_data['http_code'] = $http_arr['http_code'];
+        $html_data['modify_date'] = $http_arr['last_modified'];
+        $html_data['content_length'] = $http_arr['content_length'];
+        $html_data['etag'] = $http_arr['etag'];
+        $http_result = db::update("all_html",$html_data, "uid='".$html_data['uid']."'");
+        if ($http_result === false) {
+            printf('%s\n','Error occurred when update html data into database');
+            log::error('Error occurred when update html data into database');
+            exit(1);
+        }
+        $url_hit++;
+        echo "正在查漏补缺:  $url_hit/".count($empty_htmls)."\n";
+    }
+
+    fix();
+    $GLOBALS["fix_times"]++;
+}
+
+
+if (PHP_SAPI != 'cli') {
+    printf("%s","This application can only run under cli!");
+    exit(0);
+}
+
+if ($argc <= 1 ) {
+    get_html();
+} else {
+    if ($argv[1] == "fix") {
+        fix();
+    } else if($argv[1] == "get") {
+        get_html();
+    } else if ($argv[1] == "patch") {
+        get_malformation();
+    } else {
+        printf("%s","Argument Error!");
+    }
+}

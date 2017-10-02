@@ -1,0 +1,14 @@
+{[
+    "name": "jd",
+    "url": "www.jd.com",
+    "type": "searchentry",
+    "product":[
+        "name": "//div[contains(@class,'ItemInfo-wrap')]/div[contains(@class,'sku-name')]/text()",
+        "price":"//div[contains(@class,'p-pirce')]/span/text()",
+        "tags":[
+            "//div[contains[@class,'news']]",
+            "//div[@id='summary_quan']/div/dl/dd/a/span/span[contains(@class,'text')]",
+            "//div[@id='summary_promotion']/div[contains(@class,'J-prom-wrap')]/div[contains(@class,'p-promotions')]"
+        ]
+    ]
+]}
