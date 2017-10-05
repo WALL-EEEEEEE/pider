@@ -5,7 +5,7 @@
 namespace Extension;
 use Extension\DBExtension;
 
-class Model extends DBExtension {
+class Model {
     const REQUIRED = 1;
     const OPTIONAL  = 0;
     //this memeber hold a instance of Database Driver class
