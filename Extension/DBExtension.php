@@ -13,12 +13,9 @@ class DBExtension extends db implements DBDriver {
     //Cached fields in database
     private $cached_fields = array();
     //Current tablename
-    private $table = '';
-    public function __construct() {
-//        $this->__fields();
-//        $this->__tables();
-    }
-    /**
+    protected $table = '';
+    protected $primary = '';
+   /**
      * default database is $GLOBALS['config']['db']
      * @param $dbname
      * @param array $dbconfig
@@ -196,6 +193,7 @@ class DBExtension extends db implements DBDriver {
                     $fields[$field_name]['type'] = $field['Type'];
                     $fields[$field_name]['is_primary'] = $field['Key'] == 'PRI';
                     $fields[$field_name]['is_null'] = $field['Null'] == 'YES';
+                    $this->__primary($field);
                 }
             }
         }
@@ -205,4 +203,15 @@ class DBExtension extends db implements DBDriver {
         }
         return $fields;
     }
+
+   /**
+    *  @function __primary() detect a field if is a primary field, if it is, save it to $this->primary
+    */
+    private function __primary($field) {
+       if (!empty($fields['Key']) && empty($fields['Key'] == 'PRI')) {
+           $this->primary = $field['Field'];
+       }
+    }
+    
+    
 }

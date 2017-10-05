@@ -3,8 +3,9 @@
  *  This class is a model extension for phpspider with a convenient way manipulate database.
  */
 namespace Extension;
+use Extension\DBExtension;
 
-class Model {
+class Model extends DBExtension {
     const REQUIRED = 1;
     const OPTIONAL  = 0;
     //this memeber hold a instance of Database Driver class
@@ -13,7 +14,24 @@ class Model {
     private $mapping_fields = array();
     private $mapping_table = '';
     private $members = array();
+    /**
+     * @var the conditions constrains to perfomed when update(),add(),delete() operation 
+     * @default id=? if no condition specified , condition where be current id on update() and delete() operations
+     */
+    private $conditions = array();
+    /**
+     * @var specify if the primary key is auto increment,default is false
+     * @value default=false
+     */
+    private $auto_increment = false;
+    /**
+     * @var specify the primary fields, default, we assume  there is always a id field in  your database, and it's default to be primary
+     * @value default = id
+     */
+    private $id = 'id';
+
     public function __construct(){
+        var_dump('mode ...');
         $this->DBDriver = new DBExtension();
         $this->_members();
     }
@@ -22,7 +40,10 @@ class Model {
     }
 
     public function __get($name){
-       return $this->get($name);
+        if($this->member_exist($name)) {
+            return $this->members[$name]['value'];
+        }
+        return false;
     }
     /**
      * Set model member
@@ -38,15 +59,6 @@ class Model {
         }
     }
 
-    /**
-     *Get model member
-     */
-    public function get($name){
-        if($this->member_exist($name)) {
-            return $this->members[$name]['value'];
-        }
-        return false;
-    }
     /**
      * This function construct model's data which mapping to database fields,from a array
      * @param $array array
@@ -88,9 +100,10 @@ class Model {
            $update_datas[$field]= $this->members[$name]['value'];
        }
        var_dump($update_datas);
-       return  $this->DBDriver->update($this->mapping_table, $update_datas,true);
+       return  $this->DBDriver->update($this->mapping_table, $update_datas,$condtions);
     }
-    /**
+
+   /**
      *
      * Collecte members data of current model and insert data to database
      */
@@ -99,21 +112,57 @@ class Model {
         return $this->DBDriver->add($this->mapping_table,$this->mapping_fields);
     }
 
+    public function delete() {
+        $this->__assure();
+        return $this->DBDriver->delete($this->mapping_table,$conditions);
+    }
+
     private function member_exist($name){
         return array_key_exists($name,$this->members) && $this->members[$name]['name'] == $name;
     }
-    public function linkTable($table) {
+
+    /**
+     * @function where() specify the condition used to add, update, delete operaion
+     * @param $conditions  an associative array, contains the fields and expected value 
+     * For example: 
+     * <?php
+     * $model = new ProductModel();
+     * $model->where(['id'=>'3'])->update();
+     *
+     * The code upon, where just update the recode which id equals 3
+     */
+    public function where($conditions) {
+        if (!is_array($array)) {
+            throw new \ErrorException("Argument Error: The 1st Argument must be an array");
+        }
+        $this->conditions = $conditions;
+        return $this;
+    }
+
+    /**
+     * @function table 
+     * specify the table to be operated
+     * @param $table the table name
+     *
+     */
+    public function table($table) {
         if (!is_string($table) || empty($table)) {
             throw new \InvalidArgumentException("Maptable method only accept a non-empty string as parameter!");
         }
         $this->mapping_table = $table;
+        return $this;
     }
 
-    public function linkFields($fields) {
+    /**
+     * @function fields()
+     * specify the fields mapping bewteen the database and current model members
+     */
+    public function fields($fields) {
         if (!is_array($fields) || empty($fields)) {
             throw new \InvalidArgumentException("Mapfields method only accept a non-empty string as parameter!");
         }
         $this->mapping_fields = $fields;
+        return $this;
     }
 
     //Collecting members of submodel
@@ -136,6 +185,7 @@ class Model {
         $this->__mapping_table();
         $this->__assure_table();
         $this->__assure_fields();
+        $this->__default_condition();
     }
     //syncronize  current mapping_table with database table
     private function __assure_table() {
@@ -156,10 +206,7 @@ class Model {
         }
     }
 
-    /**
-     * 
-     */
-    private function __mapping_fields() {
+   private function __mapping_fields() {
         if (!empty($this->members)) {
             foreach($this->members as $name => $member) {
                 if ((!empty($this->mapping_fields) && !array_key_exists($name,$this->mapping_fields)) || empty($this->mapping_fields) ) {
@@ -183,6 +230,16 @@ class Model {
                 $table = strtolower($clsname);
                 $this->mapping_table = $table;
             }
+        }
+    }
+
+    /**
+     * Genertate the default condition, default conditions is the current primary field key if exists, vice verse.
+     */
+    private function  __default_condition() {
+        $primary_field = $this->DBDriver->primary;
+        if(!empty($primary_field)) {
+            $this->conditions[$primary_field] =  $this->members[$primary_field]['value'];
         }
     }
 }
