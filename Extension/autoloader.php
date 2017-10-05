@@ -37,7 +37,7 @@ class autoloader {
         }
     }
 
-    private function load($class) {
+    private function loadExt($class) {
         $ext_path = APP_ROOT;
         $class = str_replace('\\','/',$class);
        if (stripos($class,"Extension") !== false && file_exists($ext_path.'/'.$class.'.php')) {
