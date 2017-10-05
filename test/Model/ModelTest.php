@@ -5,8 +5,8 @@ use UnitTest\ExtTestCase;
 use Extension\Model;
 use Extension\DBExtension;
 use Model\ProductModel;
-use Extension\DBDriver;
 
+error_reporting(E_ALL);
 /**
  * Unit Test for base Model test
  */
@@ -54,29 +54,7 @@ class ModelTest extends ExtTestCase{
         $this->assertEquals($members['name']['property'],Model::REQUIRED);
     }
 
-    /***
-     *
-     * get() method can get member which be set by either set() method or __set() magic method
-     */
-    public function testMemberGetPropertyForGetMethod() {
-        $this->model->set('name','bianjianhuang');
-        $this->model->title = 'Grape Wine';
-        $name =$this->model->get('name');
-        $title = $this->model->get('title');
-        $this->assertNotEmpty($name);
-        $this->assertEquals($name,'bianjianhuang');
-        $this->assertNotEmpty($title);
-        $this->assertEquals($title,'Grape Wine');
-    }
-
-    /**
-     * get()  method retrun empty string when the member don't exist
-     */
-    public function testEmptyGetMethodForPropertyNoExist(){
-        $member =$this->model->get('name');
-        $this->assertEmpty($member);
-    }
-    /**
+   /**
      *
      * member can be set by __set() magic function 
      */
@@ -193,15 +171,8 @@ class ModelTest extends ExtTestCase{
     }
     public function testUpdateMethodSuccessfully() {
         $model = $this->model->fromArray($this->product_details);
-        $model->linkTable('wine_info');
-        $model->linkFields(array(
-            'id'=>'out_product_id',
-            'name'=>'name_ch',
-            'pro_price'=>'current_price',
-            'url'=>'product_url',
-            'price'=>'market_price',
-        ));
-        var_dump($model->update());
+        $model->table('wine_info');
+        $model->fields(['id'=>'out_product_id','name'=>'name_ch','pro_price'=>'current_price','url'=>'product_url','price'=>'market_price']);
         $this->assertNotFalse($model->update());
     }
 }
