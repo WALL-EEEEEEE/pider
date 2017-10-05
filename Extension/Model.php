@@ -3,7 +3,6 @@
  *  This class is a model extension for phpspider with a convenient way manipulate database.
  */
 namespace Extension;
-use Extension\DBExtension;
 
 class Model {
     const REQUIRED = 1;
@@ -31,7 +30,6 @@ class Model {
     private $id = 'id';
 
     public function __construct(){
-        var_dump('mode ...');
         $this->DBDriver = new DBExtension();
         $this->_members();
     }
@@ -99,8 +97,13 @@ class Model {
        foreach($this->mapping_fields as $name => $field) {
            $update_datas[$field]= $this->members[$name]['value'];
        }
-       var_dump($update_datas);
-       return  $this->DBDriver->update($this->mapping_table, $update_datas,$condtions);
+       $conditions = array(); 
+        if (!empty($this->conditions)) {
+            foreach($this->conditions as $name => $value) {
+                $conditions[] = $name.'="'.$value.'"';
+            }
+        }
+       return  $this->DBDriver::update($this->mapping_table, $update_datas,$conditions);
     }
 
    /**
@@ -109,12 +112,31 @@ class Model {
      */
     public function add() {
         $this->__assure();
-        return $this->DBDriver->add($this->mapping_table,$this->mapping_fields);
+        $add_datas = array();
+        foreach($this->mapping_fields as $name => $field) {
+           $add_datas[$field]= $this->members[$name]['value'];
+       }
+       return $this->DBDriver::insert($this->mapping_table,$add_datas);
     }
 
     public function delete() {
         $this->__assure();
+        $conditions = array(); 
+        if (!empty($this->conditions)) {
+            foreach($this->conditions as $name => $value) {
+                $conditions[] = $name.'="'.$value.'"';
+            }
+        }
         return $this->DBDriver->delete($this->mapping_table,$conditions);
+    }
+
+    /**
+     *
+     * Get all records matches current conditions 
+     */
+    public function get() {
+        $this->__assure();
+        return $this->DBDriver->get($this->mapping_table,$this->conditions);
     }
 
     private function member_exist($name){
@@ -232,12 +254,11 @@ class Model {
             }
         }
     }
-
     /**
      * Genertate the default condition, default conditions is the current primary field key if exists, vice verse.
      */
     private function  __default_condition() {
-        $primary_field = $this->DBDriver->primary;
+        $primary_field = $this->DBDriver->GetPrimary();
         if(!empty($primary_field)) {
             $this->conditions[$primary_field] =  $this->members[$primary_field]['value'];
         }

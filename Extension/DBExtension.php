@@ -15,6 +15,8 @@ class DBExtension extends db implements DBDriver {
     //Current tablename
     protected $table = '';
     protected $primary = '';
+    protected $conditions = '';
+
    /**
      * default database is $GLOBALS['config']['db']
      * @param $dbname
@@ -69,6 +71,67 @@ class DBExtension extends db implements DBDriver {
     public function table($tablename) {
         $this->table = $tablename;
     }
+
+    /**
+     *
+     * Get current table's primary key field
+     *
+     */
+    public function GetPrimary() {
+        if (empty($this->primary)) {
+            $this->__fields();
+        } 
+        if (!empty($this->primary)) {
+            return $this->primary;
+        }
+        return false;
+    }
+
+    /**
+     *
+     * Get current table's fields
+     * 
+     */
+    public function GetFields() {
+        if (empty($this->cached_fields)) {
+            $this->__fileds();
+        }
+        if (!empty($this->cached_fields)) {
+            return $this->cached_fields;
+        }
+        return false;
+    }
+
+    /**
+     * Get all the records in database matches current conditions
+     * */
+    public function get() {
+        $this->Assuretable();
+        $where = '';
+        if (!empty($conditions)) {
+            foreach($conditions as $name => $value) {
+                $where .=" And ".$name.'="'.$value.'"';
+            }
+        }
+        $sql = 'select * from '.$this->table.$where;
+        return  $this->get_all($sql);
+    }
+
+    
+    /**
+    public static function update($data, $where) {
+        $this->Assuretable();
+        $where = '';
+        if (!empty($conditions)) {
+            foreach($conditions as $name => $value) {
+                $where.= "And ".$name.'="'.$value.'"';
+            }
+        }
+        parent::update(self::$table,$data,$where);
+    }
+    **/
+     
+
     /**
      * This function is used to check if tables  exist in database,default to assure the current table stored in $this->table's existence.
      * throw an ErrorException if table not exists
@@ -124,7 +187,6 @@ class DBExtension extends db implements DBDriver {
             throw new \ErrorException('Error: No Such Field In Table '.$this->table.'!');
         }
     }
-
 
     /**
      * This function is used to check if fields exist in database
@@ -208,7 +270,7 @@ class DBExtension extends db implements DBDriver {
     *  @function __primary() detect a field if is a primary field, if it is, save it to $this->primary
     */
     private function __primary($field) {
-       if (!empty($fields['Key']) && empty($fields['Key'] == 'PRI')) {
+       if (!empty($field['Key']) && $field['Key'] == 'PRI') {
            $this->primary = $field['Field'];
        }
     }
