@@ -32,27 +32,27 @@ class autoloader {
         $module_path = APP_ROOT;
         set_include_path(get_include_path().PATH_SEPARATOR.$module_path);
         $class = str_replace('\\','/',$class);
-        @include_once($module_path.'/'.$class.'.php');
+        include_once($module_path.'/'.$class.'.php');
     }
 
-    private function loadExt($class) {
+    private function load($class) {
         $ext_path = APP_ROOT;
         set_include_path(get_include_path().PATH_SEPARATOR.$ext_path);
         $class = str_replace('\\','/',$class);
-        @include_once($ext_path.'/'.$class.'.php');
+        include_once($ext_path.'/'.$class.'.php');
     }
     private function loadModel($class) {
         $model_path = APP_ROOT;
         set_include_path(get_include_path().PATH_SEPARATOR.$model_path);
         $class = str_replace('\\','/',$class);
-        @include_once($model_path.'/'.$class.'.php');
+        include_once($model_path.'/'.$class.'.php');
 
     }
     private function loadUtil($class) {
         $util_path = APP_ROOT;
         set_include_path(get_include_path().PATH_SEPARATOR.$util_path);
         $class = str_replace('\\','/',$class);
-        @include_once($util_path.'/'.$class.'.php');
+        include_once($util_path.'/'.$class.'.php');
 
 
     }
@@ -60,7 +60,7 @@ class autoloader {
         $controller_path = APP_ROOT;
         set_include_path(get_include_path().PATH_SEPARATOR.$controller_path);
         $class = str_replace('\\','/',$class);
-        @include_once($controller_path.'/'.$class.'.php');
+        include_once($controller_path.'/'.$class.'.php');
     }
     private function loadCore($class) {
         $core_path = APP_ROOT.'/phpspider/core/';
