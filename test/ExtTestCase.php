@@ -7,7 +7,6 @@ namespace UnitTest;
  * Date: 2017/9/13
  * Time: 15:46
  */
-
 abstract class ExtTestCase extends \PHPUnit\Framework\TestCase
 {
     protected static $ObjectCached =  null;

@@ -3,10 +3,9 @@ namespace UnitTest\Model;
 include_once("../ExtTestCase.php");
 use UnitTest\ExtTestCase;
 use Extension\Model;
-use Extension\DBExtension;
 use Model\ProductModel;
+use Extension\DBExtension;
 
-error_reporting(E_ALL);
 /**
  * Unit Test for base Model test
  */
@@ -25,6 +24,7 @@ class ModelTest extends ExtTestCase{
         $this->website_id = 1;
         $this->product_details = $product_details[$this->product_id];
         $this->model = new Model();
+        
     }
 
     /**
@@ -174,5 +174,12 @@ class ModelTest extends ExtTestCase{
         $model->table('wine_info');
         $model->fields(['id'=>'out_product_id','name'=>'name_ch','pro_price'=>'current_price','url'=>'product_url','price'=>'market_price']);
         $this->assertNotFalse($model->update());
+    }
+
+    public function testAddmethodSuccessfully() {
+        $model = $this->model->fromArray($this->product_details);
+        $model->table('wine_info');
+        $model->fields(['id'=>'out_product_id','name'=>'name_ch','pro_price'=>'current_price','url'=>'product_url','price'=>'market_price']);
+        $this->assertNotFalse($model->add());
     }
 }

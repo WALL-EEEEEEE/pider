@@ -304,6 +304,7 @@ class db
             $values_sql .= "\"$v\",";
         }
         $sql = "Insert Ignore Into `{$table}` (" . substr($items_sql, 0, -1) . ") Values (" . substr($values_sql, 0, -1) . ")";
+        var_dump($sql);
         if ($return_sql)
         {
             return $sql;
@@ -454,7 +455,6 @@ class db
         }
         $where = empty($where) ? "" : " Where " . implode(" And ", $where);
         $sql = substr($sql, 0, -1) . $where;
-        var_dump($sql);
         if ($return_sql) 
         {
             return $sql;
