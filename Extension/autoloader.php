@@ -32,7 +32,7 @@ class autoloader {
     private function loadModule($class) {
         $module_path = APP_ROOT;
         $class = str_replace('\\','/',$class);
-        if (stripos($class,"Module") !== false && file_exists($module_path.'/'.$class.'.php')) {
+       if (stripos($class,"Module") !== false && file_exists($module_path.'/'.$class.'.php')) {
             include_once($module_path.'/'.$class.'.php');
         }
     }
@@ -40,7 +40,7 @@ class autoloader {
     private function loadExt($class) {
         $ext_path = APP_ROOT;
         $class = str_replace('\\','/',$class);
-        if (stripos($class,"Extension") !== false && file_exists($ext_path.'/'.$class.'.php')) {
+       if (stripos($class,"Extension") !== false && file_exists($ext_path.'/'.$class.'.php')) {
             include_once($ext_path.'/'.$class.'.php');
         }
     }
