@@ -173,7 +173,7 @@ class DBExtension extends db implements DBDriver {
      *This function is used to check if fields exist in database
      * throw a ErrorException if not exists
      */
-    public function Assurefield($field) {
+    public function Assurefields($field) {
         if (empty($this->table)) {
             throw new \ErrorException('Error: Assured filed\'s table is not specified');
         }
