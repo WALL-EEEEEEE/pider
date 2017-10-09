@@ -1,2 +1,2 @@
 # piders
-A elegant , powerful , modulized spider framework.
+An elegant , powerful , modulized spider framework.
