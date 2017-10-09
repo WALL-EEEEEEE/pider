@@ -4,29 +4,8 @@ namespace Model ;
 use Extension\Model;
 
 class ProductModel extends Model {
-    private $product_id = -1;
-    private $website_id = -1;
-
-    //define essential properties for product
-    private $url = array(
-        'value'=>'',
-        'required'=>true,
-    );
-    private $name = array(
-        'value'=>'',
-        'required'=>true,
-    );
-    private $price = array(
-        'value'=>'',
-        'required'=>true,
-    );
-
-    public function __construct($product_id,$website_id)
-    {
-        parent::__construct();
-        $this->product_id = empty($product_id) ? -1:$product_id;
-        $this->website_id = empty($product_id) ? -1:$website_id;
-    }
+    private $product_id;
+    private $website_id;
 
     /**
      *

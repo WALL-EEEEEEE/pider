@@ -29,9 +29,9 @@ class Model {
      */
     private $id = 'id';
 
-    public function __construct(){
+    public final  function __construct(...$members){
         $this->DBDriver = new DBExtension();
-        $this->_members();
+        $this->_members($members);
     }
     public function __set($name,$value){
         $this->set($name,$value);
@@ -188,15 +188,23 @@ class Model {
     }
 
     //Collecting members of submodel
-    private function _members() {
+    private function _members($members) {
         $refcls = new \ReflectionClass(static::class);
         if (static::class != self::class) {
+            $property_step = 0;
             $refprops= $refcls->getDefaultProperties();
             if (!empty($refprops)) {
                 foreach($refprops as $name => $value) {
                     $this->members[$name]['name'] = $name ;
+                    $prop = $refcls->getProperty($name);
+                    $prop->setAccessible(true);
+                    if (isset($members[$property_step])) {
+                        $prop->setValue($this,$members[$property_step]);
+                    }
+                    $value = $prop->getValue($this);
                     $this->members[$name]['value'] = $value;
                     $this->members[$name]['property'] = self::REQUIRED;
+                    $property_step++;
                 }
             }
         }
@@ -219,7 +227,7 @@ class Model {
     private function __assure_fields() {
         foreach($this->mapping_fields as $name => $field) {
             if($this->members[$name]['property'] == self::REQUIRED ) {
-                $this->DBDriver->AssureFields($field);
+                $this->DBDriver->Assurefields($field);
             } else {
                 if (!$this->DBDriver->Existsfield($field)) {
                     unset($this->mapping_fields[$name]);

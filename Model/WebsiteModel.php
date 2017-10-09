@@ -5,10 +5,6 @@ use Extension\Model;
 class WebsiteModel  extends Model {
    private $website_id;
 
-   public function  __construct($website_id) {
-      $this->website_id = $website_id;
-   }
-
     /**
      * 获取网站的产品url列表
      * @return array|bool|mixed|void

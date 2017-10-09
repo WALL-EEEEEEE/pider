@@ -11,22 +11,9 @@ use Extension\Model;
  */
 class UrltagModel extends Model {
 
-    private $website_id = -1;
+    private $website_id;
 
-    public function __construct($website_id)
-    {
-        $this->website_id = $website_id;
-    }
-
-    /**@TODO avoid database changes  which will destory current logic.
-     * @var array
-     */
-    public static $mapping_types = array(
-        1=>"经营标签",
-        2=>"促销标签",
-        3=>"",
-        );
-    /**
+   /**
      *  Get all url tags's categories
      */
    public static function get_types() {
@@ -90,4 +77,24 @@ class UrltagModel extends Model {
        }
        return true;
    }
+
+   public function prune_by_website_id($website_id='') {
+       if (empty($website_id) && empty($this->website_id)) {
+           throw new \ErrorException('Error: Website id is not specified');
+       }
+       if (empty($website_id)) {
+           $website_id = $this->website_id;
+       }
+       $sql = "delete from url_tag  
+                   where  uid in (
+                    select * from (
+                       select url_tag.uid from url_tag,all_html where url_tag.ah_id = all_html.uid "." and website_id =".$website_id." ) as m)";  
+       $result = DBExtension::query($sql);
+       if (!$result) {
+           return false;
+       }
+       return true;
+
+   }
+
 }
