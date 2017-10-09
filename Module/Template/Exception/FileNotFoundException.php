@@ -1,7 +1,7 @@
 <?php
-namespace Exception;
+namespace Module\Template\Exception;
 
-class FileNotFoundException extends ErrorException{
+class FileNotFoundException extends \ErrorException{
     private $filename;
     public function __construct($filename,$message,$code) {
         $this->filename = $filename;
