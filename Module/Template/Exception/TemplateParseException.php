@@ -1,7 +1,7 @@
 <?php
-namespace Exception;
+namespace Module\Template\Exception;
 
-class TemplateParseException extends ErrorException {
+class TemplateParseException extends \ErrorException {
     private $template;
 
     public function __construct($template,$message,$code) {

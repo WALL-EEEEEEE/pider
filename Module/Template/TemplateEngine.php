@@ -1,7 +1,10 @@
 <?php
-namespace Extension\Template;
+namespace Module\Template;
 
 use Exception\FileNotFoundException;
+use Exception\TemplateParseException;
+use Module\Template\Parser\BaseParser as BaseParser;
+use Module\Template\Parser\StateParser as StateParser;
 /**
  * @trait TemplateEngine 
  * Parsing the spider template file .json
@@ -17,34 +20,45 @@ trait TemplateEngine {
     static $dir; 
     private $template;
     private $jsonObject; 
-    public function __construct($template) {
-        $this->EnsureTemplateExistence($template);
-        $this->Init();
-    }
+
     private function EnsureTemplateExistence($template) {
-        $location = $dir.'/'.$template;
+        $location = self::$dir.'/'.$template;
         if (!file_exists($location)){
             throw new FileNotFoundException($template,'Template file not found');
         }
-        $this->template = $template;
+        $this->template = $location;
     }
     private function Init() {
+        $this->EnsureTemplateExistence($this->template);
         $jsonstr = file_get_contents($this->template);
         if (empty($jsonstr)) {
-            throw new TemplateParseException($template,'Empty template file');
+            throw new TemplateParseException($this->template,'Empty template file');
         }
         $jsonObject = json_decode($jsonstr,true);
         if (is_null($jsonObject)) {
-            throw new TemplateParseException($template,"Invalid json syntax");
+            throw new TemplateParseException($this->template,"Invalid json syntax");
         }
         $this->jsonObject = $jsonObject;
     }
-    public function template(TemplateEngine $template) {
+    public function template($template) {
+        $this->template = $template;
+        $this->Init();
+        $this->parse();
         $object = new static();
         $object->url = $this->jsonObject['url'];
         $object->rules = $this->jsonObject['rules'];
         $object->export = $this->jsonObject['export'];
         return $object;
     }
-
+    protected function parse() {
+        $refcls = new ReflectionClass(static::class);
+        $traits = $refcls->getTraits();
+        if (!empty($traits)) {
+            foreach($traits as $name => $trait) {
+                $parse = $trait->getMethod('parse');
+                $parse->setAccessible(true);
+                $parse->invoke($name,$this->jsonObject);
+            }
+        }
+    }
 }
