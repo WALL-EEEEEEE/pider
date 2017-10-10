@@ -1,7 +1,7 @@
 <?php
 namespace UnitTest;
 
-class TestWork extends Threaded {
+class TestWork extends \Threaded {
     protected $complete;
     //$pData is the data sent to your workder thread to do it's job.
     public function __construct($pData) {
@@ -16,12 +16,12 @@ class TestWork extends Threaded {
         $this->complete = true;
     }
 
-    public function isGarbage(){
+    public function isGarbage(): bool {
         return $this->complete;
     }
 }
 
-class ExamplePool extends Pool {
+class ExamplePool extends \Pool {
 
     public $data = array();
     public function process() 
@@ -35,14 +35,31 @@ class ExamplePool extends Pool {
                 if ($task->isGarbage()) {
                     $tmpObj = new stdclass();
                     $tmpObj->complete = $task->complete;
-                    //this is how you get your completed data back to 
+                    //this is how you get your completed data back out [accessed by $pool->process()] 
+                    $this->data[] = $tmpObj;
                 }
+                return $task->isGarbage();
 
             });
 
+            //All jobs are done
+            //we can shutdown the pool
+            $this->shutdown();
+            return $this->data;
         }
     }
 }
 
+$pool = new ExamplePool(3);
+$testData = 'asdf';
+
+for($i=0; $i < 5; $i++) {
+    $pool->submit(new TestWork($testData));
+}
+
+$retArr = $pool->process(); //get all of the results
+echo '<pre>';
+print_r($retArr); //return the array of results (and maybe errors)
+echo '</pre>';
 
 
