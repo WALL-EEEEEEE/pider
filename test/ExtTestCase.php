@@ -95,8 +95,10 @@ abstract class ExtTestCase extends \PHPUnit\Framework\TestCase
                 break;
             }
         }
-        $refprop->setAccessible(true);
-        return $refprop->getValue($class);
+        if (!empty($refprop)) {
+            $refprop->setAccessible(true);
+            return $refprop->getValue($class);
+        }
     }
 
     protected function setProperty($class,$field,$value,$cached = false) {

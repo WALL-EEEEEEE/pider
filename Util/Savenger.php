@@ -1,5 +1,6 @@
 <?php
 namespace Util;
+use Util\Exception\CollectInConsistenceException;
 
 /**
  * @class Savenger 
@@ -7,7 +8,7 @@ namespace Util;
  */
 class Savenger {
     
-    private $garbage_factory = [];
+    private static $garbage_factory = [];
     private $obj;
     private $strict_type;
     private $garbage_type;
@@ -26,10 +27,20 @@ class Savenger {
            $return = $this->obj;
        }
        if ($this->classify($return)) {
-           array_push($this->garbage_factory,$obj);
+           array_push(self::$garbage_factory,$return);
        } else {
-           throw new \CollectInConsistentException("Data type is inconsisitence");
+           throw new CollectInConsistenceException("Data type is inconsisitence");
        }
+    }
+
+    public function recycle() {
+        if(!$this->empty()) {
+           return array_pop(self::$garbage_factory);
+        }
+    }
+
+    public function empty() {
+        return empty(self::$garbage_factory);
     }
     /**
      *@method strict
@@ -38,12 +49,13 @@ class Savenger {
     public function strict($type) {
         $this->strict_type = $type;
     }
+
     private function classify($garbage) {
         $this->garbage_type = isset($this->strict_type) && !isset($this->garbage_type) ? $this->scrict_type:null;
         if (!isset($this->garbage_type)){
             $this->garbage_type =  gettype($garbage);
         }
-        if ($garbage instanceof $this->garbage_type) {
+        if (gettype($garbage) == $this->garbage_type) {
             return true;
         }
         return false;
