@@ -2,13 +2,37 @@
     "name": "jd",
     "url": "www.jd.com",
     "type": "searchentry",
-    "product":[
-        "name": "//div[contains(@class,'ItemInfo-wrap')]/div[contains(@class,'sku-name')]/text()",
-        "price":"//div[contains(@class,'p-pirce')]/span/text()",
+    "searchentry":{
+       "entry":"https://search.jd.com/Search",
+       "totalpage":"//div[@id=\'J_topPage\']/span/i",
+       "keyword":"葡萄酒",
+       "keyword_param":"keyword",
+       "extra_param":"enc=utf-8"
+    },
+    "formater":{
+        "url":"/\/\/item\.jd\.com\/(\d+)\.html/i"
+
+    },
+    "elements":{
+        "name": {
+            "type":"html",
+            "xpath":"//div[contains(@class,'ItemInfo-wrap')]/div[contains(@class,'sku-name')]/text()"
+        },
+        "price":{
+           "type":"html",
+           "xpath":"//div[contains(@class,'p-pirce')]/span/text()"
+        },
+        "details":{
+           "type":"html",
+           "xpath":"//div[contains(@class,'detail')]"
+        },
         "tags":[
-            "//div[contains[@class,'news']]",
+            :{
+                "type":"html",
+                "xpath":"//div[contains[@class,'news']]"
+            },
             "//div[@id='summary_quan']/div/dl/dd/a/span/span[contains(@class,'text')]",
             "//div[@id='summary_promotion']/div[contains(@class,'J-prom-wrap')]/div[contains(@class,'p-promotions')]"
         ]
-    ]
+    }
 ]}
