@@ -18,19 +18,36 @@ class Savenger {
     }
 
     /**
-     * @method collect
+     * @method Collect datas  from callable functions
      * collect some collectable class or other type of datas
      */
-    public function collect(Callable $callable,$args = []) {
-       $return = call_user_func($callable,$args);
+    public function agency(Callable $callable,$args = []) {
+        if (!empty($args)) {
+            $return = call_user_func($callable,$this);
+        } else {
+            array_unshift($args,$this);
+            $return = call_user_func($callable,$args);
+        }
        if (is_bool($return)) {
            $return = $this->obj;
        }
        if ($this->classify($return)) {
            array_push(self::$garbage_factory,$return);
        } else {
-           throw new CollectInConsistenceException("Data type is inconsisitence");
+           throw new CollectInConsistenceException("Data type is inconsistence");
        }
+    }
+
+    /**
+     * @method collect 
+     * collect some collectable class or other type of datas
+     */
+    public function collect($collected) {
+        if ($this->classify($collected)) {
+            array_push(self::$garbage_factory,$return);
+        } else {
+            throw new CollectInConsistenceException("Data type is inconsistence");
+        }
     }
 
     public function recycle() {
