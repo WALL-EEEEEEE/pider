@@ -12,5 +12,3 @@ Util/Api.php
 .phpcomplete_extended
 composer.lock
 vendor
-!bin/scripts/
-!bin/scripts/env
