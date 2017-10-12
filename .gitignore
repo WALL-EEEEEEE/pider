@@ -12,6 +12,6 @@ Util/Api.php
 composer.lock
 vendor
 bin/*
-!bin/script
-bin/script/*
-!bin/script/env
+!bin/scripts
+bin/scripts/*
+!bin/scripts/env
