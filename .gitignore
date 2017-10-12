@@ -6,9 +6,12 @@ phpspider/*.sql
 phpspider/*.md
 assets
 cache
-bin
 tags
 Util/Api.php
 .phpcomplete_extended
 composer.lock
 vendor
+bin/*
+!bin/script
+bin/script/*
+!bin/script/env
