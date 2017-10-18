@@ -10,7 +10,7 @@ class Controller{
 
     //The Model hold by Controller class,to make the accessing database operation more smoothly;
     protected static $model = null;
-    public final function  __construct()
+    public function  __construct()
     {
         self::model();
     }
