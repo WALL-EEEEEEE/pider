@@ -19,12 +19,12 @@ for($i = 1; $i<= $task; $i++) {
         //store child process data into specific memory
         $child_data  = array('pid'=>$current_pid,"data"=>[rand(),'hello']);
         $child_key = ftok(__FILE__,chr($current_pid));
-//        if (strlen($child_key) < 6) {
-//            $child_key*=1000;
-//            echo "-------------------------------";
-//        }
-//        echo "pid: $current_pid -> (ascii):".chr($current_pid)."\t";
-//        echo "child_key: (decimal) $child_key -> (hexadecimal)0x".dechex($child_key)."\n";
+        if (mb_strlen($child_key) <= 6) {
+            $child_key = str_pad($child_key,9,'0');
+            echo "-------------------------------";
+        }
+        echo "pid: $current_pid -> (ascii):".chr($current_pid)."\t";
+        echo "child_key: (decimal) $child_key -> (hexadecimal)0x".dechex($child_key)."\n";
         $size = 1024*1024; 
         $child_shm = shmop_open($child_key,'c',0644,$size);
         shmop_write($child_shm,serialize($child_data),0);
@@ -40,11 +40,9 @@ while(pcntl_waitpid(-1,$status) > 0);
 foreach($process_pool as $pid => $pid_info) {
     $tmp_key = ftok(__FILE__,chr($pid));
     $size= 1024*1024;;
-    /*
-    if (strlen($tmp_key) < 6 ) {
-        $tmp_key*=1000;
+    if (mb_strlen($tmp_key) <= 6 ) {
+        $tmp_key = str_pad($tmp_key,9,"0");
     }
-     */
     $tmp_shm  = shmop_open($tmp_key,'a',0644,$size);
     $org_data = shmop_read($tmp_shm,0,$size);
     $child_data = @unserialize($org_data);
