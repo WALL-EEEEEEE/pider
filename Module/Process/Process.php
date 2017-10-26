@@ -1,17 +1,11 @@
 <?php
 namespace Module\Process;;
 
-class ProcessPool {
-
-   private $process_pool = array();
-
-   public function add(){
-   }
-   public function write(){
-
-   }
-   public function read(){
-
-   }
+/**
+ * @class Process
+ * This function is a simple wrapper of pcntl_fork for PHP multi-process supportant
+ */
+class Process {
+    public function __construct(){
+    }
 }
-
