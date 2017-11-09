@@ -74,6 +74,7 @@ class Model {
      * It's recognized
      */
     public function fromArray($array) {
+    
         if (!is_array($array)) {
             throw new \ErrorException("Argument Error: The 1st Argument must be an array");
         }
@@ -195,16 +196,20 @@ class Model {
             $refprops= $refcls->getDefaultProperties();
             if (!empty($refprops)) {
                 foreach($refprops as $name => $value) {
-                    $this->members[$name]['name'] = $name ;
                     $prop = $refcls->getProperty($name);
-                    $prop->setAccessible(true);
-                    if (isset($members[$property_step])) {
-                        $prop->setValue($this,$members[$property_step]);
+                    $annotation = $prop->getDocComment();
+                    if (!empty($annotaion) && strstr($annotation,"@field")) {
+                        $this->members[$name]['name'] = $name ;
+                        $prop->setAccessible(true);
+                        if (isset($members[$property_step])) {
+                            $prop->setValue($this,$members[$property_step]);
+                        }
+                        $value = $prop->getValue($this);
+                        $this->members[$name]['value'] = $value;
+                        $this->members[$name]['property'] = self::REQUIRED;
                     }
-                    $value = $prop->getValue($this);
-                    $this->members[$name]['value'] = $value;
-                    $this->members[$name]['property'] = self::REQUIRED;
                     $property_step++;
+
                 }
             }
         }
