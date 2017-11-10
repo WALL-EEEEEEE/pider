@@ -1,3 +1,7 @@
 <?php
 
+class Event {
+
+}
+
 
