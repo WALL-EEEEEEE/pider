@@ -11,7 +11,10 @@ use Extension\Model;
  */
 class UrltagModel extends Model {
 
-    private $website_id;
+   /**
+    * @field
+    */
+   private $website_id;
 
    /**
      *  Get all url tags's categories
@@ -88,13 +91,28 @@ class UrltagModel extends Model {
        $sql = "delete from url_tag  
                    where  uid in (
                     select * from (
-                       select url_tag.uid from url_tag,all_html where url_tag.ah_id = all_html.uid "." and website_id =".$website_id." ) as m)";  
+                       select url_tag.uid from url_tag,all_html where url_tag.ah_id = all_html.uid "." and website_id =".$website_id."and ctime <".date('Y-m-d').") as m)";  
        $result = DBExtension::query($sql);
        if (!$result) {
            return false;
        }
        return true;
+   }
 
+   public function get_by_website_id($website_id='') {
+
+       if (empty($website_id) && empty($this->website_id)) {
+           throw new \ErrorException('Error: Website id is not specified');
+       }
+       if (empty($website_id)) {
+           $website_id = $this->website_id;
+       }
+       $sql = "select tag_desc as tag_name,ah_id as all_html_id from url_tag,all_html where url_tag.ah_id = all_html.uid and website_id = ".$website_id;  
+       $result = DBExtension::query($sql);
+       if (!$result) {
+           return false;
+       }
+       return $result;
    }
 
 }
