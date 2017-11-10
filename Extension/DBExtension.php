@@ -184,7 +184,7 @@ class DBExtension extends db implements DBDriver {
             $this->__fields();
         }
         if (!array_key_exists($field,$this->cached_fields) ) {
-            throw new \ErrorException('Error: No Such Field In Table '.$this->table.'!');
+            throw new \ErrorException('Field Error: '.$field.' No Such Field In Table '.$this->table.'!');
         }
     }
 
