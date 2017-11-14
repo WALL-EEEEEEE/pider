@@ -1,4 +1,5 @@
 <?php
+namespace Module\Process;
 
 /**
  * @class Processd 
@@ -6,8 +7,9 @@
  * Manage several processes as a process manager
  *
  */
+use Module\Schedule;
 
-class Processd {
+class Processd  implements Schedule{
     /**
      * @member  $process_pool 
      * Hold all the processes

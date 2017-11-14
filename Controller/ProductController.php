@@ -51,27 +51,19 @@ class ProductController extends Controller{
         if ($this->if_validate) {
             $url = $this->validate_url($url);
         }
-        \requests::set_useragents(
-            array(
-                'Mozilla/5.0 (Windows; U; Windows NT 5.2) Gecko/2008070208 Firefox/3.0.1',
-                'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; Trident/4.0)',
-                'Mozilla/5.0 (Windows; U; Windows NT 5.2) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.2.149.27 Safari/525.13',
-                'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.12) Gecko/20080219 Firefox/2.0.0.12 Navigator/9.0.0.6',
-                'Mozilla/5.0 (Windows; U; Windows NT 5.2) AppleWebKit/525.13 (KHTML, like Gecko) Version/3.1 Safari/525.13',
-                'Mozilla/5.0 (iPhone; U; CPU like Mac OS X) AppleWebKit/420.1 (KHTML, like Gecko) Version/3.0 Mobile/4A93 Safari/419.3',
-                'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0)',
-                'Mozilla/5.0 (Macintosh; PPC Mac OS X; U; en) Opera 8.0',)
-        );
-        $proxy_ip = api::getIp();
-        if ($proxy_ip) {
-            \requests::set_proxies(
-                array("http"=>$proxy_ip,
-                    "https"=>$proxy_ip
-                ));
-        } else {
-            printf("%s\n","Error: A unexpected error occurred when get the proxy ip");
+        Api::proxy_wrapper(function() use ($url,&$html_content){
+            $html_content = \requests::get($url);
+        });
+        $max_try = 10;
+        $time_try = 1;
+        while(empty($html_content) && $time_try < $max_try) {
+            Api::proxy_wrapper(function() use ($url, &$html_content) {
+                $html_content = \requests::get($url);
+            });
+            printf("Failed to get the html content, retry ".$time_try."/".$max_try."\n");
+            $time_try++;
         }
-        $html_content = \requests::get($url);
+
         if (!empty($html_content)) {
             $data['uid'] = spawn_guid();
             $data['ctime'] =  date("Y-m-d h:i:s");
@@ -79,11 +71,24 @@ class ProductController extends Controller{
             $data['sku_id'] = $this->product_id ;
             $data['website_id'] = $this->website_id;
             $data['runtime'] = date("Y-m-d h:i:s");
-            $header = http::get_http_header($url);
+            Api::proxy_wrapper(function() use($url,&$header) {
+                $header = http::get_http_header($url);
+            });
+            $max_try = 10;
+            $time_try = 1;
+            while(!$header && $time_try < $max_try) {
+                Api::proxy_wrapper(function() use ($url, &$html_content) {
+                    $header = http::get_http_header($url);
+                });
+                printf("Failed to get the html content, retry ".$time_try."/".$max_try."\n");
+                $time_try++;
+            }
             if ($header) {
                 $data['modify_date'] = @$header['last_modfied'];
                 $data['content_length'] = @$header['content_length'];
                 $data['etag'] = @$header['etag'];
+            } else {
+                printf("Failed to get header for url:%s\n",$url);
             }
             //update the data in database
             $result = \db::insert('all_html',$data);
@@ -99,10 +104,11 @@ class ProductController extends Controller{
                 return $data['uid'];
             }
             return false;
-
         } else {
+            printf("Failed to get html content for url:%s\n",$url);
             return false;
         }
+
     }
 
     //update html for product
@@ -120,35 +126,38 @@ class ProductController extends Controller{
         if ($this->if_validate) {
             $url = $this->validate_url($url);
         }
-        \requests::set_useragents(
-            array(
-                'Mozilla/5.0 (Windows; U; Windows NT 5.2) Gecko/2008070208 Firefox/3.0.1',
-                'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; Trident/4.0)',
-                'Mozilla/5.0 (Windows; U; Windows NT 5.2) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.2.149.27 Safari/525.13',
-                'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.12) Gecko/20080219 Firefox/2.0.0.12 Navigator/9.0.0.6',
-                'Mozilla/5.0 (Windows; U; Windows NT 5.2) AppleWebKit/525.13 (KHTML, like Gecko) Version/3.1 Safari/525.13',
-                'Mozilla/5.0 (iPhone; U; CPU like Mac OS X) AppleWebKit/420.1 (KHTML, like Gecko) Version/3.0 Mobile/4A93 Safari/419.3',
-                'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0)',
-                'Mozilla/5.0 (Macintosh; PPC Mac OS X; U; en) Opera 8.0',)
-        );
-        $proxy_ip = api::getIp();
-        if ($proxy_ip) {
-            \requests::set_proxies(
-                array("http"=>$proxy_ip,
-                    "https"=>$proxy_ip
-                ));
-        } else {
-            printf("%s\n","Error: A unexpected error occurred when get the proxy ip");
+        Api::proxy_wrapper(function() use ($url,&$html_content) {
+            $html_content = \requests::get($url);
+        });
+
+        $max_try = 10;
+        $try_time = 1;
+        while(empty($html_content) && $try_time < $max_try ) {
+            Api::proxy_wrapper(function() use ($url,&$html_content) {
+                $html_content = \requests::get($url);
+            });
+            printf("Failed to get the html content, retry ".$time_try."/".$max_try.'\n');
+            $time_try++;
         }
-        $html_content = \requests::get($url);
         if (!empty($html_content)) {
-            $data['url'] = $url;
-            $data['runtime'] = date("Y-m-d h:i:s");
-            $header = http::get_http_header($url,'GET',3);
+            Api::proxy_wrapper(function() use($url,&$header) {
+                $header = http::get_http_header($url);
+            });
+            $max_try = 10;
+            $time_try = 1;
+            while(!$header && $time_try < $max_try) {
+                Api::proxy_wrapper(function() use ($url, &$html_content) {
+                    $header = http::get_http_header($url);
+                });
+                printf("Failed to get the html content, retry ".$time_try."/".$max_try.'\n');
+                $time_try++;
+            }
             if ($header) {
                 $data['modify_date'] = @$header['last_modfied'];
                 $data['content_length'] = @$header['content_length'];
                 $data['etag'] = @$header['etag'];
+            } else {
+                printf("Failed to get header for url:%s \n",$url);
             }
             //update the data in database
             $result = \db::update('all_html',$data,"website_id=$this->website_id and product_id = '".$this->product_id."'");
@@ -165,8 +174,8 @@ class ProductController extends Controller{
                 return $all_html_id;
             }
             return true;
-
         } else {
+            printf("Failed to get html content for url:%s\n",$url);
             return false;
         }
     }

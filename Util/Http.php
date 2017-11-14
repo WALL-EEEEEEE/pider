@@ -60,7 +60,7 @@ class Http extends \requests {
         if (!curl_errno($chandler)) {
             $cinfo  = curl_getinfo($chandler);
             if (empty($cinfo)) {
-                \log::error("A error occurred in get $url's http header!");
+                printf("Can't get %s's header\n",$url);
                 return false;
             }
             $header['http_code'] = !empty($cinfo['http_code'])? trim($cinfo['http_code']):"";
@@ -88,7 +88,7 @@ class Http extends \requests {
             curl_close($chandler);
             return $header;
         } else {
-            \log::error("A error occurred in get $url's http header!");
+            printf("A error occurred in get %s's http header!\n",$url);
             return false;
         }
     }
