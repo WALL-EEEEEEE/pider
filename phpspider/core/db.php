@@ -41,7 +41,6 @@ class db
                 self::$links[self::$link_name]['fail']++;
                 $errmsg = 'Mysql Connect failed['.self::$links[self::$link_name]['fail'].']: ' . mysqli_connect_error();
                 echo util::colorize(date("H:i:s") . " {$errmsg}\n\n", 'fail');
-                log::add($errmsg, "Error");
                 // 连接失败5次，中断进程
                 if (self::$links[self::$link_name]['fail'] >= 5) 
                 {
@@ -191,18 +190,13 @@ class db
             if ($errno == 2013 || $errno == 2006) 
             {
                 $errmsg = mysqli_error(self::$links[self::$link_name]['conn']);
-                log::add($errmsg, "Error");
-
                 @mysqli_close(self::$links[self::$link_name]['conn']);
                 self::$links[self::$link_name]['conn'] = null;
                 return self::query($sql);
             }
 
             $errmsg = "Query SQL: ".$sql;
-            log::add($errmsg, "Warning");
             $errmsg = "Error SQL: ".mysqli_error(self::$links[self::$link_name]['conn']);
-            log::add($errmsg, "Warning");
-
             $backtrace = debug_backtrace();
             array_shift($backtrace);
             $narr = array('class', 'type', 'function', 'file', 'line');
@@ -221,8 +215,6 @@ class db
                 if($l['line']) $err .= " on line {$l['line']} ";
                 $err .= "\n";
             }
-            log::add($err);
-
             return false;
         }
         else
