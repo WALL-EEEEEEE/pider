@@ -69,8 +69,6 @@ class WebsiteController extends Controller
             $counter=0;
             $total=count($products_id);
             $pid_it = new \ArrayIterator($products_id);
-            $max_retry = 10;
-            $retry_time = 0;
             printf("%s\n","Syncing html $counter/$total");
             while($pid_it->valid()) {
                 $product_id = $pid_it->current();
@@ -89,14 +87,7 @@ class WebsiteController extends Controller
                     if ($status) {
                         $assoc_arrs[$product_id] = $all_html_uid;
                     } else {
-                        printf("%s\n","Syncing: Update html error! retrying ".$retry_time.'/'.$max_retry);
-                        if ($retry_time <= $max_retry) {
-                            $retry_time++;
-                        } else {
-                            $pid_it->next();
-                            $retry_time=0;
-                        }
-                        continue;
+                        printf("%s\n","Syncing: Update html for ".$product_id." error!");
                     }
                 } else {
                     //如果all_html表里没有商品的html，新增,并将标签关联html
@@ -104,14 +95,7 @@ class WebsiteController extends Controller
                     if ($status!== false) {
                         $assoc_arrs[$product_id]  = $status;
                     } else {
-                        printf("%s\n","Syncing: Add html error! retrying ".$retry_time.'/'.$max_retry);
-                        if ($retry_time <= $max_retry) {
-                            $retry_time++;
-                        } else {
-                            $pid_it->next();
-                            $retry_time= 0;
-                        }
-                        continue;
+                        printf("%s\n","Syncing: Add html for ".$product_id." error!");
                     }
                 }
                 $counter++;
