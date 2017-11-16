@@ -57,9 +57,9 @@ function detect_tag_type($tag_name) {
    
 }
 function prune_tags() {
-        $tag_model = new UrltagModel($GLOBALS['website']['id']);
+        $tag_model = new UrltagModel();
         printf("%s\n","Cleaning up the redisdual tag in database!");
-        $clean_flush_flag = $tag_model->prune_by_website_id();
+        $clean_flush_flag = $tag_model->prune_by_website_id($GLOBALS['website']['id']);
         if (!$clean_flush_flag ) {
             printf("%s\n","Error when delete the redsidual data from database!");
             return false;
@@ -76,7 +76,7 @@ function pouring_product_details($product_details) {
             $product_detail['uid']= spawn_guid();
             $product_detail['time'] = spawn_guid();
             $product->table('wine_info')
-                ->fields(['uid'=>'id','id'=>'out_product_id','product_id'=>'out_product_id','name'=>'name_ch','pro_price'=>'current_price','url'=>'product_url','price'=>'market_price'])
+                ->fields(['uid'=>'id','id'=>'out_product_id','name'=>'name_ch','pro_price'=>'current_price','url'=>'product_url','price'=>'market_price'])
                 ->fromArray($product_detail)
                 ->add();
         } else {
@@ -154,7 +154,7 @@ function get_price($product_id) {
         $result = requests::get($api_url);
     });
     $try_times = 0;
-    $max_retry = 10;
+    $max_retry = 3;
     while(empty($result) && $try_times < $max_retry ) {
         printf("%s\n","Collecting price from api ... failed, retry ".$try_times."/".$max_retry);
         Api::proxy_wrapper(function() use (&$result, $api_url){
@@ -178,7 +178,7 @@ function get_tags_from_api($product_id) {
         $result = requests::get($api_url);
     });
     $try_times = 0;
-    $max_retry = 10;
+    $max_retry = 3;
     while(empty($result) && $try_times < $max_retry ) {
         printf("%s\n","Collecting tags from api ... failed, retry ".$try_times."/".$max_retry);
         Api::proxy_wrapper(function() use (&$result, $api_url){
@@ -290,7 +290,7 @@ function get_actproduct_details($products) {
     }
     $count = 0;
     $product_it = new ArrayIterator($products);
-    $max_retry = 10;
+    $max_retry = 3;
     $retry_times = 0;
 
     printf("%s\n",'Collecting product details ... 0/'.count($products));
@@ -319,6 +319,8 @@ function get_actproduct_details($products) {
         $product_details = parse_details_html($product_details_html);
         //get the extra tags
         $tags  = get_tags_from_api($product['id']);
+        var_dump("The tags...");
+        var_dump($tags);
         if (!empty($tags) && !empty($product_details['tags'])) {
             $product_details['tags'] = array_merge($product_details['tags'],$tags);    
         } else if (!empty($tags) && empty($product_details['tags'])) {
@@ -398,9 +400,7 @@ function Jd_tag($urls){
     $products = retrieve_product_ids($product_ids);
     if (!empty($product_ids)) {
         printf("%s\n","Syncing html...");
-        Api::proxy_wrapper(function() use ($product_ids,$website,&$assoc_arrs){
-           $assoc_arrs = $website->sync_html($product_ids);
-        });
+        $assoc_arrs = $website->sync_html($product_ids);
         printf("%s\n","Syncing html... done");
         if ($assoc_arrs) {
             $counter = 0;
@@ -431,7 +431,7 @@ function Jd_tag($urls){
 }
 function  Jd_tags_full() {
     $time_start = time();
-    $task = 4;
+    $task = 8;
     $getExtras = function($searchentry)  {
         $current_page = $searchentry->get_current_page();
         if ($current_page != -1) {
@@ -461,16 +461,18 @@ function  Jd_tags_full() {
         }
         return 'https:'.$url;
     });
-   /**
+    $search_urls = array_slice($search_urls,0,1000);
+    /**
      $search_urls = array(
         'http://item.jd.com/16299250454.html',
         'http://item.jd.com/10124414717.html',
-        'http://item.jd.com/10189569472.html'
+        'http://item.jd.com/10189569472.html',
+        'http://item.jd.com/1304924.html'
     );
     **/
     //slice the url into $task pieces
     //
-    $gap = count($search_urls)/$task;
+    $gap = (int)round(count($search_urls)/$task);
     //create a share memory segment to store processs ids
     $process_pool = array();
     $process_pool_key = ftok(__FILE__,'0');
@@ -504,24 +506,23 @@ function  Jd_tags_full() {
         $tmpdata = @unserialize(shmop_read($tmpshm,0,1024*1024));
         if (!empty($tmpdata)) {
             $product_details= array_merge($product_details,$tmpdata);
-            echo "Spices: ".count($tmpdata)."\n";
         }
         shmop_delete($tmpshm);
         shmop_close($tmpshm);
     }
     echo "Total: ".count($product_details)."\n";
-//    var_dump($product_details);
+    var_dump($product_details);
     //Store the product details
-//    pouring_product_details($product_details);
+    pouring_product_details($product_details);
     //Store the product tags
-//    prune_tags();
-//    pouring_product_tags($product_details);
+    prune_tags();
+    pouring_product_tags($product_details);
     //delete the parent processes shared memory
     shmop_delete($process_pool_shm);
     shmop_close($process_pool_shm);
     $time_end = time();
     $time_elapse = $time_end-$time_start;
-    echo "Totoal time: ".($time_elapse/60/60)." hours";
+    echo "Totoal time: ".($time_elapse/60/60)." hours\n";
 }
 
 if (PHP_SAPI != 'cli') {

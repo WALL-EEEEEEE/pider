@@ -54,7 +54,7 @@ class ProductController extends Controller{
         Api::proxy_wrapper(function() use ($url,&$html_content){
             $html_content = \requests::get($url);
         });
-        $max_try = 10;
+        $max_try = 3;
         $time_try = 1;
         while(empty($html_content) && $time_try < $max_try) {
             Api::proxy_wrapper(function() use ($url, &$html_content) {
@@ -74,7 +74,7 @@ class ProductController extends Controller{
             Api::proxy_wrapper(function() use($url,&$header) {
                 $header = http::get_http_header($url);
             });
-            $max_try = 10;
+            $max_try = 3;
             $time_try = 1;
             while(!$header && $time_try < $max_try) {
                 Api::proxy_wrapper(function() use ($url, &$html_content) {
