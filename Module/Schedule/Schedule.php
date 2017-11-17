@@ -9,7 +9,7 @@ interface Schedule {
     /**
      * Add task to Schedule 
      */
-    public function add();
+    public function add($item);
     /**
      * Schedule tasks and Generate a priority task lists
      */
