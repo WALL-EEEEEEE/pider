@@ -198,18 +198,19 @@ class Model {
                 foreach($refprops as $name => $value) {
                     $prop = $refcls->getProperty($name);
                     $annotation = $prop->getDocComment();
+                    //allow submodule initiaze the members defined in class  in order
+                    $prop->setAccessible(true);
+                    if (isset($members[$property_step])) {
+                        $prop->setValue($this,$members[$property_step]);
+                    }
+                    //collect the members predefined in submodule
                     if (!empty($annotaion) && strstr($annotation,"@field")) {
                         $this->members[$name]['name'] = $name ;
-                        $prop->setAccessible(true);
-                        if (isset($members[$property_step])) {
-                            $prop->setValue($this,$members[$property_step]);
-                        }
                         $value = $prop->getValue($this);
                         $this->members[$name]['value'] = $value;
                         $this->members[$name]['property'] = self::REQUIRED;
-                    }
+                    } 
                     $property_step++;
-
                 }
             }
         }
