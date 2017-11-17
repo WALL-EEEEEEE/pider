@@ -1,0 +1,55 @@
+<?php
+namespace Util;
+use requests;
+
+class Api {
+
+    public static function getIp() {
+        \requests::$input_encoding='UTF-8';
+        \requests::$output_encoding='UTF-8';
+        $api_uri = "http://api.ip.data5u.com/dynamic/get.html?order=038087c1874c84a753c17e8bb687a456&sep=3";
+        $ip_regex = '/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+/i';
+        requests::set_proxies(
+            array("http"=>'',
+            "https"=>'')
+        );
+        $ip  = requests::get($api_uri);
+        if (preg_match($ip_regex,$ip)) {
+            return $ip;
+        }
+        return '';
+    }
+
+    public static function proxy_wrapper($callback) {
+    \requests::$input_encoding='GBK';
+    \requests::$output_encoding='UTF-8';
+    \requests::set_useragents(
+        array(
+            'Mozilla/5.0 (Windows; U; Windows NT 5.2) Gecko/2008070208 Firefox/3.0.1',
+            'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; Trident/4.0)',
+            'Mozilla/5.0 (Windows; U; Windows NT 5.2) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.2.149.27 Safari/525.13',
+            'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.12) Gecko/20080219 Firefox/2.0.0.12 Navigator/9.0.0.6',
+            'Mozilla/5.0 (Windows; U; Windows NT 5.2) AppleWebKit/525.13 (KHTML, like Gecko) Version/3.1 Safari/525.13',
+            'Mozilla/5.0 (iPhone; U; CPU like Mac OS X) AppleWebKit/420.1 (KHTML, like Gecko) Version/3.0 Mobile/4A93 Safari/419.3',
+            'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0)',
+            'Mozilla/5.0 (Macintosh; PPC Mac OS X; U; en) Opera 8.0',)
+        );
+
+    $proxy_ip = Api::getIp();
+    while(empty($proxy_ip)) {
+        sleep(1);
+        $proxy_ip = Api::getIp();
+    }
+    echo "IP:\n\t";
+    echo $proxy_ip."\n";
+    if ($proxy_ip) {
+        requests::set_proxies(
+            array("http"=>$proxy_ip,
+            "https"=>$proxy_ip
+        ));
+        $callback();
+    } else {
+        printf("%s\n","Error: A unexpected error occurred when get the proxy ip");
+    }
+}
+}
