@@ -1,7 +1,7 @@
 <?php
 namespace Util;
 
-use Util\Http;
+use requests;
 /**
  * Class api
  * This class is used to manage the api used by spider
@@ -41,10 +41,10 @@ class Api {
             )
 
         );
-        $proxy_ip = Api::getIpNew();
+        $proxy_ip = Api::getIp();
         while(empty($proxy_ip)){
             sleep(1);
-            $proxy_ip = Api::getIpNew();
+            $proxy_ip = Api::getIp();
         }
         if ($proxy_ip) {
             \requests::set_proxies(
