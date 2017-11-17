@@ -1,7 +1,8 @@
 <?php
 namespace Util;
 
-use Util\Http;
+use requests;
+
 /**
  * Class api
  * This class is used to manage the api used by spider
@@ -9,13 +10,13 @@ use Util\Http;
  */
 class Api {
 
-    /**
-     *  Get the proxy ips
-     * @param string $classify
-     * @return bool|string
-     */
-    public static  function getIp($classify="1")
-    {
+  /**
+    *  Get the proxy ips
+    * @param string $classify
+    * @return bool|string
+    */
+   public static  function getIp($classify="1")
+   {
         //请求数据API
         $api_url = "http://xdeng.9kacha.com/agent_ip/getIp.php";
         $arr = array();
@@ -37,11 +38,11 @@ class Api {
             $ip = "http://" . $result['data']['ip'];
             return $ip;
         }
-        return false;
+        return '';
     }
 
 
-    public static function get_standard_products_url($limited,$website) {
+   public static function get_standard_products_url($limited,$website) {
         $api_url = "https://9edit.9kacha.com/api/get_web_url.php";
         $count_jparams = 'jparams={"web_url":"'.$website.'","page_num":1,"limit":1,"atoken":"00f41bf3f58565fc44104b563dcbff10","time":"1486526649"}';
         $count_result = http::post($api_url,$count_jparams);
@@ -91,21 +92,6 @@ class Api {
         return $result;
     }
 
-    public static function getIpNew() {
-        \requests::$input_encoding = 'UTF-8';
-        \requests::$output_encoding = 'UTF-8';
-        $api_uri = "http://api.ip.data5u.com/dynamic/get.html?order=038087c1874c84a753c17e8bb687a456&sep=3";
-        $ip_regex = '/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+/i';
-        \requests::set_proxies( array("http"=>'',
-            "https"=>'')
-        );
-        $ip  = \requests::get($api_uri);
-        if (preg_match($ip_regex,$ip)) {
-            return $ip;
-        }
-        return '';
-    }
-
     public static function proxy_wrapper($callback) {
         \requests::$input_encoding='GBK';
         \requests::$output_encoding='UTF-8';
@@ -122,7 +108,7 @@ class Api {
             )
 
         );
-        $proxy_ip = Api::getIpNew();
+        $proxy_ip = Api::getIp();
         if ($proxy_ip) {
             \requests::set_proxies(
                 array("http"=>$proxy_ip,
@@ -133,5 +119,7 @@ class Api {
             printf("%s\n","Error: A unexcepted error occurred when get the proxy ip");
         }
     }
+
 }
+
 

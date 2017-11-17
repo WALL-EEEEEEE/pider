@@ -54,11 +54,12 @@ class ProductController extends Controller{
         Api::proxy_wrapper(function() use ($url,&$html_content){
             $html_content = \requests::get($url);
         });
-        $max_try = 10;
+        $max_try = 3;
         $time_try = 1;
         while(empty($html_content) && $time_try < $max_try) {
             Api::proxy_wrapper(function() use ($url, &$html_content) {
                 $html_content = \requests::get($url);
+
             });
             printf("Failed to get the html content, retry ".$time_try."/".$max_try."\n");
             $time_try++;
@@ -74,13 +75,13 @@ class ProductController extends Controller{
             Api::proxy_wrapper(function() use($url,&$header) {
                 $header = http::get_http_header($url);
             });
-            $max_try = 10;
+            $max_try = 3;
             $time_try = 1;
             while(!$header && $time_try < $max_try) {
                 Api::proxy_wrapper(function() use ($url, &$html_content) {
                     $header = http::get_http_header($url);
                 });
-                printf("Failed to get the html content, retry ".$time_try."/".$max_try."\n");
+                printf("Failed to get the html header, retry ".$time_try."/".$max_try."\n");
                 $time_try++;
             }
             if ($header) {
@@ -131,12 +132,12 @@ class ProductController extends Controller{
         });
 
         $max_try = 10;
-        $try_time = 1;
-        while(empty($html_content) && $try_time < $max_try ) {
+        $time_try = 1;
+        while(empty($html_content) && $time_try < $max_try ) {
             Api::proxy_wrapper(function() use ($url,&$html_content) {
                 $html_content = \requests::get($url);
             });
-            printf("Failed to get the html content, retry ".$time_try."/".$max_try.'\n');
+            printf("Failed to get the html content, retry ".$time_try."/".$max_try."\n");
             $time_try++;
         }
         if (!empty($html_content)) {
@@ -149,7 +150,7 @@ class ProductController extends Controller{
                 Api::proxy_wrapper(function() use ($url, &$html_content) {
                     $header = http::get_http_header($url);
                 });
-                printf("Failed to get the html content, retry ".$time_try."/".$max_try.'\n');
+                printf("Failed to get the html header, retry ".$time_try."/".$max_try."\n");
                 $time_try++;
             }
             if ($header) {
