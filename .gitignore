@@ -7,7 +7,6 @@ phpspider/*.md
 assets
 cache
 tags
-Util/Api.php
 .phpcomplete_extended
 composer.lock
 vendor
