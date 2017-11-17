@@ -9,18 +9,6 @@ use Util\Http;
  */
 class Api {
 
-    public static function getIpNew() {
-        \requests::$input_encoding = 'UTF-8';
-        \requests::$output_encoding = 'UTF-8';
-        $api_uri = "http://api.ip.data5u.com/dynamic/get.html?order=038087c1874c84a753c17e8bb687a456&sep=3";
-        $ip_regex = '/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+/i';
-        \requests::set_proxies( array("http"=>'',
-            "https"=>'')
-        );
-        $ip  = \requests::get($api_uri);
-    }
-
-
     public static function getIp() {
         \requests::$input_encoding='UTF-8';
         \requests::$output_encoding='UTF-8';
@@ -54,6 +42,10 @@ class Api {
 
         );
         $proxy_ip = Api::getIpNew();
+        while(empty($proxy_ip)){
+            sleep(1);
+            $proxy_ip = Api::getIpNew();
+        }
         if ($proxy_ip) {
             \requests::set_proxies(
                 array("http"=>$proxy_ip,
