@@ -1,5 +1,6 @@
 <?php
-namespace Module\Schedule;
+namespace Module\IpSchedule;
+use Module\Schedule\Schedule as Schedule;
 
 /**
  * @class IpSchedule 
@@ -43,8 +44,8 @@ class IpSchedule implements Schedule{
      */
     public function __construct(int $limit_count = 20, int $mode = 0 ) {
         $this->ippool_limit = $limit_count;
-        if ( $mode != self::MODE_BOUND || $mode != self::MODE_STANDALONE) {
-            throw new InvalideArgumentException("Unknown mode specified!");
+        if ( $mode != self::MODE_BOUND && $mode != self::MODE_STANDALONE) {
+            throw new \InvalidArgumentException("Unknown mode specified!");
         } else {
             $this->run_mode = $mode;
         }
@@ -64,16 +65,16 @@ class IpSchedule implements Schedule{
      * Add ip to be scheduled
      **/
     public function add($ips){
-        if (!is_array($ips) || is_string($ips)) {
-            throw new InvalideArgumentException("IpSchedule->add() only accept ips in string or array.");
+        if (!is_array($ips) &&  !is_string($ips)) {
+            throw new \InvalidArgumentException("IpSchedule->add() only accept ips in string or array.");
         }
         if (is_string($ips)) {
             $ips = [$ips];
         }
         $ips = array_values($ips);
         $candidate_ips = array_diff($ips,$this->ippool); 
-        $candidate_ips = ipFilter($candidate_ips);
-        if (!count($candidate_ips) > 0 && !count($candidate_ips) < $this->ippool_limit) {
+        $candidate_ips = $this->ipFilter($candidate_ips);
+        if (count($candidate_ips) > 0 && !(count($candidate_ips) > $this->ippool_limit)) {
             //strip the invalid ip
             $this->ippool = array_merge($this->ippool,$candidate_ips);
         }
@@ -121,10 +122,10 @@ class IpSchedule implements Schedule{
 
     public function pullIp() {
         while(count($this->ippool) < $this->ippool_limit) {
-            foreach($this->sources as $callback) {
-                $src_ips = $callback();
-                $this->add($src_ips);
-            }
+           foreach($this->sources as $callback) {
+               $src_ips = $callback();
+               $this->add($src_ips);
+           }
         }
     }
 
@@ -151,7 +152,7 @@ class IpSchedule implements Schedule{
      */
     private function ipFilter($ips) {
         $filterred_ips = [];
-        if (!is_array($ips) || is_string($ips)) {
+        if (!is_array($ips) &&  !is_string($ips)) {
             throw new InvalideArgumentException("IpSchedule->add() only accept ips in string or array.");
         }
         if (is_string($ips)) {
@@ -163,7 +164,7 @@ class IpSchedule implements Schedule{
                     $filterred_ips[] = $ip;
                 }
             }
-        } else {
+       } else {
             return [];
         }
         return $filterred_ips;
