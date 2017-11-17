@@ -20,7 +20,7 @@ class Api {
         );
         $ip  = requests::get($api_uri);
         if (preg_match($ip_regex,$ip)) {
-            return $ip;
+            return "http://".$ip;
         }
         return '';
     }
