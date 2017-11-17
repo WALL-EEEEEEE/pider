@@ -20,6 +20,7 @@ class Api {
         return '';
     }
 
+
     public static function proxy_wrapper($callback) {
     \requests::$input_encoding='GBK';
     \requests::$output_encoding='UTF-8';
@@ -36,12 +37,6 @@ class Api {
         );
 
     $proxy_ip = Api::getIp();
-    while(empty($proxy_ip)) {
-        sleep(1);
-        $proxy_ip = Api::getIp();
-    }
-    echo "IP:\n\t";
-    echo $proxy_ip."\n";
     if ($proxy_ip) {
         requests::set_proxies(
             array("http"=>$proxy_ip,
