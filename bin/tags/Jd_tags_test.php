@@ -10,7 +10,7 @@ use Controller\WebsiteController;
 use Model\ProductModel;
 use Util\Api;
 $GLOBALS['website']['id'] = 1;
-DBExtension::switch_db('phpspider');
+DBExtension::switch_db('jhbian_spider');
 function proxy_wrapper($callback) {
     \requests::$input_encoding='GBK';
     \requests::$output_encoding='UTF-8';
@@ -33,8 +33,7 @@ function proxy_wrapper($callback) {
         ));
         $callback();
     } else {
-    
-       printf("%s\n","Error: A unexpected error occurred when get the proxy ip");
+        printf("%s\n","Error: A unexpected error occurred when get the proxy ip");
     }
 }
 function detect_tag_type($tag_name) {
@@ -383,13 +382,13 @@ function get_actproduct_details($products) {
         } else if (!empty($tags) && empty($product_details['tags'])) {
             $product_details['tags'] = $tags_from_name;
         }
-        $tags_from_price = get_tags_from_price($product_details['price']);
+        $tags_from_price = !empty($prices['op'])?get_tags_from_price($prices['op']):"";
+
         if (!empty($tags_from_price) && !empty($product_details['tags'])) {
-            $product_details['tags'] = array_merge($product_details['tags'],$tags_from_price);        
+            $product_details['tags'] = array_merge($product_details['tags'],[$tags_from_price]);        
         } else if (!empty($tags) && empty($product_details['tags'])) {
             $product_details['tags'] = $tags_from_price;
         }
-
         $product['name'] = $product_details['name'];
         $product['price'] = $prices['op'];
         $product['pro_price'] = $prices['p'];
@@ -456,8 +455,7 @@ function  Jd_flash_tag() {
         'http://item.jd.com/10124414717.html',
         'http://item.jd.com/10189569472.html'
     );
-<<<<<<< HEAD
-     */
+    */
     $website = new WebsiteController($GLOBALS['website']['id']);
     $website->suffix_product_url('.html');
     $website->prefix_product_url('http://item.jd.com/');
@@ -469,6 +467,7 @@ function  Jd_flash_tag() {
                 }
                 return 'https:'.$url;
     });
+    $urls = array_slice($urls,0,100);
     $product_ids = $website->parse_product_id($urls,'/https?:\/\/item\.jd\.com\/(\d+)\.html/i');
     if (empty($product_ids)) {
         printf("%s\n","Error: Can't get product ids");
