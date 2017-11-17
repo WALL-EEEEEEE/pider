@@ -401,6 +401,9 @@ class requests
             curl_setopt( self::$ch, CURLOPT_CONNECTTIMEOUT, self::$timeout );
             curl_setopt( self::$ch, CURLOPT_HEADER, false );
             curl_setopt( self::$ch, CURLOPT_USERAGENT, "phpspider-requests/".self::VERSION );
+ //           curl_setopt( self::$ch, CURLOPT_VERBOSE, true );
+ //         curl_setopt( self::$ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
+            curl_setopt( self::$ch, CURLOPT_SSL_VERIFYPEER, false );
             curl_setopt( self::$ch, CURLOPT_TIMEOUT, self::$timeout + 5);
             // 在多线程处理场景下使用超时选项时，会忽略signals对应的处理函数，但是无耐的是还有小概率的crash情况发生
             curl_setopt( self::$ch, CURLOPT_NOSIGNAL, true);

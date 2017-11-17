@@ -75,6 +75,9 @@ function pouring_product_details($product_details) {
         if (!empty($product_detail)) {
             $product_detail['uid']= spawn_guid();
             $product_detail['time'] = spawn_guid();
+            if (!isset($product_detail['price']) && !isset($product_detail['name']) && !isset($product_detail['pro_price'])){
+                continue;
+            }
             $product->table('wine_info')
                 ->fields(['uid'=>'id','id'=>'out_product_id','name'=>'name_ch','pro_price'=>'current_price','url'=>'product_url','price'=>'market_price'])
                 ->fromArray($product_detail)
@@ -146,7 +149,7 @@ function get_coupon_tags ($api_content,&$tags) {
 }
 
 function get_price($product_id) {
-    $api_url = "https://p.3.cn/prices/mgets?type=1&skuIds=J_";
+    $api_url = "http://p.3.cn/prices/mgets?type=1&skuIds=J_";
     $api_url = $api_url.$product_id;
     $result = null;
     printf("%s\n","Collecting price from api ... ");
@@ -158,7 +161,7 @@ function get_price($product_id) {
     while(empty($result) && $try_times < $max_retry ) {
         printf("%s\n","Collecting price from api ... failed, retry ".$try_times."/".$max_retry);
         Api::proxy_wrapper(function() use (&$result, $api_url){
-        $result = requests::get($api_url);
+            $result = requests::get($api_url);
         });
         $try_times++;
     }
@@ -171,7 +174,7 @@ function get_price($product_id) {
 
 function get_tags_from_api($product_id) {
     $tags = array();
-    $api_url = "https://cd.jd.com/promotion/v2?skuId=".$product_id."&area=19_1607_3638_0&cat=12259%2C12260%2C9438";
+    $api_url = "http://cd.jd.com/promotion/v2?skuId=".$product_id."&area=19_1607_3638_0&cat=12259%2C12260%2C9438";
     $result = null;
     printf("%s\n","Collecting tags from api ... ");
     Api::proxy_wrapper(function() use (&$result, $api_url){
@@ -182,7 +185,7 @@ function get_tags_from_api($product_id) {
     while(empty($result) && $try_times < $max_retry ) {
         printf("%s\n","Collecting tags from api ... failed, retry ".$try_times."/".$max_retry);
         Api::proxy_wrapper(function() use (&$result, $api_url){
-        $result = requests::get($api_url);
+            $result = requests::get($api_url);
         });
         $try_times++;
     }
@@ -307,9 +310,6 @@ function get_actproduct_details($products) {
                 $product_it->next();
                 $retry_times = 0;
             }  else {
-                Api::proxy_wrapper(function() use(&$product_details_html,$url){
-                    $product_details_html = \requests::get($url);
-                });
                 $retry_times++;
             }
             $failed_produts[] = $products;
@@ -319,8 +319,6 @@ function get_actproduct_details($products) {
         $product_details = parse_details_html($product_details_html);
         //get the extra tags
         $tags  = get_tags_from_api($product['id']);
-        var_dump("The tags...");
-        var_dump($tags);
         if (!empty($tags) && !empty($product_details['tags'])) {
             $product_details['tags'] = array_merge($product_details['tags'],$tags);    
         } else if (!empty($tags) && empty($product_details['tags'])) {
@@ -461,7 +459,7 @@ function  Jd_tags_full() {
         }
         return 'https:'.$url;
     });
-    $search_urls = array_slice($search_urls,0,1000);
+    $search_urls = array_slice($search_urls,0,100);
     /**
      $search_urls = array(
         'http://item.jd.com/16299250454.html',
@@ -511,12 +509,12 @@ function  Jd_tags_full() {
         shmop_close($tmpshm);
     }
     echo "Total: ".count($product_details)."\n";
-    var_dump($product_details);
     //Store the product details
     pouring_product_details($product_details);
     //Store the product tags
     prune_tags();
     pouring_product_tags($product_details);
+    var_dump($product_details);
     //delete the parent processes shared memory
     shmop_delete($process_pool_shm);
     shmop_close($process_pool_shm);
