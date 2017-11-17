@@ -57,9 +57,9 @@ function detect_tag_type($tag_name) {
    
 }
 function prune_tags() {
-        $tag_model = new UrltagModel($GLOBALS['website']['id']);
+        $tag_model = new UrltagModel();
         printf("%s\n","Cleaning up the redisdual tag in database!");
-        $clean_flush_flag = $tag_model->prune_by_website_id();
+        $clean_flush_flag = $tag_model->prune_by_website_id($GLOBALS['website']['id']);
         if (!$clean_flush_flag ) {
             printf("%s\n","Error when delete the redsidual data from database!");
             return false;
@@ -449,6 +449,7 @@ function  Jd_tags_full() {
     
     $searcher = new SearchEntry("https://search.jd.com/Search");
     $search_urls = array();
+    /**
     $search_urls= $searcher->keyword_param('keyword')->extra_param('enc=utf-8')->totalpages('//div[@id=\'J_topPage\']/span/i')->search('葡萄酒','//div[@id="J_goodsList"]/ul/li/div/div/a/@href')->iterate($getExtras)->reset_totalpages(2,'*')->skip('even')->go();
     $website = new WebsiteController($GLOBALS['website']['id']);
     $website->suffix_product_url('.html');
@@ -461,16 +462,15 @@ function  Jd_tags_full() {
         }
         return 'https:'.$url;
     });
-   /**
-     $search_urls = array(
+*/
+    $search_urls = array(
         'http://item.jd.com/16299250454.html',
         'http://item.jd.com/10124414717.html',
         'http://item.jd.com/10189569472.html'
     );
-    **/
     //slice the url into $task pieces
     //
-    $gap = count($search_urls)/$task;
+    $gap = (int)round(count($search_urls)/$task,0);
     //create a share memory segment to store processs ids
     $process_pool = array();
     $process_pool_key = ftok(__FILE__,'0');
@@ -478,6 +478,7 @@ function  Jd_tags_full() {
     //spawn child process
     for( $i = 0; $i < $task; $i++ ) {
         $urls = array_slice($search_urls,$gap*$i,$gap);
+        var_dump($urls);
         $pid = pcntl_fork();
         if ($pid == -1 ) {
             die("Counld not fork!");
@@ -510,12 +511,12 @@ function  Jd_tags_full() {
         shmop_close($tmpshm);
     }
     echo "Total: ".count($product_details)."\n";
-//    var_dump($product_details);
+    //var_dump($product_details);
     //Store the product details
-//    pouring_product_details($product_details);
+    pouring_product_details($product_details);
     //Store the product tags
-//    prune_tags();
-//    pouring_product_tags($product_details);
+    prune_tags();
+    pouring_product_tags($product_details);
     //delete the parent processes shared memory
     shmop_delete($process_pool_shm);
     shmop_close($process_pool_shm);
