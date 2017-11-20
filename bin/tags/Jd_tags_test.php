@@ -2,14 +2,13 @@
 /**
  * 分析京东商城的标签
  */
-require_once('../app.php');
+require_once(dirname(__FILE__).'/../../app.php');
 use Model\UrltagModel;
 use Extension\DBExtension;
 use Util\StructHtml\SearchEntry;
 use Controller\WebsiteController;
 use Model\ProductModel;
 use Util\Api;
-ini_set ('memory_limit', '2480M');  
 $GLOBALS['website']['id'] = 1;
 DBExtension::switch_db('jhbian_spider');
 function detect_tag_type($tag_name) {
@@ -75,9 +74,6 @@ function pouring_product_details($product_details) {
         if (!empty($product_detail)) {
             $product_detail['uid']= spawn_guid();
             $product_detail['time'] = spawn_guid();
-            if (!isset($product_detail['price']) && !isset($product_detail['name']) && !isset($product_detail['pro_price'])){
-                continue;
-            }
             $product->table('wine_info')
                 ->fields(['uid'=>'id','id'=>'out_product_id','name'=>'name_ch','pro_price'=>'current_price','url'=>'product_url','price'=>'market_price'])
                 ->fromArray($product_detail)
@@ -125,6 +121,12 @@ function get_tags_from_name($name) {
     return $tags;
 }
 
+function get_tags_from_price($price){
+    if ($price > 1000) {
+        return '奢侈美酒';
+    }
+}
+
 function get_coupon_tags ($api_content,&$tags) {
     if (empty($api_content['skuCoupon'])) {
         return false;
@@ -149,13 +151,12 @@ function get_coupon_tags ($api_content,&$tags) {
 }
 
 function get_price($product_id) {
-    $api_url = "http://p.3.cn/prices/mgets?type=1&skuIds=J_";
+    $api_url = "https://p.3.cn/prices/mgets?type=1&skuIds=J_";
     $api_url = $api_url.$product_id;
     $result = null;
     printf("%s\n","Collecting price from api ... ");
     Api::proxy_wrapper(function() use (&$result,$api_url) {
         $result = requests::get($api_url);
-        $result = json_decode($result,true);
     });
     $try_times = 0;
     $max_retry = 10;
@@ -163,7 +164,6 @@ function get_price($product_id) {
         printf("%s\n","Collecting price from api ... failed, retry ".$try_times."/".$max_retry);
         Api::proxy_wrapper(function() use (&$result, $api_url){
             $result = requests::get($api_url);
-            $result = json_decode($result,true);
         });
         $try_times++;
     }
@@ -171,19 +171,20 @@ function get_price($product_id) {
         return false;
     }
     printf("%s\n","Collection price from api ... done");
-    return $result;
+    return json_decode($result,true);
 }
 
 function get_tags_from_api($product_id) {
     $tags = array();
-    $api_url = "http://cd.jd.com/promotion/v2?skuId=".$product_id."&area=19_1607_3638_0&cat=12259%2C12260%2C9438";
+    $api_url = "https://cd.jd.com/promotion/v2?skuId=".$product_id."&area=19_1607_3638_0&cat=12259%2C12260%2C9438";
     $result = null;
     printf("%s\n","Collecting tags from api ... ");
     Api::proxy_wrapper(function() use (&$result, $api_url){
         \requests::$input_encoding='GBK';
         \requests::$output_encoding='UTF-8';
+        var_dump($api_url);
         $result = requests::get($api_url);
-        $result = json_decode($result,true);
+        var_dump($result);
     });
     $try_times = 0;
     $max_retry = 10;
@@ -192,15 +193,16 @@ function get_tags_from_api($product_id) {
         Api::proxy_wrapper(function() use (&$result, $api_url){
             \requests::$input_encoding='GBK';
             \requests::$output_encoding='UTF-8';
+            var_dump($api_url);
             $result = requests::get($api_url);
-            $result = json_decode($result,true);
+            var_dump($result);
         });
         $try_times++;
     }
     if (empty($result)) {
         return false;
     }
-    $raw_info =  $result;
+    $raw_info = json_decode($result,true);
     if (!empty($raw_info['quan']['title'])) {
         $tags[] = array('tag_desc'=>'满额返券','tag_info'=>$raw_info['quan']['title']);
     }
@@ -222,7 +224,6 @@ function get_tags_from_api($product_id) {
                 unset($tmp_tags);
             }
         }
-    printf("%s\n","Collecting tags from api ... done");
     }
     //Get the tags inside promotion box
     if (!empty($raw_info['prom']['tags'])) {
@@ -262,6 +263,8 @@ function get_tags_from_api($product_id) {
     }
     //Get the coupons tags
     get_coupon_tags($raw_info,$tags);
+
+    printf("%s\n","Collecting tags from api ... done");
     if (empty($tags)) {
         return false;
     }
@@ -301,17 +304,36 @@ function get_actproduct_details($products) {
     }
     $count = 0;
     $product_it = new ArrayIterator($products);
-    $max_retry = 3;
+    $max_retry = 10;
     $retry_times = 0;
 
     printf("%s\n",'Collecting product details ... 0/'.count($products));
     while($product_it->valid()) {
         $product = $product_it->current();
         $url= @$product['url'];
-        $product_details_html = '';
-        Api::proxy_wrapper(function() use(&$product_details_html,$url){
-            $product_details_html = \requests::get($url);
-        });
+        \requests::$input_encoding='GBK';
+        \requests::$output_encoding='UTF-8';
+        \requests::set_useragents(
+            array(
+                'Mozilla/5.0 (Windows; U; Windows NT 5.2) Gecko/2008070208 Firefox/3.0.1',
+                'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; Trident/4.0)',
+                'Mozilla/5.0 (Windows; U; Windows NT 5.2) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.2.149.27 Safari/525.13',
+                'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.12) Gecko/20080219 Firefox/2.0.0.12 Navigator/9.0.0.6',
+                'Mozilla/5.0 (Windows; U; Windows NT 5.2) AppleWebKit/525.13 (KHTML, like Gecko) Version/3.1 Safari/525.13',
+                'Mozilla/5.0 (iPhone; U; CPU like Mac OS X) AppleWebKit/420.1 (KHTML, like Gecko) Version/3.0 Mobile/4A93 Safari/419.3',
+                'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0)',
+                'Mozilla/5.0 (Macintosh; PPC Mac OS X; U; en) Opera 8.0',)
+        );
+        $proxy_ip = Api::getIp();
+        if ($proxy_ip) {
+            requests::set_proxies(
+                array("http"=>$proxy_ip,
+                    "https"=>$proxy_ip
+                ));
+        } else {
+            printf("%s\n","Error: A unexpected error occurred when get the proxy ip");
+        }
+        $product_details_html = \requests::get($url);
         if(empty($product_details_html)) {
             printf("%s\n","Get product details page failed ! retrying ".$retry_times.'/'.$max_retry);
             if ($retry_times > $max_retry) {
@@ -327,26 +349,30 @@ function get_actproduct_details($products) {
         $product_details = parse_details_html($product_details_html);
         //get the extra tags
         $tags  = get_tags_from_api($product['id']);
-        if (empty($tags)) {
-            printf("%s\n","Can't get tags info for  ".$product['id']);
-        }
         if (!empty($tags) && !empty($product_details['tags'])) {
-            $product_details['tags'] = array_merge($product_details['tags'],$tags);    
-        } else if (!empty($tags) && empty($product_details['tags'])) {
+            $product_details['tags'] = array_merge($product_details['tags'],$tags);        } else if (!empty($tags) && empty($product_details['tags'])) {
             $product_details['tags'] = $tags;
         }
         //get the price
         $prices = get_price($product['id']);
+        $prices= @$prices[0];
+
         if (empty($prices)) {
-            printf("%s\n","Can't get price info for  ".$product['id']);
-        }
+            printf("%s\n","Can't get price info for".$product['id']);
+        } 
         $tags_from_name = get_tags_from_name($product_details['name']);
         if (!empty($tags_from_name) && !empty($product_details['tags'])) {
             $product_details['tags'] = array_merge($product_details['tags'],$tags_from_name);        
         } else if (!empty($tags) && empty($product_details['tags'])) {
             $product_details['tags'] = $tags_from_name;
         }
-        $prices= @$prices[0];
+        $tags_from_price = !empty($prices['op'])?get_tags_from_price($prices['op']):"";
+
+        if (!empty($tags_from_price) && !empty($product_details['tags'])) {
+            $product_details['tags'] = array_merge($product_details['tags'],[$tags_from_price]);        
+        } else if (!empty($tags) && empty($product_details['tags'])) {
+            $product_details['tags'] = $tags_from_price;
+        }
         $product['name'] = $product_details['name'];
         $product['price'] = $prices['op'];
         $product['pro_price'] = $prices['p'];
@@ -360,10 +386,10 @@ function get_actproduct_details($products) {
                     $tmp_tag['tag_desc'] = $tag;
                     $tmp_tag['tag_info'] = '';
                 }
-                $tmp_tag['ah_id'] = @$product['ah_id'];
+                $tmp_tag['ah_id'] = $product['ah_id'];
                 $tmp_tag['ctime'] = date('Y-m-d h:i:s');
                 $tmp_tag['uid'] = spawn_guid();
-                $tmp_tag['tag_name'] =detect_tag_type($tmp_tag['tag_desc']);
+                $tmp_tag['type_name'] =detect_tag_type($tmp_tag['tag_desc']);
                 $tag = $tmp_tag;
             }
         }
@@ -386,21 +412,46 @@ function retrieve_product_ids ($product_ids) {
         $products[$id]['id'] = $id;
         $products[$id]['url'] = 'http://item.jd.com/'.$id.'.html';
     }
-
     return $products;
 }
-function Jd_tag($urls){
+function  Jd_flash_tag() {
+    $getExtras = function($searchentry)  {
+        $current_page = $searchentry->get_current_page();
+        if ($current_page != -1) {
+            $api_url = "https://search.jd.com/s_new.php?keyword=".$searchentry->keyword."&enc=utf-8&qrst=1&rt=1&stop=1&vt=2&suggest=1.his.0.0&page=".($current_page+1)."&s=29&scrolling=y&tpl=1_M";
+            //var_dump("Api URL:");
+            //var_dump($api_url);
+            \requests::set_referer($searchentry->entry);
+            \requests::$input_encoding="UTF-8";
+            \requests::$output_encoding = "UTF-8";
+            $api_result = \requests::get($api_url);
+            $searchentry->extern(\selector::select($api_result,'//li/div/div/a/@href'));
+
+        }
+    };
+    
+    $time_start = time();
+    $searcher = new SearchEntry("https://search.jd.com/Search");
+    $search_urls = $searcher->keyword_param('keyword')->extra_param('enc=utf-8')->totalpages('//div[@id=\'J_topPage\']/span/i')->search('葡萄酒','//div[@id="J_goodsList"]/ul/li/div/div/a/@href')->iterate($getExtras)->reset_totalpages(2,'*')->skip('even')->go();
+    /*
+    $search_urls = array(
+        'http://item.jd.com/16299250454.html',
+        'http://item.jd.com/10124414717.html',
+        'http://item.jd.com/10189569472.html'
+    );
+    */
     $website = new WebsiteController($GLOBALS['website']['id']);
     $website->suffix_product_url('.html');
     $website->prefix_product_url('http://item.jd.com/');
     //https://item.jd.com/12098230917.html
     $url_format  = '/\/\/item\.jd\.com\/(\d+)\.html/i';
-    $urls = $website->format_urls($urls,$url_format,function($url){
+    $urls = $website->format_urls($search_urls,$url_format,function($url){
                 if (strpos($url,'http') !== false){
                     return $url;
                 }
                 return 'https:'.$url;
     });
+    $urls = array_slice($urls,0,100);
     $product_ids = $website->parse_product_id($urls,'/https?:\/\/item\.jd\.com\/(\d+)\.html/i');
     if (empty($product_ids)) {
         printf("%s\n","Error: Can't get product ids");
@@ -424,119 +475,27 @@ function Jd_tag($urls){
     }
     //获取商品详情
     $product_details = get_actproduct_details($products); 
-    //create child process sharememory and share product_details into it
-    $current_pid = getmypid();
-    $key = ftok(__FILE__,chr($current_pid));
-    if (mb_strlen($key) <= 6) {
-        $key=str_pad($key,10,'0');
-    }
-    $data = serialize($product_details);
-    $allow_size = mb_strlen($data);
-    $childshm_id= shmop_open($key,'c',0644,1024*1024);
-    //make sure the data from child process sharedmemory can be collected  by parent process
-    shmop_write($childshm_id,$data,0);
-    shmop_close($childshm_id);
-    exit(0);
-}
-function  Jd_tags_full() {
-    $time_start = time();
-    $task = 8;
-    $getExtras = function($searchentry)  {
-        $current_page = $searchentry->get_current_page();
-        if ($current_page != -1) {
-            $api_url = "https://search.jd.com/s_new.php?keyword=".$searchentry->keyword."&enc=utf-8&qrst=1&rt=1&stop=1&vt=2&suggest=1.his.0.0&page=".($current_page+1)."&s=29&scrolling=y&tpl=1_M";
-            //                var_dump("Api URL:");
-            //                var_dump($api_url);
-            \requests::set_referer($searchentry->entry);
-            \requests::$input_encoding="UTF-8";
-            \requests::$output_encoding = "UTF-8";
-            $api_result = \requests::get($api_url);
-            $searchentry->extern(\selector::select($api_result,'//li/div/div/a/@href'));
-
-        }
-    };
-    
-    $searcher = new SearchEntry("https://search.jd.com/Search");
-    $search_urls = array();
-    $search_urls= $searcher->keyword_param('keyword')->extra_param('enc=utf-8')->totalpages('//div[@id=\'J_topPage\']/span/i')->search('葡萄酒','//div[@id="J_goodsList"]/ul/li/div/div/a/@href')->iterate($getExtras)->reset_totalpages(2,'*')->skip('even')->go();
-    $website = new WebsiteController($GLOBALS['website']['id']);
-    $website->suffix_product_url('.html');
-    $website->prefix_product_url('http://item.jd.com/');
-    //https://item.jd.com/12098230917.html
-    $url_format  = '/\/\/item\.jd\.com\/(\d+)\.html/i';
-    $search_urls = $website->format_urls($search_urls,$url_format,function($url){
-        if (strpos($url,'http') !== false){
-            return $url;
-        }
-        return 'https:'.$url;
-    });
-    //$search_urls = array_slice($search_urls,0,100);
-    /**
-     $search_urls = array(
-        'http://item.jd.com/16299250454.html',
-        'http://item.jd.com/10124414717.html',
-        'http://item.jd.com/10189569472.html',
-        'http://item.jd.com/1304924.html'
-    );
-    **/
-    //slice the url into $task pieces
-    //
-    $gap = (int)round(count($search_urls)/$task);
-    //create a share memory segment to store processs ids
-    $process_pool = array();
-    $process_pool_key = ftok(__FILE__,'0');
-    $process_pool_shm = shmop_open($process_pool_key,'c',0644,1024);
-    //spawn child process
-    for( $i = 0; $i < $task; $i++ ) {
-        $urls = array_slice($search_urls,$gap*$i,$gap);
-        $pid = pcntl_fork();
-        if ($pid == -1 ) {
-            die("Counld not fork!");
-        }
-        if($pid !== 0 ) {
-           $process_pool[$pid] = $pid;
-           shmop_write($process_pool_shm,serialize($process_pool),0);
-        }
-        if($pid == 0) {
-            Jd_tag($urls);
-        }
-    }
-
-   $product_details = array();
-    //子进程都已经执行完成,进行数据插入操作
-    while(pcntl_waitpid(-1,$status) > 0);
-    //Restore the data from sharedmem
-    foreach($process_pool as $pid ) {
-        $tmpkey = ftok(__FILE__,chr($pid));
-        if (mb_strlen($tmpkey) <= 6 ) {
-            $tmpkey=str_pad($tmpkey,10,'0');
-        }
-        $tmpshm =  shmop_open($tmpkey,'c',0644,1024*1024) ;
-        $tmpdata = @unserialize(shmop_read($tmpshm,0,1024*1024));
-        if (!empty($tmpdata)) {
-            $product_details= array_merge($product_details,$tmpdata);
-        }
-        shmop_delete($tmpshm);
-        shmop_close($tmpshm);
-    }
-    echo "Total: ".count($product_details)."\n";
     //Store the product details
     pouring_product_details($product_details);
     //Store the product tags
     prune_tags();
     pouring_product_tags($product_details);
-    var_dump($product_details);
-    //delete the parent processes shared memory
-    shmop_delete($process_pool_shm);
-    shmop_close($process_pool_shm);
+    //更新商品详情
+    //  $details_result = $website->updateDetails($product_details);
+    //更新商品URL
+    //    $url_results = $website->updateUrls($product_urls);
+   // if ($result === false) {
+   //     printf("%s\n","Error:Database error!");
+   //     exit(0);
+   // }
     $time_end = time();
-    $time_elapse = $time_end-$time_start;
-    echo "Totoal time: ".($time_elapse/60/60)." hours\n";
+    var_dump($product_details);
+    echo "Time cost: ".round(($time_end - $time_start)/3600, 3)."\n";
 }
 
 if (PHP_SAPI != 'cli') {
     printf("This script must be run under cli!");
     exit(0);
 } else {
-    Jd_tags_full();
+    Jd_flash_tag();
 }

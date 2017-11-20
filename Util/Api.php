@@ -26,8 +26,6 @@ class Api {
     }
 
     public static function proxy_wrapper($callback) {
-        \requests::$input_encoding='GBK';
-        \requests::$output_encoding='UTF-8';
         \requests::set_useragents(
             array(
                 'Mozilla/5.0 (Windows; U; Windows NT 5.2) Gecko/2008070208 Firefox/3.0.1',
@@ -43,7 +41,7 @@ class Api {
         );
         $proxy_ip = Api::getIp();
         while(empty($proxy_ip)){
-            sleep(1);
+            usleep(1500000);
             $proxy_ip = Api::getIp();
         }
         if ($proxy_ip) {
