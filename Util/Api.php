@@ -114,6 +114,7 @@ class Api {
                 array("http"=>$proxy_ip,
                 "https"=>$proxy_ip)
             );
+            $callback();
         } else {
 
             printf("%s\n","Error: A unexcepted error occurred when get the proxy ip");
