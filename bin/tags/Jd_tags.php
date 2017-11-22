@@ -33,8 +33,12 @@ function proxy_wrapper($callback) {
         ));
         $callback();
     } else {
+<<<<<<< HEAD
     
        printf("%s\n","Error: A unexpected error occurred when get the proxy ip");
+=======
+        printf("%s\n","Error: A unexpected error occurred when get the proxy ip");
+>>>>>>> dc3bc4b841ef0710741c8978c742f6d45569f30d
     }
 }
 function detect_tag_type($tag_name) {
@@ -383,6 +387,7 @@ function get_actproduct_details($products) {
         } else if (!empty($tags) && empty($product_details['tags'])) {
             $product_details['tags'] = $tags_from_name;
         }
+<<<<<<< HEAD
         $tags_from_price = get_tags_from_price($product_details['price']);
         if (!empty($tags_from_price) && !empty($product_details['tags'])) {
             $product_details['tags'] = array_merge($product_details['tags'],$tags_from_price);        
@@ -390,6 +395,15 @@ function get_actproduct_details($products) {
             $product_details['tags'] = $tags_from_price;
         }
 
+=======
+        $tags_from_price = !empty($prices['op'])?get_tags_from_price($prices['op']):"";
+
+        if (!empty($tags_from_price) && !empty($product_details['tags'])) {
+            $product_details['tags'] = array_merge($product_details['tags'],[$tags_from_price]);        
+        } else if (!empty($tags) && empty($product_details['tags'])) {
+            $product_details['tags'] = $tags_from_price;
+        }
+>>>>>>> dc3bc4b841ef0710741c8978c742f6d45569f30d
         $product['name'] = $product_details['name'];
         $product['price'] = $prices['op'];
         $product['pro_price'] = $prices['p'];
@@ -457,7 +471,11 @@ function  Jd_flash_tag() {
         'http://item.jd.com/10189569472.html'
     );
 <<<<<<< HEAD
+<<<<<<< HEAD
      */
+=======
+    */
+>>>>>>> dc3bc4b841ef0710741c8978c742f6d45569f30d
     $website = new WebsiteController($GLOBALS['website']['id']);
     $website->suffix_product_url('.html');
     $website->prefix_product_url('http://item.jd.com/');

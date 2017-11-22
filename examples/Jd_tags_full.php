@@ -155,13 +155,15 @@ function get_price($product_id) {
     printf("%s\n","Collecting price from api ... ");
     Api::proxy_wrapper(function() use (&$result,$api_url) {
         $result = requests::get($api_url);
+        $result = json_decode($result,true);
     });
     $try_times = 0;
-    $max_retry = 3;
+    $max_retry = 10;
     while(empty($result) && $try_times < $max_retry ) {
         printf("%s\n","Collecting price from api ... failed, retry ".$try_times."/".$max_retry);
         Api::proxy_wrapper(function() use (&$result, $api_url){
             $result = requests::get($api_url);
+            $result = json_decode($result,true);
         });
         $try_times++;
     }
@@ -169,7 +171,7 @@ function get_price($product_id) {
         return false;
     }
     printf("%s\n","Collection price from api ... done");
-    return json_decode($result,true);
+    return $result;
 }
 
 function get_tags_from_api($product_id) {
@@ -178,21 +180,27 @@ function get_tags_from_api($product_id) {
     $result = null;
     printf("%s\n","Collecting tags from api ... ");
     Api::proxy_wrapper(function() use (&$result, $api_url){
+        \requests::$input_encoding='GBK';
+        \requests::$output_encoding='UTF-8';
         $result = requests::get($api_url);
+        $result = json_decode($result,true);
     });
     $try_times = 0;
-    $max_retry = 3;
+    $max_retry = 10;
     while(empty($result) && $try_times < $max_retry ) {
         printf("%s\n","Collecting tags from api ... failed, retry ".$try_times."/".$max_retry);
         Api::proxy_wrapper(function() use (&$result, $api_url){
+            \requests::$input_encoding='GBK';
+            \requests::$output_encoding='UTF-8';
             $result = requests::get($api_url);
+            $result = json_decode($result,true);
         });
         $try_times++;
     }
     if (empty($result)) {
         return false;
     }
-    $raw_info = json_decode($result,true);
+    $raw_info =  $result;
     if (!empty($raw_info['quan']['title'])) {
         $tags[] = array('tag_desc'=>'满额返券','tag_info'=>$raw_info['quan']['title']);
     }
@@ -319,6 +327,9 @@ function get_actproduct_details($products) {
         $product_details = parse_details_html($product_details_html);
         //get the extra tags
         $tags  = get_tags_from_api($product['id']);
+        if (empty($tags)) {
+            printf("%s\n","Can't get tags info for  ".$product['id']);
+        }
         if (!empty($tags) && !empty($product_details['tags'])) {
             $product_details['tags'] = array_merge($product_details['tags'],$tags);    
         } else if (!empty($tags) && empty($product_details['tags'])) {
@@ -349,7 +360,7 @@ function get_actproduct_details($products) {
                     $tmp_tag['tag_desc'] = $tag;
                     $tmp_tag['tag_info'] = '';
                 }
-                $tmp_tag['ah_id'] = $product['ah_id'];
+                $tmp_tag['ah_id'] = @$product['ah_id'];
                 $tmp_tag['ctime'] = date('Y-m-d h:i:s');
                 $tmp_tag['uid'] = spawn_guid();
                 $tmp_tag['tag_name'] =detect_tag_type($tmp_tag['tag_desc']);
@@ -459,7 +470,7 @@ function  Jd_tags_full() {
         }
         return 'https:'.$url;
     });
-    $search_urls = array_slice($search_urls,0,100);
+    //$search_urls = array_slice($search_urls,0,100);
     /**
      $search_urls = array(
         'http://item.jd.com/16299250454.html',

@@ -12,31 +12,6 @@ use Util\Api;
 ini_set ('memory_limit', '8192M');  
 $GLOBALS['website']['id'] = 1;
 DBExtension::switch_db('phpspider');
-function proxy_wrapper($callback) {
-    \requests::$input_encoding='GBK';
-    \requests::$output_encoding='UTF-8';
-    \requests::set_useragents(
-        array(
-            'Mozilla/5.0 (Windows; U; Windows NT 5.2) Gecko/2008070208 Firefox/3.0.1',
-            'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; Trident/4.0)',
-            'Mozilla/5.0 (Windows; U; Windows NT 5.2) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.2.149.27 Safari/525.13',
-            'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.12) Gecko/20080219 Firefox/2.0.0.12 Navigator/9.0.0.6',
-            'Mozilla/5.0 (Windows; U; Windows NT 5.2) AppleWebKit/525.13 (KHTML, like Gecko) Version/3.1 Safari/525.13',
-            'Mozilla/5.0 (iPhone; U; CPU like Mac OS X) AppleWebKit/420.1 (KHTML, like Gecko) Version/3.0 Mobile/4A93 Safari/419.3',
-            'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0)',
-            'Mozilla/5.0 (Macintosh; PPC Mac OS X; U; en) Opera 8.0',)
-        );
-    $proxy_ip = Api::getIp();
-    if ($proxy_ip) {
-        requests::set_proxies(
-            array("http"=>$proxy_ip,
-            "https"=>$proxy_ip
-        ));
-    } else {
-        printf("%s\n","Error: A unexpected error occurred when get the proxy ip");
-    }
-    $callback();
-}
 function detect_tag_type($tag_name) {
     $promtag_maps =  array(
         '京东秒杀',
@@ -175,15 +150,15 @@ function get_price($product_id) {
     $api_url = $api_url.$product_id;
     $result = null;
     printf("%s\n","Collecting price from api ... ");
-    proxy_wrapper(function() use (&$result,$api_url) {
+    Api::proxy_wrapper(function() use (&$result,$api_url) {
         $result = requests::get($api_url);
     });
     $try_times = 0;
     $max_retry = 10;
     while(empty($result) && $try_times < $max_retry ) {
         printf("%s\n","Collecting price from api ... failed, retry ".$try_times."/".$max_retry);
-        proxy_wrapper(function() use (&$result, $api_url){
-        $result = requests::get($api_url);
+        Api::proxy_wrapper(function() use (&$result, $api_url){
+            $result = requests::get($api_url);
         });
         $try_times++;
     }
@@ -199,15 +174,19 @@ function get_tags_from_api($product_id) {
     $api_url = "https://cd.jd.com/promotion/v2?skuId=".$product_id."&area=19_1607_3638_0&cat=12259%2C12260%2C9438";
     $result = null;
     printf("%s\n","Collecting tags from api ... ");
-    proxy_wrapper(function() use (&$result, $api_url){
+    Api::proxy_wrapper(function() use (&$result, $api_url){
+        \requests::$input_encoding='GBK';
+        \requests::$output_encoding='UTF-8';
         $result = requests::get($api_url);
     });
     $try_times = 0;
     $max_retry = 10;
     while(empty($result) && $try_times < $max_retry ) {
         printf("%s\n","Collecting tags from api ... failed, retry ".$try_times."/".$max_retry);
-        proxy_wrapper(function() use (&$result, $api_url){
-        $result = requests::get($api_url);
+       Api::proxy_wrapper(function() use (&$result, $api_url){
+            \requests::$input_encoding='GBK';
+            \requests::$output_encoding='UTF-8';
+            $result = requests::get($api_url);
         });
         $try_times++;
     }
