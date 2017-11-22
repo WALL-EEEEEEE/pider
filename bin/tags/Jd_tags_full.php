@@ -9,9 +9,34 @@ use Util\StructHtml\SearchEntry;
 use Controller\WebsiteController;
 use Model\ProductModel;
 use Util\Api;
-ini_set ('memory_limit', '8192M');  
+ini_set ('memory_limit', '1024M');  
 $GLOBALS['website']['id'] = 1;
-DBExtension::switch_db('phpspider');
+DBExtension::switch_db('jhbian_spider');
+function proxy_wrapper($callback) {
+    \requests::$input_encoding='GBK';
+    \requests::$output_encoding='UTF-8';
+    \requests::set_useragents(
+        array(
+            'Mozilla/5.0 (Windows; U; Windows NT 5.2) Gecko/2008070208 Firefox/3.0.1',
+            'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; Trident/4.0)',
+            'Mozilla/5.0 (Windows; U; Windows NT 5.2) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.2.149.27 Safari/525.13',
+            'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.12) Gecko/20080219 Firefox/2.0.0.12 Navigator/9.0.0.6',
+            'Mozilla/5.0 (Windows; U; Windows NT 5.2) AppleWebKit/525.13 (KHTML, like Gecko) Version/3.1 Safari/525.13',
+            'Mozilla/5.0 (iPhone; U; CPU like Mac OS X) AppleWebKit/420.1 (KHTML, like Gecko) Version/3.0 Mobile/4A93 Safari/419.3',
+            'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0)',
+            'Mozilla/5.0 (Macintosh; PPC Mac OS X; U; en) Opera 8.0',)
+        );
+    $proxy_ip = Api::getIp();
+    if ($proxy_ip) {
+        requests::set_proxies(
+            array("http"=>$proxy_ip,
+            "https"=>$proxy_ip
+        ));
+    } else {
+        printf("%s\n","Error: A unexpected error occurred when get the proxy ip");
+    }
+    $callback();
+}
 function detect_tag_type($tag_name) {
     $promtag_maps =  array(
         '京东秒杀',
@@ -76,7 +101,7 @@ function pouring_product_details($product_details) {
             $product_detail['uid']= spawn_guid();
             $product_detail['time'] = spawn_guid();
             $product->table('wine_info')
-                ->fields(['uid'=>'id','id'=>'out_product_id','product_id'=>'out_product_id','name'=>'name_ch','pro_price'=>'current_price','url'=>'product_url','price'=>'market_price'])
+                ->fields(['uid'=>'id','id'=>'out_product_id','name'=>'name_ch','pro_price'=>'current_price','url'=>'product_url','price'=>'market_price'])
                 ->fromArray($product_detail)
                 ->add();
         } else {
@@ -150,15 +175,15 @@ function get_price($product_id) {
     $api_url = $api_url.$product_id;
     $result = null;
     printf("%s\n","Collecting price from api ... ");
-    Api::proxy_wrapper(function() use (&$result,$api_url) {
+    proxy_wrapper(function() use (&$result,$api_url) {
         $result = requests::get($api_url);
     });
     $try_times = 0;
     $max_retry = 10;
     while(empty($result) && $try_times < $max_retry ) {
         printf("%s\n","Collecting price from api ... failed, retry ".$try_times."/".$max_retry);
-        Api::proxy_wrapper(function() use (&$result, $api_url){
-            $result = requests::get($api_url);
+        proxy_wrapper(function() use (&$result, $api_url){
+        $result = requests::get($api_url);
         });
         $try_times++;
     }
@@ -174,19 +199,15 @@ function get_tags_from_api($product_id) {
     $api_url = "https://cd.jd.com/promotion/v2?skuId=".$product_id."&area=19_1607_3638_0&cat=12259%2C12260%2C9438";
     $result = null;
     printf("%s\n","Collecting tags from api ... ");
-    Api::proxy_wrapper(function() use (&$result, $api_url){
-        \requests::$input_encoding='GBK';
-        \requests::$output_encoding='UTF-8';
+    proxy_wrapper(function() use (&$result, $api_url){
         $result = requests::get($api_url);
     });
     $try_times = 0;
     $max_retry = 10;
     while(empty($result) && $try_times < $max_retry ) {
         printf("%s\n","Collecting tags from api ... failed, retry ".$try_times."/".$max_retry);
-       Api::proxy_wrapper(function() use (&$result, $api_url){
-            \requests::$input_encoding='GBK';
-            \requests::$output_encoding='UTF-8';
-            $result = requests::get($api_url);
+        proxy_wrapper(function() use (&$result, $api_url){
+        $result = requests::get($api_url);
         });
         $try_times++;
     }
@@ -439,8 +460,8 @@ function Jd_tag($urls){
         $key=str_pad($key,10,'0');
     }
     $data = serialize($product_details);
-    $allow_size = mb_strlen($data);
-    $childshm_id= shmop_open($key,'c',0644,1024*1024);
+    $allow_size = 1024*1024*15; //allocate 15mb shared memory 
+    $childshm_id= shmop_open($key,'c',0644, $allow_size);
     //make sure the data from child process sharedmemory can be collected  by parent process
     shmop_write($childshm_id,$data,0);
     shmop_close($childshm_id);
@@ -448,90 +469,52 @@ function Jd_tag($urls){
 }
 function  Jd_tags_full() {
     $time_start = time();
-    $task = 24;
-    $getExtras = function($searchentry)  {
-        $current_page = $searchentry->get_current_page();
-        if ($current_page != -1) {
-            $api_url = "https://search.jd.com/s_new.php?keyword=".$searchentry->keyword."&enc=utf-8&qrst=1&rt=1&stop=1&vt=2&suggest=1.his.0.0&page=".($current_page+1)."&s=29&scrolling=y&tpl=1_M";
-            //                var_dump("Api URL:");
-            //                var_dump($api_url);
-            \requests::set_referer($searchentry->entry);
-            \requests::$input_encoding="UTF-8";
-            \requests::$output_encoding = "UTF-8";
-            $api_result = \requests::get($api_url);
-            $searchentry->extern(\selector::select($api_result,'//li/div/div/a/@href'));
-
-        }
-    };
-    
-    $searcher = new SearchEntry("https://search.jd.com/Search");
-    $search_urls = array();
-    $price_gaps = array(
-        "0-10","10-17","17-19","19-21","21-24","24-27","27-28","28-29","29-31",
-        "31-34","34-36","36-37","37-38","38-39","39-40","40-43",
-         "43-45","45-47","47-48","48-49","49-50","50-53","53-56",
-        "56-57","57-58","58-59","59-61","61-65","65-67",
-        "67-68","68-69","69-72","72-76",
-        "76-78","78-79", "79-83","83-87","87-89","89-93",
-        "93-97","97-98","98-100","100-107",
-        "107-110","110-117","117-120","120-127",
-        "127-130","130-137","137-142",
-        "142-149","149-156","156-159","159-167","167-170","170-178","178-185",
-        "185-190","190-197",
-        "197-200","200-214","214-224","224-234","234-244","244-257",
-        "257-267","267-277","277-288","288-297","297-303",
-        "303-318","318-330",
-        "330-348","348-360","360-377","377-395","395-409",
-        "409-435","435-460",
-        "460-488","488-515","515-545",
-        "545-580","580-615","615-665","665-705","705-765","765-825",
-        "825-905","905-1000","1000-1150","1150-1300",
-        "1300-1520","1520-1790","1790-2230","2230-2990","2990-3990",
-        "3990-4600","4600-8000",
-        "8000gt"
-    );
-    foreach($price_gaps as $price_gap) {
-        echo "Get the url around price: $price_gap ...".PHP_EOL;
-        $furl_prefix="../../cache/jd/";
-        $search_urls_price_gap = $searcher->keyword_param('keyword')->extra_param('enc=utf-8&ev=exprice_'.$price_gap)->totalpages('//div[@id=\'J_topPage\']/span/i')->search('葡萄酒','//div[@id="J_goodsList"]/ul/li/div/div/a/@href')->iterate($getExtras)->reset_totalpages(2,'*')->skip('even')->go();
-        $website = new WebsiteController($GLOBALS['website']['id']);
-        $website->suffix_product_url('.html');
-        $website->prefix_product_url('http://item.jd.com/');
-        //https://item.jd.com/12098230917.html
-        $url_format  = '/\/\/item\.jd\.com\/(\d+)\.html/i';
-        $search_urls_price_gap = $website->format_urls($search_urls_price_gap,$url_format,function($url){
-            if (strpos($url,'http') !== false){
-                return $url;
+    $task = 8;
+    //load the url cache from cached file
+    //read the list of files
+    $cached_dir_path = '/home/jhbian/pider/cache/jd/';
+    $cached_dir = opendir($cached_dir_path);
+    $cached_files = [];
+    $cached_urls = [];
+    while(false != ($cached_file = readdir($cached_dir))) {
+        if (preg_match('/\d+\-\d+_url\.txt/',$cached_file)){
+            preg_match('/(\d+)\-\d+_url\.txt/',$cached_file,$sort_flag);
+            if (!empty(($sort_flag[1]))) {
+                $cached_files[(int)@$sort_flag[1]] = $cached_file;
             }
-            return 'https:'.$url;
-        });
-    //    var_dump(count($search_urls_price_gap));
-    //    var_dump(mb_strlen(serialize($search_urls_price_gap),"8bit")/1024/2044);
-        $file = fopen($furl_prefix.$price_gap.'_url.txt',"w+");
-        //save the urls into files
-       foreach($search_urls_price_gap as $url) {
-            $url = $url.PHP_EOL;
-            fputs($file,$url);
         }
-        fclose($file);
-
-        if (!empty($search_urls_price_gap)) {
-            $search_urls = array_merge($search_urls,$search_urls_price_gap);
-        }
-        //var_dump(mb_strlen(serialize($search_urls),"8bit")/1024/1024);
-      echo "Getting  the url around price: $price_gap ... done.\n".PHP_EOL;
     }
-    //var_dump(count($search_urls));
-    //exit(0);
+    //sort by the price
+    ksort($cached_files,SORT_NUMERIC);
+    //load urls from cacheds file
+    foreach($cached_files as $cached_file) {
+        $tmp_cached_urls = file_get_contents($cached_dir_path.'/'.$cached_file);
+        $tmp_cached_urls_arr = explode(PHP_EOL,$tmp_cached_urls);
+        $cached_urls = array_merge($cached_urls,$tmp_cached_urls_arr);
+        $cached_urls = array_unique($cached_urls);
+    }
+
+    $search_urls = $cached_urls;
     /**
-     $search_urls = array(
+    $search_urls = array(
         'http://item.jd.com/16299250454.html',
         'http://item.jd.com/10124414717.html',
         'http://item.jd.com/10189569472.html'
     );
     **/
+    $website = new WebsiteController($GLOBALS['website']['id']);
+    $website->suffix_product_url('.html');
+    $website->prefix_product_url('http://item.jd.com/');
+    //https://item.jd.com/12098230917.html
+    $url_format  = '/\/\/item\.jd\.com\/(\d+)\.html/i';
+    $search_urls = $website->format_urls($search_urls,$url_format,function($url){
+        if (strpos($url,'http') !== false){
+            return $url;
+        }
+        return 'https:'.$url;
+    });
+
     //slice the url into $task pieces
-    //
     $gap = count($search_urls)/$task;
     //create a share memory segment to store processs ids
     $process_pool = array();
@@ -562,16 +545,15 @@ function  Jd_tags_full() {
         if (mb_strlen($tmpkey) <= 6 ) {
             $tmpkey=str_pad($tmpkey,10,'0');
         }
-        $tmpshm =  shmop_open($tmpkey,'c',0644,1024*1024) ;
-        $tmpdata = @unserialize(shmop_read($tmpshm,0,1024*1024));
+        $allow_size = 1024*1024*15;
+        $tmpshm =  shmop_open($tmpkey,'c',0644,$allow_size) ;
+        $tmpdata = @unserialize(shmop_read($tmpshm,0,$allow_size));
         if (!empty($tmpdata)) {
             $product_details= array_merge($product_details,$tmpdata);
-            echo "Spices: ".count($tmpdata)."\n";
         }
         shmop_delete($tmpshm);
         shmop_close($tmpshm);
     }
-    echo "Total: ".count($product_details)."\n";
 //    var_dump($product_details);
     //Store the product details
     pouring_product_details($product_details);
@@ -583,7 +565,9 @@ function  Jd_tags_full() {
     shmop_close($process_pool_shm);
     $time_end = time();
     $time_elapse = $time_end-$time_start;
-    echo "Totoal time: ".($time_elapse/60/60)." hours";
+
+    echo "Token: ".round(mb_strlen(serialize($product_details))/1024/1024,2)." mbs \n";
+    echo "Totoal time: ".round($time_elapse/60/60,2)." hours";
 }
 
 if (PHP_SAPI != 'cli') {

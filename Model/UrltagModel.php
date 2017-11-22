@@ -91,7 +91,7 @@ class UrltagModel extends Model {
        $sql = "delete from url_tag  
                    where  uid in (
                     select * from (
-                       select url_tag.uid from url_tag,all_html where url_tag.ah_id = all_html.uid "." and website_id =".$website_id."and ctime <".date('Y-m-d').") as m)";  
+                       select url_tag.uid from url_tag,all_html where url_tag.ah_id = all_html.uid "." and website_id =".$website_id."and ctime <'".date('Y-m-d')."') as m)";  
        $result = DBExtension::query($sql);
        if (!$result) {
            return false;
