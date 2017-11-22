@@ -446,7 +446,6 @@ function  Jd_flash_tag() {
                 }
                 return 'https:'.$url;
     });
-    $urls = array_slice($urls,0,100);
     $product_ids = $website->parse_product_id($urls,'/https?:\/\/item\.jd\.com\/(\d+)\.html/i');
     if (empty($product_ids)) {
         printf("%s\n","Error: Can't get product ids");

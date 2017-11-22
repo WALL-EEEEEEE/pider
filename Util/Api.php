@@ -106,8 +106,9 @@ class Api {
                 'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0)',
                 'Mozilla/5.0 (Macintosh; PPC Mac OS X; U; en) Opera 8.0',
             )
-
         );
+    $proxy_ip = Api::getIp();
+    while(empty($proxy_ip)) {
         $proxy_ip = Api::getIp();
         if ($proxy_ip) {
             \requests::set_proxies(
@@ -121,6 +122,6 @@ class Api {
         }
     }
 
+    }
 }
-
 
