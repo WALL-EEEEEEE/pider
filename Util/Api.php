@@ -108,7 +108,6 @@ class Api {
 
     $proxy_ip = Api::getIp();
     while(empty($proxy_ip)) {
-        sleep(1);
         $proxy_ip = Api::getIp();
     }
 
