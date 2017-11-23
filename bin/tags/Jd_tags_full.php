@@ -460,6 +460,7 @@ function Jd_tag($urls){
         $key=str_pad($key,10,'0');
     }
     $data = serialize($product_details);
+    var_dump("Child product_details size: ".round(mb_strlen($data)/1024/1024,2).' Mbs');
     $allow_size = 1024*1024*15; //allocate 15mb shared memory 
     $childshm_id= shmop_open($key,'c',0644, $allow_size);
     //make sure the data from child process sharedmemory can be collected  by parent process
@@ -554,7 +555,8 @@ function  Jd_tags_full() {
         shmop_delete($tmpshm);
         shmop_close($tmpshm);
     }
-//    var_dump($product_details);
+    var_dump(count($product_details));
+    var_dump($product_details);
     //Store the product details
     pouring_product_details($product_details);
     //Store the product tags
@@ -566,7 +568,7 @@ function  Jd_tags_full() {
     $time_end = time();
     $time_elapse = $time_end-$time_start;
 
-    echo "Token: ".round(mb_strlen(serialize($product_details))/1024/1024,2)." mbs \n";
+    echo "Token: ".round(mb_strlen(serialize($product_details))/1024/1024,2)." Mbs \n";
     echo "Totoal time: ".round($time_elapse/60/60,2)." hours";
 }
 
