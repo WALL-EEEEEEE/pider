@@ -99,6 +99,35 @@ class UrltagModel extends Model {
        return true;
    }
 
+   /**
+    * @method prune_yesterday
+    * @param  string $website_id specified the website to be remove, if this parameter is not provided,all the tags of yesterday in the table  will be removed
+    * prune the tags of last day
+    */
+   public function prune_yesterday($website_id='') {
+      if (empty($website_id)) {
+           $website_id = $this->website_id;
+       }
+       $sql = '';
+       if (!empty($website_id)) {
+           $sql = "delete from url_tag  
+               where  uid in (
+                    select * from (
+                       select url_tag.uid from url_tag,all_html where url_tag.ah_id = all_html.uid "." and website_id =".$website_id." and url_tag.ctime<'".date('Y-m-d')."') as m)";  
+       } else {
+           $sql = "delete from url_tag  
+               where  uid in (
+                   select * from (
+                       select url_tag.uid from url_tag,all_html where url_tag.ah_id = all_html.uid "."and url_tag.ctime<'".date('Y-m-d')."') as m)";  
+       }
+       var_dump($sql);
+       $result = DBExtension::query($sql);
+       if (!$result) {
+           return false;
+       }
+       return true;
+   }
+
    public function get_by_website_id($website_id='') {
 
        if (empty($website_id) && empty($this->website_id)) {
