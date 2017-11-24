@@ -105,13 +105,11 @@ class UrltagModel extends Model {
     * prune the tags of last day
     */
    public function prune_yesterday($website_id='') {
-       if (empty($website_id) && empty($this->website_id)) {
-           throw new \ErrorException('Error: Website id is not specified');
-       }
-       if (empty($website_id)) {
+      if (empty($website_id)) {
            $website_id = $this->website_id;
        }
-       if (empty($website_id)) {
+       $sql = '';
+       if (!empty($website_id)) {
            $sql = "delete from url_tag  
                where  uid in (
                     select * from (
@@ -121,8 +119,8 @@ class UrltagModel extends Model {
                where  uid in (
                    select * from (
                        select url_tag.uid from url_tag,all_html where url_tag.ah_id = all_html.uid "."and url_tag.ctime<'".date('Y-m-d')."') as m)";  
-
        }
+       var_dump($sql);
        $result = DBExtension::query($sql);
        if (!$result) {
            return false;

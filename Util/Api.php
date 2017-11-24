@@ -93,9 +93,7 @@ class Api {
     }
 
     public static function proxy_wrapper($callback) {
-        \requests::$input_encoding='GBK';
-        \requests::$output_encoding='UTF-8';
-        \requests::set_useragents(
+    \requests::set_useragents(
             array(
                 'Mozilla/5.0 (Windows; U; Windows NT 5.2) Gecko/2008070208 Firefox/3.0.1',
                 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; Trident/4.0)',
@@ -107,19 +105,17 @@ class Api {
                 'Mozilla/5.0 (Macintosh; PPC Mac OS X; U; en) Opera 8.0',
             )
         );
+    \requests::$input_encoding = 'gbk';
+    \requests::$output_encoding = 'utf-8';
     $proxy_ip = Api::getIp();
-    while(empty($proxy_ip)) {
-        $proxy_ip = Api::getIp();
-        if ($proxy_ip) {
-            \requests::set_proxies(
+    if($proxy_ip) {
+        \requests::set_proxies(
                 array("http"=>$proxy_ip,
                 "https"=>$proxy_ip)
             );
-            $callback();
-        } else {
-
-            printf("%s\n","Error: A unexcepted error occurred when get the proxy ip");
-        }
+        $callback();
+    } else {
+        printf("%s\n","Error: A unexcepted error occurred when get the proxy ip");
     }
 
     }
