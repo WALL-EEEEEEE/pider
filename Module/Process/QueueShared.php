@@ -7,18 +7,11 @@ namespace Module\Process;
  */
 class QueueShared extends Shared {
 
-    private $data = [];
-    public function __construct($data) {
-        $this->data = $data;
-    }
-    public function __init(){
-    }
-    public function pop(){
+   public function pop(){
+   }
+   public function push(){
     }
 
-    public function push(){
-    }
-
-    public function clear(){
-    }
+   public function clear(){
+   }
 }

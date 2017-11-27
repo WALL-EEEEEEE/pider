@@ -1,0 +1,25 @@
+#!/bin/php
+<?php
+
+function runPider($classpath) {
+    if(!file_exists($classpath)){
+        exit('Error: File not exists!');
+    } else {
+        chdir(dirname($classpath));
+        $classfile = basename($classpath);
+        include_once($classpath);
+        $classname  = basename($classpath,'.php');
+        $cls = new $classname();
+        $cls->go();
+    }
+}
+
+if (PHP_SAPI != 'cli') {
+    exit('This command must be run under cli!');
+} else {
+    if ( $argc != 2  ) {
+        exit("pider [classname] ".PHP_EOL.
+        "   Run a pider...".PHP_EOL);
+    }
+    runPider($argv[1]);
+}
