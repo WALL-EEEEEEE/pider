@@ -28,5 +28,8 @@ class Pider {
             }
         }
     }
+
+    public function parse() {
+    }
 }
 
