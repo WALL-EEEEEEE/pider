@@ -2,13 +2,15 @@
 namespace Module;
 
 use Module\Template\TemplateEngine as Template;
-use requests;
+use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Client;
 
 /**
  * @class Pider
  * Handle all spider operation 
  */
-class Pider {
+abstract class Pider {
     use Template;
     protected $urls;
     protected $domains;
@@ -17,19 +19,56 @@ class Pider {
     public function __construct() {
     }
 
-    public function go() {
-        if (is_string($this->urls)) {
-            $urls = array($this->urls);
+    final public function go() {
+        if ( empty($this->urls) ) {
+            return false;
         }
-        foreach($urls as $url) {
-            $response = requests::request($url);
+        if (is_string($this->urls)) {
+            $this->urls = array($this->urls);
+        }
+        foreach($this->urls as $url) {
+            $httpcli = new Client();
+            $response = $httpcli->request('GET',$url);
             if (!empty($response)) {
-                $this->responses[] = $response;
+                $items = $this->parse($response);
+//                $this->export($items);
             }
         }
     }
 
-    public function parse() {
+    /**
+     * @method parse() Parse information from response of requests
+     * @param  Response $response the response of requests 
+     * @return array | url | Request
+     */
+    public abstract function parse(Response $response); 
+
+    /**
+     *@method start_requests()
+     */
+    public function start_requests() {
+        $start_requests = [];
+        if (!isset($this->urls) || empty($this->urls)) {
+            return false;
+        }
+        if (is_string($this->urls)) {
+            $this->urls = [$this->urls];
+        }
+
+        foreach($this->urls as $url) {
+            $start_requests[] = new Request($url);
+        }
+        return $start_requests;
     }
+
+    /**
+     * @method export() Export data parsed in different ways.
+     *
+     */
+    public function export(Item $items) {
+
+    }
+
+
 }
 
