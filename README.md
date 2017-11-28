@@ -3,9 +3,9 @@
 
 # Usage
 
-## Create a new spider
+## Create a spider
 
-### **example<1>
+### example<1>
 
 Examplespider.php
 
