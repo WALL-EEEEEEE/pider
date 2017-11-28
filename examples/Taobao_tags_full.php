@@ -1,12 +1,14 @@
 <?php
 include_once('../app.php');
 use Module\Pider;
+use GuzzleHttp\Psr7\Response;
 
 class Taobao_tags_full extends Pider {
-    private $url_domain = 'www.taobao.com';
+    protected $domains = 'www.taobao.com';
+
     public function parse(Response $response) {
-        $json = $response->json;
-        var_dump($json);
+        $html = (string)$response->getBody();
+        var_dump($html);
     }
 }
 
