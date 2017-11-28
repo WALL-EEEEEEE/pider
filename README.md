@@ -1,5 +1,5 @@
 # Introduction
-&ensp;&ensp; Pider is an elegant,powerful,modulized,templatized spider framework.It aims to abundant the php community and make easier for PHP developer to write a spider.
+&ensp;&ensp; Pider is an elegant,powerful,modulized,templatized spider framework.It aims to fertilize the php community and make easier for PHP developer to write a spider.
 
 # Usage
 
