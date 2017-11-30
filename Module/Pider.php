@@ -20,13 +20,9 @@ abstract class Pider {
     }
 
     final public function go() {
-        if ( empty($this->urls) ) {
-            return false;
-        }
-        if (is_string($this->urls)) {
-            $this->urls = array($this->urls);
-        }
-        foreach($this->urls as $url) {
+
+       $urls = $this->start_requests();
+       foreach($urls as $url) {
             $httpcli = new Client();
             $response = $httpcli->request('GET',$url);
             if (!empty($response)) {
