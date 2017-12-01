@@ -2,9 +2,8 @@
 namespace Module;
 
 use Module\Template\TemplateEngine as Template;
-use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Client;
+use Module\Http\Response;
+use Module\Http\Request;
 
 /**
  * @class Pider
@@ -22,9 +21,12 @@ abstract class Pider {
     final public function go() {
 
        $urls = $this->start_requests();
+       if (! is_array($urls)) {
+           $urls = [$urls];
+       }
        foreach($urls as $url) {
-            $httpcli = new Client();
-            $response = $httpcli->request('GET',$url);
+            $httpRequest = new Request();
+            $response = $httpRequest->request('GET',$url);
             if (!empty($response)) {
                 $items = $this->parse($response);
 //                $this->export($items);
@@ -42,10 +44,10 @@ abstract class Pider {
     /**
      *@method start_requests()
      */
-    public function start_requests() {
+    public function start_requests():array {
         $start_requests = [];
         if (!isset($this->urls) || empty($this->urls)) {
-            return false;
+            return [];
         }
         if (is_string($this->urls)) {
             $this->urls = [$this->urls];

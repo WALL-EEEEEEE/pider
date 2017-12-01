@@ -1,4 +1,4 @@
-#!/bin/php
+#!/bin/php7.1
 <?php
 
 function runPider($classpath) {
