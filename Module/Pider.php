@@ -30,7 +30,7 @@ abstract class Pider {
                $response = $request->request('GET');
            } else {
                $httpRequest = new Request();
-               $response = $httpRequest->request('GET',$url);
+               $response = $httpRequest->request('GET',$request);
            }
           if (!empty($response)) {
                $items = $this->parse($response);
