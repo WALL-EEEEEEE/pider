@@ -23,7 +23,9 @@ class Examplespider extends Pider {
     
     //Parse data from response of requests
     public function parse(Response $response) {
-
+        $response = $response->outputEncode('utf-8');
+        $product_names = $response->xpath("//ul[contains(@class,'J_sk_list')]/li/div/a/p/text()")->extract();
+        var_dump($product_names);
     }
 }  
 
