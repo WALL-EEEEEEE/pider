@@ -14,4 +14,8 @@ class Request {
     public function request($method, $uri = '', array $options = []) {
         return new Response($this->client->request($method,$uri, $options));
     }
+
+    public function __call($method,$args) {
+        $this->client->__call($method,$args);
+    }
 }

@@ -33,7 +33,7 @@ class Selector {
     }
 
     public function extract() {
-        $elemens = [];
+        $elements = [];
         foreach (self::$selected as $element) {
             $elements[] = trim($element->nodeValue);
         }
