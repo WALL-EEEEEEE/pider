@@ -3,6 +3,8 @@ include_once('../app.php');
 
 use Module\Pider;
 use Module\Http\Response;
+use Module\Data\ActivedCarbon;
+use Module\Data\Pore;
 use Util\Api;
 use Extension\DBExtension;
 
@@ -31,10 +33,11 @@ class JdWineDetails extends Pider {
 
     public function parse(Response $response) {
         $response = $response->outputEncode('utf-8');
-        var_dump($response->xpath('//div[contains(@class,"sku-name")]')->extract());
-        var_dump($response->xpath('//div[contains(@class,"p-parameter")]/ul/li/text()')->extract());
+        $wine_details = $response->xpath('//div[contains(@class,"p-parameter")]/ul/li')->extract();
+        $cleaner = new ActivedCarbon($wine_details);
+        $cleaner->addPore($wine_category_pore);
+        $cleaner->addPore();
         exit(0);
-
     }
 }
 
