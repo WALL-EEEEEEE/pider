@@ -5,6 +5,7 @@ function runPider($classpath) {
     if(!file_exists($classpath)){
         exit('Error: File not exists!');
     } else {
+        include_once('./app.php');
         chdir(dirname($classpath));
         $classfile = basename($classpath);
         include_once($classpath);

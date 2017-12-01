@@ -20,24 +20,29 @@ abstract class Pider {
 
     final public function go() {
 
-       $urls = $this->start_requests();
-       if (! is_array($urls)) {
-           $urls = [$urls];
+       $requests  = $this->start_requests();
+       if (!is_array($requests)) {
+           $requests = [$requests];
        }
-       foreach($urls as $url) {
-            $httpRequest = new Request();
-            $response = $httpRequest->request('GET',$url);
-            if (!empty($response)) {
-                $items = $this->parse($response);
-//                $this->export($items);
-            }
+       foreach($requests as $request) {
+           $response = '';
+           if ($request instanceof Request) {
+               $response = $request->request('GET');
+           } else {
+               $httpRequest = new Request();
+               $response = $httpRequest->request('GET',$url);
+           }
+          if (!empty($response)) {
+               $items = $this->parse($response);
+               //$this->export($items);
+           }
         }
     }
 
     /**
      * @method parse() Parse information from response of requests
      * @param  Response $response the response of requests 
-     * @return array | url | Request
+     * @return array | urls | Requests
      */
     public abstract function parse(Response $response); 
 
@@ -54,7 +59,7 @@ abstract class Pider {
         }
 
         foreach($this->urls as $url) {
-            $start_requests[] = new Request($url);
+            $start_requests[] = new Request(['base_uri'=> $url]);
         }
         return $start_requests;
     }
