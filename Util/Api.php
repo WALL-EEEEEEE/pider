@@ -29,7 +29,7 @@ class Api {
 
    public static function get_standard_products_url($limited,$website) {
         $api_url = "https://9edit.9kacha.com/api/get_web_url.php";
-        $count_jparams = 'jparams={"web_url":"'.$website.'","page_num":1,"limit":1,"atoken":"00f41bf3f58565fc44104b563dcbff10","time":"1486526649"}';
+        $count_jparams = 'jparams={"web_url":"'.$website.'","page_num":1,"limit":'.$limited.',"atoken":"00f41bf3f58565fc44104b563dcbff10","time":"1486526649"}';
         $count_result = Http::post($api_url,$count_jparams);
         $all_count = -1;
         $result = array();
