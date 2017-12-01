@@ -5,7 +5,7 @@
 
 ## Create a spider
 
-### example<1>
+### Example1
 
 Examplespider.php
 
@@ -25,7 +25,10 @@ class Examplespider extends Pider {
         $category_names = $response->xpath("//ul[contains(@class,'cate_menu')]/li/a/text()")->extract();
         var_dump($category_names);
     }
-} ```
+} 
+
+```
+
 Run the spider:
 
 ```shell
