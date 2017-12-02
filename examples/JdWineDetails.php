@@ -3,7 +3,7 @@ include_once('../app.php');
 
 use Module\Pider;
 use Module\Http\Response;
-use Module\Data\ActivedCarbon;
+use Module\Data\GrapeWine\GrapeWineActivedCarbon;
 use Module\Data\Pore;
 use Util\Api;
 use Extension\DBExtension;
@@ -34,9 +34,7 @@ class JdWineDetails extends Pider {
     public function parse(Response $response) {
         $response = $response->outputEncode('utf-8');
         $wine_details = $response->xpath('//div[contains(@class,"p-parameter")]/ul/li')->extract();
-        $cleaner = new ActivedCarbon($wine_details);
-        $cleaner->addPore($wine_category_pore);
-        $cleaner->addPore();
+        $cleaner = (new GrapeWineActivedCarbon($wine_details))();
         exit(0);
     }
 }

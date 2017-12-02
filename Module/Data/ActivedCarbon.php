@@ -9,7 +9,7 @@ namespace Module\Data;
  *
  */
 
-class ActivedCarbon {
+abstract class ActivedCarbon {
 
     /**
      * @attribute Pore list to store all pores
@@ -20,9 +20,15 @@ class ActivedCarbon {
      */
     private $dirty_datas = [];
 
-    public function __construct(array $dirty_datas) {
+    final public function __construct(array $dirty_datas) {
         $this->dirty_datas = $dirty_datas;
+        if (count($pores = $this->selfPores()) > 1) {
+            $this->pores = array_merge($this->pores,$pores);
+        }
     }
+
+    abstract protected function selfPores():array;
+
     /**
      * @method addPore(Pore) 
      * Add a pore
@@ -53,10 +59,15 @@ class ActivedCarbon {
     public function purify() {
         if (count($this->dirty_datas) >= 1 ) {
             foreach($this->pores as $pore) {
-                $pore->...
+                $pore($this->dirty_datas);
             }
         }
     }
+
+    public function __invoke() {
+        $this->purify();
+    }
 }
+
 
 
