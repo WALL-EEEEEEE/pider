@@ -10,13 +10,13 @@ abstract class Pore {
    /**
     * @attribute  array  Data self-clean based
     */
-   private $self_datas;
-   private $data;
+   public  $self_datas;
+   protected $dirty_data;
    private $reactions;
    private $absorbers; 
    private $filters;
 
-   public function __construct(string $poreId = '', $self_datas = '') {
+   final public function __construct(string $poreId = '', $self_datas = '') {
        if (empty($poreId)) {
            $poreId  = $this->__id();
        } 
@@ -24,6 +24,10 @@ abstract class Pore {
            $this->self_datas  = $self_datas;
        }
        $this->pore_uid = $poreId;
+       $selfFeatures = $this->selfFeatures();
+       $this->reactions  = isset($selfFeatures['reaction'])?$selfFeatures['reaction']:[];
+       $this->absorbers = isset($selfFeatures['absorber'])?$selfFeatures['absorber']:[];
+       $this->filters   = isset($selfFeatures['filter'])?$selfFeatures['filter']:[];
    }
 
    protected abstract function selfFeatures():array;
@@ -53,27 +57,29 @@ abstract class Pore {
    }
 
    public function active(array $data) {
-       $this->data = $data;
+       $this->dirty_data = $data;
        if(!empty($this->filters)) {
            while(list(,$filter) = each($this->filters)) {
-               $filter($this->data);
+              $this->dirty_data =  $filter($this->dirty_data);
            }
        }
        if (!empty($this->absorbers)) {
            while(list(,$absorber) = each($this->absorbers)) {
-               $absorber($this->data);
+             $this->dirty_data =  $absorber($this->dirty_data);
            }
        }
        if (!empty($this->reactions)) {
            while(list(,$reaction)= each($this->reactions)) {
-               $reaction($this->data);
+            $this->dirty_data =  $reaction($this->dirty_data,$this);
            }
        }
+       return $this->dirty_data;
    }
 
    public function __invoke(array $data) {
-       $this->active($data);
+       return $this->active($data);
    }
+
    /**
     * @method __id()
     * @return string  a unique indentification pore id returned

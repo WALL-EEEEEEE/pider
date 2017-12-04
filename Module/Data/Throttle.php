@@ -1,12 +1,12 @@
 <?php
 namespace Module\Data;
 
-class Rule {
+class Throttle {
     private $restrict;
     public function __construct(Callable $restrict) {
         $this->restrict = $restrict;
     }
-    public function __invoke($data):bool {
+    public function __invoke($data):array {
         $restrict_callback = $this->restrict;
         return $restrict_callback($data); 
     }

@@ -11,11 +11,14 @@ class GrapeWineActivedCarbon extends ActivedCarbon {
      * Define several pores 
      */
     protected function selfPores():array {
-        $pores = [];
-        $pores[] = new GrapeWineCountryPore();
-        $pores[] = new GrapeCategoryPore();
-        $pores[] = new GrapeWineCategoryPore();
-        $pores[] = new GrapeWinePackagePore();
+        $pores = [
+            new GrapeWineCountryPore(),
+            new GrapeCategoryPore(),
+            new GrapeWineCategoryPore(),
+            new GrapeWineSugarPore(),
+            new GrapeWineColorPore(),
+            new GrapeWinePackagePore(),
+        ];
         return $pores;
     }
 }

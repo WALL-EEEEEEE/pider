@@ -6,37 +6,29 @@ use Module\Data\Throttle;
 use Module\Data\Reaction;
 
 
-class GrapeWinePackagePore extends Pore {
+class GrapeWineColorPore extends Pore {
     
     protected function selfFeatures():array {
-        $this->self_datas = [
-           '瓶装', 
-           '箱装',
-        ];
-        $WinePackagePropertyExist = new Throttle(function($data) {
+       $WineColorPropertyExist = new Throttle(function($data) {
             $subdata = [];
             foreach($data as $p_name => $p_value ) {
-                if (preg_match('/包装/i',$p_name) || in_array($p_value,$this->self_datas)) {
+                if (preg_match('/颜色/i',$p_name)) {
                     $subdata[$p_name] = $p_value;
                 }
             }
             return $subdata;
         });
 
-        $GragulateReaction = new class($WinePackagePropertyExist) extends Reaction {
+        $GragulateReaction = new class($WineColorPropertyExist) extends Reaction {
             public function react(array $data,Pore $pore):array {
                 $clean_data = [];
                 if (count($data) == 0) {
-                    $clean_data['package_ch'] = '';
-                    $clean_data['package_en'] = '';
+                    $clean_data['color_ch'] = '';
+                    $clean_data['color_en'] = '';
                 } else if (count($data) == 1){
                     foreach($data as $key => $value) {
-                        if (preg_match('/箱/i',$value)) {
-                            $clean_data['package_ch']  = '箱装';
-                        } else if (preg_match('/瓶/i',$value)) {
-                            $clean_data['package_ch'] = '瓶装'; 
-                        }
-                        $clean_data['package_en']  = '';
+                        $clean_data['color_ch']  = $value;
+                        $clean_data['color_en']  = '';
                     }
                 } else {
                 }
