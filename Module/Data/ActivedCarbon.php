@@ -22,7 +22,7 @@ abstract class ActivedCarbon {
 
     final public function __construct(array $dirty_datas) {
         $this->dirty_datas = $dirty_datas;
-        if (count($pores = $this->selfPores()) > 1) {
+        if (count($pores = $this->selfPores()) >= 1) {
             $this->pores = array_merge($this->pores,$pores);
         }
     }
@@ -59,13 +59,14 @@ abstract class ActivedCarbon {
     public function purify() {
         if (count($this->dirty_datas) >= 1 ) {
             foreach($this->pores as $pore) {
-                $pore($this->dirty_datas);
+               $this->dirty_datas =  $pore($this->dirty_datas);
             }
         }
+        return $this->dirty_datas;
     }
 
     public function __invoke() {
-        $this->purify();
+        return $this->purify();
     }
 }
 

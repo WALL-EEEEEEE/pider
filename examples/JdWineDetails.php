@@ -34,7 +34,17 @@ class JdWineDetails extends Pider {
     public function parse(Response $response) {
         $response = $response->outputEncode('utf-8');
         $wine_details = $response->xpath('//div[contains(@class,"p-parameter")]/ul/li')->extract();
-        $cleaner = (new GrapeWineActivedCarbon($wine_details))();
+        foreach($wine_details as $key => $detail) {
+            $split_detail = explode('：',$detail);
+            $detail_name = trim($split_detail[0]);
+            $detail_value = trim($split_detail[1]);
+            unset($wine_details[$key]);
+            $wine_details[$detail_name] = $detail_value;
+        }
+
+        $clean_wine_details = (new GrapeWineActivedCarbon($wine_details))();
+        $clean_wine_details = array_diff($clean_wine_details,$wine_details);
+        var_dump($clean_wine_details);
         exit(0);
     }
 }

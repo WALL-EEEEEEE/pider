@@ -1,4 +1,5 @@
 <?php
+namespace Module\Data;
 
 class Absorber {
 
