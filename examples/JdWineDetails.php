@@ -42,10 +42,20 @@ class JdWineDetails extends Pider {
             $wine_details[$detail_name] = $detail_value;
         }
 
+        $url = $response->getUrl();
+
+        //parse product_id from $url
+        $product_id = preg_match('/https?:\/\/item\.jd\.com\/(\d+)\.html/i',$url,$matches)?$matches[1]:'';
+
         $clean_wine_details = (new GrapeWineActivedCarbon($wine_details))();
-        $clean_wine_details = array_diff($clean_wine_details,$wine_details);
-        var_dump($clean_wine_details);
-        exit(0);
+        if (!empty($clean_wine_details) &&  is_array($clean_wine_details) && count($clean_wine_details) > 0) {
+            $clean_wine_details = array_diff($clean_wine_details,$wine_details);
+            if (!empty($clean_wine_details)) {
+
+                echo "Updating product_details for ".$product_id.PHP_EOL;
+                $update_result = DBExtension::update('wine_info',$clean_wine_details,['out_product_id="'.$product_id.'"','website_id='.$GLOBALS['website']['id']]);
+            }
+        }
     }
 }
 

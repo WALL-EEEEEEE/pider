@@ -1,26 +1,20 @@
 <?php
 namespace Module\Data;
 
-class Absorber {
+abstract class Absorber {
 
-    private $absorberRules = [];
+    private $absorberRule;
     private $dirty_data = '';
-    public function __construct(&$dirty_data) {
-
-        $this->absorberRules[] = new class extends Rule {
-        };
+    public function __construct(Rule $rule) {
+        $this->absorberRule = $rule;
     }
 
-    public function adsorb() {
-        $logic = true;
-        foreach($absorberRules as $rule) {
-            $logic &= $rule($this->dirty_data);
-        }
-       
-        if ($logic) {
-            unset($this->dirty_data);
-        }
-        return $this->dirty_data;
-    }
+    public abstract function absorb(); 
 
+    public function __invoke($dirty_data) {
+        $rule = $this->absorberRule;
+        if ($rule()) {
+            $this->absorb();
+        }
+    }
 }

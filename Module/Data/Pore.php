@@ -60,12 +60,19 @@ abstract class Pore {
        $this->dirty_data = $data;
        if(!empty($this->filters)) {
            while(list(,$filter) = each($this->filters)) {
-              $this->dirty_data =  $filter($this->dirty_data);
+               $filtered_data = $filter($this->dirty_data,$this);
+               if (empty($filtered_data)){
+                   return false;
+               } else {
+                   if (is_array($filtered_data)) {
+                       $this->dirty_data =  $filtered_data;
+                   }
+               }
            }
        }
        if (!empty($this->absorbers)) {
            while(list(,$absorber) = each($this->absorbers)) {
-             $this->dirty_data =  $absorber($this->dirty_data);
+             $this->dirty_data =  $absorber($this->dirty_data,$this);
            }
        }
        if (!empty($this->reactions)) {
