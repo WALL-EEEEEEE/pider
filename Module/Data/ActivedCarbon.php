@@ -59,7 +59,12 @@ abstract class ActivedCarbon {
     public function purify() {
         if (count($this->dirty_datas) >= 1 ) {
             foreach($this->pores as $pore) {
-               $this->dirty_datas =  $pore($this->dirty_datas);
+               $datas =  $pore($this->dirty_datas);
+               if (empty($datas)) {
+                   return '';
+               } else {
+                   $this->dirty_datas = $datas;
+               }
             }
         }
         return $this->dirty_datas;

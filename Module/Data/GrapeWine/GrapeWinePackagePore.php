@@ -27,16 +27,19 @@ class GrapeWinePackagePore extends Pore {
             public function react(array $data,Pore $pore):array {
                 $clean_data = [];
                 if (count($data) == 0) {
-                    $clean_data['package_ch'] = '';
-                    $clean_data['package_en'] = '';
+                    $clean_data['packaging_ch'] = '';
+                    $clean_data['packaging_en'] = '';
                 } else if (count($data) == 1){
                     foreach($data as $key => $value) {
                         if (preg_match('/箱/i',$value)) {
-                            $clean_data['package_ch']  = '箱装';
+                            $clean_data['packaging_ch']  = '箱装';
                         } else if (preg_match('/瓶/i',$value)) {
-                            $clean_data['package_ch'] = '瓶装'; 
+                            $clean_data['packaging_ch'] = '瓶装'; 
+                        } else {
+                            $clean_data['packaging_ch'] = '';
                         }
-                        $clean_data['package_en']  = '';
+                        
+                        $clean_data['packaging_en']  = '';
                     }
                 } else {
                 }

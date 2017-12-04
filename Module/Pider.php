@@ -30,7 +30,13 @@ abstract class Pider {
                $response = $request->request('GET');
            } else {
                $httpRequest = new Request();
-               $response = $httpRequest->request('GET',$request);
+               $url = '';
+               $response = $httpRequest->request('GET',$request,[
+                   'on_stats' => function ($stats) use (&$url) {
+                       $url = $stats->getEffectiveUri();
+                   }
+               ]);
+               $response->url = $url;
            }
           if (!empty($response)) {
                $items = $this->parse($response);

@@ -12,6 +12,7 @@ class GrapeWineActivedCarbon extends ActivedCarbon {
      */
     protected function selfPores():array {
         $pores = [
+            new GrapeWineNamePore(),
             new GrapeWineCountryPore(),
             new GrapeCategoryPore(),
             new GrapeWineCategoryPore(),

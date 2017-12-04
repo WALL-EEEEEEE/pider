@@ -7,6 +7,7 @@ class Response {
     private $response = '';
     private $inputEncode =  '';
     private $outputEncode = '';
+    public  $url = '';
 
     public function __construct(BaseResponse $baseResponse){
         $this->response = $baseResponse;
@@ -19,6 +20,10 @@ class Response {
     public function outputEncode(string $encode) {
         $this->outputEncode = $encode;
         return $this;
+    }
+
+    public function getUrl() {
+        return (string)$this->url;
     }
 
     public function getText() {
