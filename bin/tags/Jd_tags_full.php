@@ -107,6 +107,7 @@ function get_tags_from_name($name) {
     if (empty($name)) {
         return false;
     }
+
     //提取名庄，支数，直营
     if (strpos($name,'名庄') !== false) {
         $tags[] = '名庄';
@@ -190,6 +191,7 @@ function get_tags_from_api($product_id) {
         });
         $try_times++;
     }
+    var_dump($result);
     if (empty($result)) {
         printf("%s\n","Failed to get tags from api for $product_id");
         return false;
@@ -302,29 +304,11 @@ function get_actproduct_details($products) {
     while($product_it->valid()) {
         $product = $product_it->current();
         $url= @$product['url'];
-        \requests::$input_encoding='GBK';
-        \requests::$output_encoding='UTF-8';
-        \requests::set_useragents(
-            array(
-                'Mozilla/5.0 (Windows; U; Windows NT 5.2) Gecko/2008070208 Firefox/3.0.1',
-                'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; Trident/4.0)',
-                'Mozilla/5.0 (Windows; U; Windows NT 5.2) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.2.149.27 Safari/525.13',
-                'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.12) Gecko/20080219 Firefox/2.0.0.12 Navigator/9.0.0.6',
-                'Mozilla/5.0 (Windows; U; Windows NT 5.2) AppleWebKit/525.13 (KHTML, like Gecko) Version/3.1 Safari/525.13',
-                'Mozilla/5.0 (iPhone; U; CPU like Mac OS X) AppleWebKit/420.1 (KHTML, like Gecko) Version/3.0 Mobile/4A93 Safari/419.3',
-                'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0)',
-                'Mozilla/5.0 (Macintosh; PPC Mac OS X; U; en) Opera 8.0',)
-        );
-        $proxy_ip = Api::getIp();
-        if ($proxy_ip) {
-            requests::set_proxies(
-                array("http"=>$proxy_ip,
-                    "https"=>$proxy_ip
-                ));
-        } else {
-            printf("%s\n","Error: A unexpected error occurred when get the proxy ip");
-        }
-        $product_details_html = \requests::get($url);
+        Api::proxy_wrapper(function() use ($url,&$product_details_html){
+            requests::$input_encoding = 'gbk';
+            requests::$output_encoding = 'utf-8';
+            $product_details_html = \requests::get($url);
+        });
         if(empty($product_details_html)) {
             printf("%s\n","Get product details page failed ! retrying ".$retry_times.'/'.$max_retry);
             if ($retry_times > $max_retry) {
@@ -341,7 +325,8 @@ function get_actproduct_details($products) {
         //get the extra tags
         $tags  = get_tags_from_api($product['id']);
         if (!empty($tags) && !empty($product_details['tags'])) {
-            $product_details['tags'] = array_merge($product_details['tags'],$tags);        } else if (!empty($tags) && empty($product_details['tags'])) {
+            $product_details['tags'] = array_merge($product_details['tags'],$tags);    
+        } else if (!empty($tags) && empty($product_details['tags'])) {
             $product_details['tags'] = $tags;
         }
         //get the price
@@ -476,7 +461,6 @@ function  Jd_tags_full() {
     }
 
     $search_urls = $cached_urls;
-    $search_urls = array_slice($search_urls, 0,100);
     /**
     $search_urls = array(
         'http://item.jd.com/16299250454.html',
