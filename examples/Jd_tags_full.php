@@ -75,11 +75,8 @@ function pouring_product_details($product_details) {
         if (!empty($product_detail)) {
             $product_detail['uid']= spawn_guid();
             $product_detail['time'] = spawn_guid();
-            if (!isset($product_detail['price']) && !isset($product_detail['name']) && !isset($product_detail['pro_price'])){
-                continue;
-            }
             $product->table('wine_info')
-                ->fields(['uid'=>'id','id'=>'out_product_id','name'=>'name_ch','pro_price'=>'current_price','url'=>'product_url','price'=>'market_price'])
+                ->fields(['uid'=>'id','id'=>'out_product_id','product_id'=>'out_product_id','name'=>'name_ch','pro_price'=>'current_price','url'=>'product_url','price'=>'market_price'])
                 ->fromArray($product_detail)
                 ->add();
         } else {
@@ -149,7 +146,7 @@ function get_coupon_tags ($api_content,&$tags) {
 }
 
 function get_price($product_id) {
-    $api_url = "http://p.3.cn/prices/mgets?type=1&skuIds=J_";
+    $api_url = "https://p.3.cn/prices/mgets?type=1&skuIds=J_";
     $api_url = $api_url.$product_id;
     $result = null;
     printf("%s\n","Collecting price from api ... ");
@@ -176,7 +173,7 @@ function get_price($product_id) {
 
 function get_tags_from_api($product_id) {
     $tags = array();
-    $api_url = "http://cd.jd.com/promotion/v2?skuId=".$product_id."&area=19_1607_3638_0&cat=12259%2C12260%2C9438";
+    $api_url = "https://cd.jd.com/promotion/v2?skuId=".$product_id."&area=19_1607_3638_0&cat=12259%2C12260%2C9438";
     $result = null;
     printf("%s\n","Collecting tags from api ... ");
     Api::proxy_wrapper(function() use (&$result, $api_url){
@@ -301,7 +298,7 @@ function get_actproduct_details($products) {
     }
     $count = 0;
     $product_it = new ArrayIterator($products);
-    $max_retry = 3;
+    $max_retry = 10;
     $retry_times = 0;
 
     printf("%s\n",'Collecting product details ... 0/'.count($products));
@@ -318,6 +315,9 @@ function get_actproduct_details($products) {
                 $product_it->next();
                 $retry_times = 0;
             }  else {
+                Api::proxy_wrapper(function() use(&$product_details_html,$url){
+                    $product_details_html = \requests::get($url);
+                });
                 $retry_times++;
             }
             $failed_produts[] = $products;
@@ -409,7 +409,9 @@ function Jd_tag($urls){
     $products = retrieve_product_ids($product_ids);
     if (!empty($product_ids)) {
         printf("%s\n","Syncing html...");
-        $assoc_arrs = $website->sync_html($product_ids);
+        Api::proxy_wrapper(function() use ($product_ids,$website,&$assoc_arrs){
+           $assoc_arrs = $website->sync_html($product_ids);
+        });
         printf("%s\n","Syncing html... done");
         if ($assoc_arrs) {
             $counter = 0;
@@ -440,7 +442,7 @@ function Jd_tag($urls){
 }
 function  Jd_tags_full() {
     $time_start = time();
-    $task = 8;
+    $task = 4;
     $getExtras = function($searchentry)  {
         $current_page = $searchentry->get_current_page();
         if ($current_page != -1) {
@@ -458,6 +460,7 @@ function  Jd_tags_full() {
     
     $searcher = new SearchEntry("https://search.jd.com/Search");
     $search_urls = array();
+    /**
     $search_urls= $searcher->keyword_param('keyword')->extra_param('enc=utf-8')->totalpages('//div[@id=\'J_topPage\']/span/i')->search('葡萄酒','//div[@id="J_goodsList"]/ul/li/div/div/a/@href')->iterate($getExtras)->reset_totalpages(2,'*')->skip('even')->go();
     $website = new WebsiteController($GLOBALS['website']['id']);
     $website->suffix_product_url('.html');
@@ -470,18 +473,16 @@ function  Jd_tags_full() {
         }
         return 'https:'.$url;
     });
+    **/
     //$search_urls = array_slice($search_urls,0,100);
-    /**
-     $search_urls = array(
+    $search_urls = array(
         'http://item.jd.com/16299250454.html',
         'http://item.jd.com/10124414717.html',
-        'http://item.jd.com/10189569472.html',
-        'http://item.jd.com/1304924.html'
+        'http://item.jd.com/10189569472.html'
     );
-    **/
     //slice the url into $task pieces
     //
-    $gap = (int)round(count($search_urls)/$task);
+    $gap = (int)round(count($search_urls)/$task,0);
     //create a share memory segment to store processs ids
     $process_pool = array();
     $process_pool_key = ftok(__FILE__,'0');
@@ -489,6 +490,7 @@ function  Jd_tags_full() {
     //spawn child process
     for( $i = 0; $i < $task; $i++ ) {
         $urls = array_slice($search_urls,$gap*$i,$gap);
+        var_dump($urls);
         $pid = pcntl_fork();
         if ($pid == -1 ) {
             die("Counld not fork!");
@@ -515,23 +517,24 @@ function  Jd_tags_full() {
         $tmpdata = @unserialize(shmop_read($tmpshm,0,1024*1024));
         if (!empty($tmpdata)) {
             $product_details= array_merge($product_details,$tmpdata);
+            echo "Spices: ".count($tmpdata)."\n";
         }
         shmop_delete($tmpshm);
         shmop_close($tmpshm);
     }
     echo "Total: ".count($product_details)."\n";
+    //var_dump($product_details);
     //Store the product details
     pouring_product_details($product_details);
     //Store the product tags
     prune_tags();
     pouring_product_tags($product_details);
-    var_dump($product_details);
     //delete the parent processes shared memory
     shmop_delete($process_pool_shm);
     shmop_close($process_pool_shm);
     $time_end = time();
     $time_elapse = $time_end-$time_start;
-    echo "Totoal time: ".($time_elapse/60/60)." hours\n";
+    echo "Totoal time: ".($time_elapse/60/60)." hours";
 }
 
 if (PHP_SAPI != 'cli') {

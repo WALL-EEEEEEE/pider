@@ -297,26 +297,31 @@ function get_actproduct_details($products) {
     $product_it = new ArrayIterator($products);
     $max_retry = 10;
     $retry_times = 0;
-
     printf("%s\n",'Collecting product details ... 0/'.count($products));
     while($product_it->valid()) {
         $product = $product_it->current();
+        $product_detalis_html = '';
         $url= @$product['url'];
-        $product_details_html = '';
-        Api::proxy_wrapper(function() use (&$url,$product_details_html) {
-            \requests::$input_encoding='GBK';
-            \requests::$output_encoding='UTF-8';
+        Api::proxy_wrapper(function() use (&$product_details_html,$url)  {
+            \requests::$input_encoding = 'gbk';
+            \requests::$output_encoding = 'utf-8';
             $product_details_html = \requests::get($url);
         });
-       if(empty($product_details_html)) {
+        $retry_times = 0;
+        $max_retry =  10;
+        while(empty($product_details_html) && $retry_times < $max_retry ) {
             printf("%s\n","Get product details page failed ! retrying ".$retry_times.'/'.$max_retry);
-            if ($retry_times > $max_retry) {
-                $product_it->next();
-                $retry_times = 0;
-            }  else {
-                $retry_times++;
-            }
-            $failed_produts[] = $products;
+            Api::proxy_wrapper(function() use (&$product_details_html,$url)  {
+                \requests::$input_encoding = 'gbk';
+                \requests::$output_encoding = 'utf-8';
+                $product_details_html = \requests::get($url);
+            });
+            $retry_times++;
+        }
+
+        if (empty($product_details_html) && $retry_times > $max_retry ) {
+            printf("%s\n","Failed to get product details page for ".$url);
+            $product_it->next();
             continue;
         }
         //get the base product_info
@@ -340,23 +345,12 @@ function get_actproduct_details($products) {
         } else if (!empty($tags) && empty($product_details['tags'])) {
             $product_details['tags'] = $tags_from_name;
         }
-<<<<<<< HEAD
-        $tags_from_price = get_tags_from_price($product_details['price']);
-        if (!empty($tags_from_price) && !empty($product_details['tags'])) {
-            $product_details['tags'] = array_merge($product_details['tags'],$tags_from_price);        
-        } else if (!empty($tags) && empty($product_details['tags'])) {
-            $product_details['tags'] = $tags_from_price;
-        }
-
-=======
         $tags_from_price = !empty($prices['op'])?get_tags_from_price($prices['op']):"";
-
         if (!empty($tags_from_price) && !empty($product_details['tags'])) {
             $product_details['tags'] = array_merge($product_details['tags'],[$tags_from_price]);        
         } else if (!empty($tags) && empty($product_details['tags'])) {
             $product_details['tags'] = $tags_from_price;
         }
->>>>>>> dc3bc4b841ef0710741c8978c742f6d45569f30d
         $product['name'] = $product_details['name'];
         $product['price'] = $prices['op'];
         $product['pro_price'] = $prices['p'];
@@ -417,18 +411,14 @@ function  Jd_flash_tag() {
     $time_start = time();
     $searcher = new SearchEntry("https://search.jd.com/Search");
     $search_urls = $searcher->keyword_param('keyword')->extra_param('enc=utf-8')->totalpages('//div[@id=\'J_topPage\']/span/i')->search('葡萄酒','//div[@id="J_goodsList"]/ul/li/div/div/a/@href')->iterate($getExtras)->reset_totalpages(2,'*')->skip('even')->go();
-    /*
+
+    /**
     $search_urls = array(
         'http://item.jd.com/16299250454.html',
         'http://item.jd.com/10124414717.html',
         'http://item.jd.com/10189569472.html'
     );
-<<<<<<< HEAD
-<<<<<<< HEAD
-     */
-=======
-    */
->>>>>>> dc3bc4b841ef0710741c8978c742f6d45569f30d
+    **/
     $website = new WebsiteController($GLOBALS['website']['id']);
     $website->suffix_product_url('.html');
     $website->prefix_product_url('http://item.jd.com/');
