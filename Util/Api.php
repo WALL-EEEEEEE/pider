@@ -10,6 +10,7 @@ use requests;
  */
 class Api {
 
+
     public static function getIp() {
         \requests::$input_encoding='UTF-8';
         \requests::$output_encoding='UTF-8';
@@ -92,6 +93,7 @@ class Api {
                 'Mozilla/5.0 (Macintosh; PPC Mac OS X; U; en) Opera 8.0',
             )
         );
+
         $proxy_ip = Api::getIp();
         while(empty($proxy_ip)) {
             $proxy_ip = Api::getIp();
@@ -105,7 +107,6 @@ class Api {
                 printf("%s\n","Error: A unexcepted error occurred when get the proxy ip");
             }
         }
-
     }
 }
 

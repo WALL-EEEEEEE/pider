@@ -12,5 +12,6 @@ composer.lock
 vendor
 bin/*
 !bin/scripts
+!bin/tags
 bin/scripts/*
 !bin/scripts/env
