@@ -3,6 +3,7 @@ include_once('../app.php');
 
 use Module\Pider;
 use Module\Http\Response;
+use Module\Http\Request;
 use Module\Data\GrapeWine\GrapeWineActivedCarbon;
 use Module\Data\Pore;
 use Util\Api;
@@ -21,6 +22,9 @@ class JdWineDetails extends Pider {
         $std_urls = [];
         $crawler_urls = [];
         //Load the url infomation from standard database
+        Request::proxy_handler(function() {
+            return Api::getIp();
+        });
         $std_urls = Api::get_standard_products_url(10000,'jd.com');
         //Load crawler_urls from crawle database
         $raw_crawler_urls = DBExtension::get_all("select all_html.url as url from all_html where website_id = ".$GLOBALS['website']['id']);
@@ -41,17 +45,13 @@ class JdWineDetails extends Pider {
             unset($wine_details[$key]);
             $wine_details[$detail_name] = $detail_value;
         }
-
         $url = $response->getUrl();
-
         //parse product_id from $url
         $product_id = preg_match('/https?:\/\/item\.jd\.com\/(\d+)\.html/i',$url,$matches)?$matches[1]:'';
-
         $clean_wine_details = (new GrapeWineActivedCarbon($wine_details))();
         if (!empty($clean_wine_details) &&  is_array($clean_wine_details) && count($clean_wine_details) > 0) {
             $clean_wine_details = array_diff($clean_wine_details,$wine_details);
             if (!empty($clean_wine_details)) {
-
                 echo "Updating product_details for ".$product_id.PHP_EOL;
                 $update_result = DBExtension::update('wine_info',$clean_wine_details,['out_product_id="'.$product_id.'"','website_id='.$GLOBALS['website']['id']]);
             }
