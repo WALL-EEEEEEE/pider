@@ -12,6 +12,7 @@ class Response {
     public function __construct(BaseResponse $baseResponse){
         $this->response = $baseResponse;
     }
+
     public function inputEncode(string $encode) {
         $this->inputEncode = $encode;
         return $this;
@@ -39,6 +40,7 @@ class Response {
             return iconv($content_charset,$this->outputEncode,$body) ;
         }
     }
+
  
     public function xpath($xpath): Selector {
         $contents  = $this->getText(); 

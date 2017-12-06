@@ -26,7 +26,7 @@ class JdWineDetails extends Pider {
             return Api::getIp();
         });
         //Load the url infomation from standard database
-        $std_urls = Api::get_standard_products_url(10000,'jd.com');
+       $std_urls = Api::get_standard_products_url(10000,'jd.com');
         //Load crawler_urls from crawle database
         $raw_crawler_urls = DBExtension::get_all("select all_html.url as url from all_html where website_id = ".$GLOBALS['website']['id']);
         foreach($raw_crawler_urls as $url_arr ) {
@@ -46,9 +46,7 @@ class JdWineDetails extends Pider {
             unset($wine_details[$key]);
             $wine_details[$detail_name] = $detail_value;
         }
-        var_dump($wine_details);
         $url = $response->getUrl();
-
         //parse product_id from $url
         $product_id = preg_match('/https?:\/\/item\.jd\.com\/(\d+)\.html/i',$url,$matches)?$matches[1]:'';
         $clean_wine_details = (new GrapeWineActivedCarbon($wine_details))();
