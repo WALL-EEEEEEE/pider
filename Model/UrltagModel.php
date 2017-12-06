@@ -120,7 +120,6 @@ class UrltagModel extends Model {
                    select * from (
                        select url_tag.uid from url_tag,all_html where url_tag.ah_id = all_html.uid "."and url_tag.ctime<'".date('Y-m-d')."') as m)";  
        }
-       var_dump($sql);
        $result = DBExtension::query($sql);
        if (!$result) {
            return false;
@@ -136,12 +135,14 @@ class UrltagModel extends Model {
        if (empty($website_id)) {
            $website_id = $this->website_id;
        }
-       $sql = "select tag_desc as tag_name,ah_id as all_html_id from url_tag,all_html where url_tag.ah_id = all_html.uid and website_id = ".$website_id;  
+       $sql = "select url_tag.*  from url_tag,all_html where url_tag.ah_id = all_html.uid and website_id = ".$website_id;  
        $result = DBExtension::query($sql);
        if (!$result) {
            return false;
        }
        return $result;
    }
+
+
 
 }
