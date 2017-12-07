@@ -13,5 +13,7 @@ vendor
 bin/*
 !bin/scripts
 !bin/tags
+!bin/postprocess
 bin/scripts/*
+Util/Api.php
 !bin/scripts/env
