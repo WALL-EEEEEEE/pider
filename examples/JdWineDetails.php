@@ -53,10 +53,16 @@ class JdWineDetails extends Pider {
         if (!empty($clean_wine_details) &&  is_array($clean_wine_details) && count($clean_wine_details) > 0) {
             $clean_wine_details = array_diff($clean_wine_details,$wine_details);
             if (!empty($clean_wine_details)) {
-                echo "Updating product_details for ".$product_id.PHP_EOL;
+                echo "Updating wine  product_details for ".$product_id.PHP_EOL;
                 $update_result = DBExtension::update('wine_info',$clean_wine_details,['out_product_id="'.$product_id.'"','website_id='.$GLOBALS['website']['id']]);
+                if (!empty($update_result)) {
+                    echo  "Updating wine product details for ".$product_id." done".PHP_EOL;
+                } else {
+                    echo  "Updating wine product details for ".$product_id." failed".PHP_EOL;
+                }
             }
+        } else {
+                echo "Product ".$product_id." is not wine! pass...".PHP_EOL;
         }
     }
 }
-
