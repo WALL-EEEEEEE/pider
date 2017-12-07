@@ -5,7 +5,8 @@ use GuzzleHttp\Psr7\Request as BaseRequest;
 use GuzzleHttp\Client  as Client;
 
 class Request {
-    private static $proxy_callback = '';
+
+   private static $proxy_callback = '';
     private $proxy = '';
     private $client = '';
     public function __construct(array $config = []) {
