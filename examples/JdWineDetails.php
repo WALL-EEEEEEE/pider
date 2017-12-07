@@ -2,8 +2,8 @@
 include_once('../app.php');
 
 use Module\Pider;
-use Module\Http\Response;
 use Module\Http\Request;
+use Module\Http\Response;
 use Module\Data\GrapeWine\GrapeWineActivedCarbon;
 use Module\Data\Pore;
 use Util\Api;
@@ -21,11 +21,12 @@ class JdWineDetails extends Pider {
     public function start_requests():array {
         $std_urls = [];
         $crawler_urls = [];
-        //Load the url infomation from standard database
-        Request::proxy_handler(function() {
+        //set proxy
+        Request::proxy_handler(function(){
             return Api::getIp();
         });
-        $std_urls = Api::get_standard_products_url(10000,'jd.com');
+        //Load the url infomation from standard database
+       $std_urls = Api::get_standard_products_url(10000,'jd.com');
         //Load crawler_urls from crawle database
         $raw_crawler_urls = DBExtension::get_all("select all_html.url as url from all_html where website_id = ".$GLOBALS['website']['id']);
         foreach($raw_crawler_urls as $url_arr ) {
