@@ -18,3 +18,4 @@ bin/*
 bin/scripts/*
 Util/Api.php
 !bin/scripts/env
+wiki
