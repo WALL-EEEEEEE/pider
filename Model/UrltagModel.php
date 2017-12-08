@@ -143,6 +143,22 @@ class UrltagModel extends Model {
        return $result;
    }
 
+   public function get_distinct_by_website_id($website_id='') {
+
+       if (empty($website_id) && empty($this->website_id)) {
+           throw new \ErrorException('Error: Website id is not specified');
+       }
+       if (empty($website_id)) {
+           $website_id = $this->website_id;
+       }
+       $sql = "select url_tag.*  from url_tag,all_html where url_tag.ah_id = all_html.uid and website_id = ".$website_id;  
+       $result = DBExtension::query($sql);
+       if (!$result) {
+           return false;
+       }
+       return $result;
+   }
+
 
 
 }

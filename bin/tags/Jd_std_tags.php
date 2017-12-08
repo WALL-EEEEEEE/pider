@@ -91,7 +91,7 @@ function pouring_product_tags($product_details) {
     foreach($product_details as $product_detail) {
         if (!empty($product_detail['tags'])) {
             $tag_datas = $product_detail['tags'];
-            $result = DBExtension::insert_batch('url_tag',$tag_datas);
+            $result = DBExtension::insert_batch('url_tag_test',$tag_datas);
             if ($result === false) {
                 printf("%s\n","Error: Data of tags poured error!");
             }
@@ -147,7 +147,7 @@ function get_coupon_tags ($api_content,&$tags) {
 }
 
 function get_price($product_id) {
-    $api_url = "https://p.3.cn/prices/mgets?type=1&skuIds=J_";
+    $api_url = "http://p.3.cn/prices/mgets?type=1&skuIds=J_";
     $api_url = $api_url.$product_id;
     $result = null;
     printf("%s\n","Collecting price from api ... ");
@@ -172,7 +172,7 @@ function get_price($product_id) {
 
 function get_tags_from_api($product_id) {
     $tags = array();
-    $api_url = "https://cd.jd.com/promotion/v2?skuId=".$product_id."&area=19_1607_3638_0&cat=12259%2C12260%2C9438";
+    $api_url = "http://cd.jd.com/promotion/v2?skuId=".$product_id."&area=19_1607_3638_0&cat=12259%2C12260%2C9438";
     $result = null;
     printf("%s\n","Collecting tags from api ... ");
     Api::proxy_wrapper(function() use (&$result, $api_url){
@@ -191,7 +191,6 @@ function get_tags_from_api($product_id) {
         });
         $try_times++;
     }
-    var_dump($result);
     if (empty($result)) {
         printf("%s\n","Failed to get tags from api for $product_id");
         return false;
@@ -393,7 +392,7 @@ function Jd_tag($urls){
                 if (strpos($url,'http') !== false){
                     return $url;
                 }
-                return 'https:'.$url;
+                return 'http:'.$url;
     });
     $product_ids = $website->parse_product_id($urls,'/https?:\/\/item\.jd\.com\/(\d+)\.html/i');
     if (empty($product_ids)) {
@@ -437,8 +436,8 @@ function  Jd_std_tags() {
     $task = 8;
     //load  urls  in standard database
     $urls = Api::get_standard_products_url('20000',"jd.com");
-    $search_urls = array_slice($urls,0,80);
-    /**
+    $search_urls = $urls;
+   /**
     $search_urls = array(
         'http://item.jd.com/16299250454.html',
         'http://item.jd.com/10124414717.html',
@@ -454,7 +453,7 @@ function  Jd_std_tags() {
         if (strpos($url,'http') !== false){
             return $url;
         }
-        return 'https:'.$url;
+        return 'http:'.$url;
     });
 
     //slice the url into $task pieces

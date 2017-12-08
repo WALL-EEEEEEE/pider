@@ -112,7 +112,7 @@ function post_filter($tags,$tagmaps){
                                 $tagtype = $cname;
                             }
                         }
-                       $rule = '/('.preg_replace('/x+/','\d',$rule).')/';
+                       $rule = '/('.preg_replace('/x+/','\d+',$rule).')/';
                        if (preg_match($rule,$tag['tag_desc'],$matches)) {
                                 $tag['tag_desc'] = $matches[1];
                                 $tag['type_name'] = $tagtype;
