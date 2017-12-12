@@ -13,6 +13,7 @@ abstract class Pider {
     use Template;
     protected $urls;
     protected $domains;
+    private $request;
     private $responses;
 
     public function __construct() {
@@ -27,7 +28,8 @@ abstract class Pider {
        foreach($requests as $request) {
            $response = '';
            if ($request instanceof Request) {
-               $response = $request->request('GET');
+               $this->request = $request;
+               $response = $this->request->request('GET');
            } else {
                $httpRequest = new Request();
                $url = '';
