@@ -37,8 +37,19 @@ class GrapeWineSugarPore extends Pore {
                     $clean_data['sugar_en'] = '';
                 } else if (count($data) == 1){
                     foreach($data as $key => $value) {
-                        $clean_data['sugar_ch']  = $value;
-                        $clean_data['sugar_en']  = $pore->self_datas[$value];
+                        if ($value == '其他') {
+                            $clean_data['sugar_ch'] = '';
+                            $clean_data['sugar_en'] = '';
+                        } else {
+                            if (array_key_exists($value,$pore->self_datas)) {
+                                $clean_data['sugar_ch']  = $value;
+                                $clean_data['sugar_en']  = $pore->self_datas[$value];
+                            } else if (in_array($value,$pore->self_datas)) {
+                                $reverse_self_datas = array_flip($pore->self_datas);
+                                $clean_data['sugar_en']  = $value;
+                                $clean_data['sugar_ch']  = $reverse_self_datas[$value];
+                            }
+                       }
                     }
                 } else {
                 }

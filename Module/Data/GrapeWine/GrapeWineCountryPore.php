@@ -130,7 +130,6 @@ class GrapeWineCountryPore extends Pore {
                             }
                         }
                     }
-                } else {
                 }
                 return $clean_data;
             }

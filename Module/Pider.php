@@ -27,19 +27,27 @@ abstract class Pider {
        }
        foreach($requests as $request) {
            $response = '';
+           $url = '';
            if ($request instanceof Request) {
                $this->request = $request;
-               $response = $this->request->request('GET');
+               $response = $this->request->request('GET',[
+                   'on_stats' => function ($stats) use (&$url) {
+                       $url = $stats->getEffectiveUri();
+                   },
+                   'http_errors'=>false,
+                   'timeout'=>108
+               ]);
            } else {
                $httpRequest = new Request();
-               $url = '';
                $response = $httpRequest->request('GET',$request,[
                    'on_stats' => function ($stats) use (&$url) {
                        $url = $stats->getEffectiveUri();
-                   }
+                   },
+                   'http_errors'=> false,
+                   'timeout'=>108
                ]);
-               $response->url = $url;
            }
+           $response->url = $url;
           if (!empty($response)) {
                $items = $this->parse($response);
                //$this->export($items);
