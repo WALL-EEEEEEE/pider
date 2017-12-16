@@ -2,7 +2,10 @@
 namespace Module\Http;
 
 use GuzzleHttp\Psr7\Request as BaseRequest;
+use GuzzleHttp\Psr7\Response as BaseResponse;
 use GuzzleHttp\Client  as Client;
+use GuzzleHttp\Exception\ConnectException;
+
 
 class Request {
 
@@ -29,10 +32,21 @@ class Request {
         if (!empty($this->proxy)) {
             $options['proxy'] = $this->proxy;
         }
-        return new Response($this->client->request($method,$uri, $options));
+        $response = '';
+        try {
+            $response = $this->client->request($method,$uri,$options);
+        } catch(ConnectException $e) {
+            throw new \Exception($e->getMessage());
+        } finally {
+            if (! $response instanceof BaseResponse ) {
+                $response = new BaseResponse();
+            }
+            return new Response($response);
+        }
     }
 
     public function __call($method,$args) {
         $this->client->__call($method,$args);
+
     }
 }

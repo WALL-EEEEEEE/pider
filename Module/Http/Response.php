@@ -7,10 +7,15 @@ class Response {
     private $response = '';
     private $inputEncode =  '';
     private $outputEncode = '';
-    public  $url = '';
+    private $url = '';
+    private $org_url = '';
 
     public function __construct(BaseResponse $baseResponse){
         $this->response = $baseResponse;
+    }
+
+    public static function formResponse() {
+        return new Response(new BaseResponse());
     }
 
     public function inputEncode(string $encode) {
@@ -27,6 +32,17 @@ class Response {
         return (string)$this->url;
     }
 
+    public function setUrl(string $url) {
+        $this->url =  $url;
+    }
+
+    public function getOrgUrl() {
+        return (string) $this->org_url;
+    }
+
+    public function setOrgUrl(string $url) {
+        $this->org_url = $url;
+    }
     public function getText() {
         $content_type = @$this->response->getHeader('Content-Type')[0];
         $content_charset = @trim(strstr($content_type,'charset='),'charset=');
@@ -37,7 +53,10 @@ class Response {
             return (string) $this->response->getBody();
         } else {
             $body =  (string)$this->response->getBody();
-            return iconv($content_charset,$this->outputEncode,$body) ;
+            if (!empty($body)) {
+                $body = iconv($content_charset,$this->outputEncode.'//IGNORE',$body);
+            }
+            return $body;
         }
     }
 
@@ -62,6 +81,4 @@ class Response {
     public function __call($method,$args) {
         return $this->response->$method($args);
     }
-
-   
 }

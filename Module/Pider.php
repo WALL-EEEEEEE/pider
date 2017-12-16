@@ -35,8 +35,10 @@ abstract class Pider {
                        $url = $stats->getEffectiveUri();
                    },
                    'http_errors'=>false,
-                   'timeout'=>108
+                   'timeout'=>60,
+                   'connect_timeout'=> 60
                ]);
+               $response->setOrgUrl($this->request->getUri());
            } else {
                $httpRequest = new Request();
                $response = $httpRequest->request('GET',$request,[
@@ -44,10 +46,12 @@ abstract class Pider {
                        $url = $stats->getEffectiveUri();
                    },
                    'http_errors'=> false,
-                   'timeout'=>108
+                   'timeout'=> 60,
+                   'connect_timeout'=> 60,
                ]);
+               $response->setOrgUrl($request);
            }
-           $response->url = $url;
+           $response->setUrl($url);
           if (!empty($response)) {
                $items = $this->parse($response);
                //$this->export($items);
