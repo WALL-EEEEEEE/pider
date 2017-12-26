@@ -15,6 +15,7 @@ bin/*
 !bin/scripts
 !bin/tags
 !bin/postprocess
+!bin/analyze
 bin/scripts/*
 Util/Api.php
 !bin/scripts/env
