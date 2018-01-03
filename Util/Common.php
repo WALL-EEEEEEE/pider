@@ -1,4 +1,5 @@
 <?php
+namespace Util\Common;
 
 /**
  * This function is used to spawn a 16-bit random guid string.
@@ -163,4 +164,9 @@ function array_quote($array,$option_wrapper="'") {
         $value = $option_wrapper.$value.$option_wrapper;
     });
     return $dest_array;
+}
+
+function gbk_to_utf8($str)
+{
+    return mb_convert_encoding($str, 'utf-8', 'gbk');
 }

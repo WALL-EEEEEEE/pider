@@ -8,6 +8,7 @@
         "guzzlehttp/guzzle": "~6.0",
         "phpoffice/phpexcel": "^1.8",
         "nuovo/spreadsheet-reader": "^0.5.11",
-        "stolt/json-lines": "^2.0"
+        "stolt/json-lines": "^2.0",
+        "laravel/laravel": "^5.5"
     }
 }
