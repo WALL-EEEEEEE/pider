@@ -17,6 +17,7 @@ bin/*
 !bin/postprocess
 !bin/analyze
 !bin/spy
+bin/analyze/.data
 bin/scripts/*
 Util/Api.php
 !bin/scripts/env
