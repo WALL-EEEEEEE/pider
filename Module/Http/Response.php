@@ -55,8 +55,8 @@ class Response {
             $body =  (string)$this->response->getBody();
             if (!empty($body)) {
                 $body = iconv($content_charset,$this->outputEncode.'//IGNORE',$body);
-            }
-            return $body;
+                }
+                return $body;
         }
     }
 
