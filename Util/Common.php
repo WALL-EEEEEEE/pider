@@ -1,6 +1,4 @@
 <?php
-namespace Util\Common;
-
 /**
  * This function is used to spawn a 16-bit random guid string.
  * @return string
