@@ -168,3 +168,4 @@ function gbk_to_utf8($str)
 {
     return mb_convert_encoding($str, 'utf-8', 'gbk');
 }
+
