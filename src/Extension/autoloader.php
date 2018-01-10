@@ -12,7 +12,7 @@ class autoloader {
        $autoloader = new autoloader();
        set_include_path(get_include_path().PATH_SEPARATOR.APP_ROOT);
        #Load the config at first
-       $config_path = APP_ROOT.'/phpspider/config/inc_config.php';
+       $config_path = APP_ROOT.'/Config/config.php';
        include_once($config_path);
        //The common function sets,usefull but not be orgnized well now.
        include_once(APP_ROOT.'/Util/Common.php');

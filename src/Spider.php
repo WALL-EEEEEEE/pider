@@ -4,12 +4,11 @@ namespace Pider;
 use Pider\Template\TemplateEngine as Template;
 use Pider\Http\Response;
 use Pider\Http\Request;
-
 /**
  * @class Pider
  * Handle all spider operation 
  */
-abstract class Pider {
+abstract class Spider {
     use Template;
     protected $urls;
     protected $domains;
@@ -91,7 +90,5 @@ abstract class Pider {
     public function export(Item $items) {
 
     }
-
-
 }
 
