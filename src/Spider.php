@@ -1,9 +1,9 @@
 <?php
-namespace Module;
+namespace Pider;
 
-use Module\Template\TemplateEngine as Template;
-use Module\Http\Response;
-use Module\Http\Request;
+use Pider\Template\TemplateEngine as Template;
+use Pider\Http\Response;
+use Pider\Http\Request;
 
 /**
  * @class Pider
