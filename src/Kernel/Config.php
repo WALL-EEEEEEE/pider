@@ -19,7 +19,7 @@ class Config {
         return $this;
     }
     public function __get(string $kconfig) {
-        if(in_array($kconfig, $this->Configs)) {
+        if(array_key_exists($kconfig, $this->Configs)) {
             return $this->Configs[$kconfig];
         } else {
             return '';

@@ -3,10 +3,11 @@ error_reporting(E_ALL);
 require_once('vendor/autoload.php');
 require_once('Extension/autoloader.php');
 date_default_timezone_set('Asia/Shanghai');
-define("APP_ROOT",dirname(__FILE__));
-//Compatible with phpspider's log system,fuck
-define('PATH_DATA',APP_ROOT.'/cache/');
+defined('FRAMEWORK_NAME')?'':define('FRAMEWORK_NAME','Pider');
+defined('APP_ROOT')?'':define('APP_ROOT',dirname(__DIR__,1));
+defined('PIDER_PATH')?'':define('PIDER_PATH',dirname(__FILE__));
 autoloader::autoload();
+
 
 
 

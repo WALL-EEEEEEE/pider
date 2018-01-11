@@ -1,10 +1,9 @@
 <?php
 
 return $kernel_config = [
-    "Modules"=> [
-        "Core"=> [   
-            "Pider\Kernel\ModuleLoadder",
-        ],
-        "Extra"=> [],
-    ]
+    "Cores"=> [   
+        "Pider\Kernel\Core\ModuleLoader",
+        "Pider\Kernel\Core\ScheduleLoader"
+     ],
+    "Extras"=> [],
 ];

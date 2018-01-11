@@ -4,11 +4,15 @@ namespace Pider;
 use Pider\Template\TemplateEngine as Template;
 use Pider\Http\Response;
 use Pider\Http\Request;
+use Pider\Kernel\WithKernel;
+use Pider\Kernel\MetaStream;
+
 /**
  * @class Pider\Spider
  * Spider class is a frontend class for programmer to customize their spider. 
  */
-abstract class Spider {
+abstract class Spider extends WithKernel {
+
     use Template;
     protected $urls;
     protected $domains;
@@ -25,37 +29,9 @@ abstract class Spider {
            $requests = [$requests];
        }
        foreach($requests as $request) {
-           $response = '';
-           $url = '';
-           if ($request instanceof Request) {
-               $this->request = $request;
-               $response = $this->request->request('GET','',[
-                   'on_stats' => function ($stats) use (&$url) {
-                       $url = $stats->getEffectiveUri();
-                   },
-                   'http_errors'=>false,
-                   'timeout'=>60,
-                   'connect_timeout'=> 60
-               ]);
-               $response->setOrgUrl($this->request->getUri());
-           } else {
-               $httpRequest = new Request();
-               $response = $httpRequest->request('GET',$request,[
-                   'on_stats' => function ($stats) use (&$url) {
-                       $url = $stats->getEffectiveUri();
-                   },
-                   'http_errors'=> false,
-                   'timeout'=> 60,
-                   'connect_timeout'=> 60,
-               ]);
-               $response->setOrgUrl($request);
-           }
-           $response->setUrl($url);
-          if (!empty($response)) {
-               $items = $this->parse($response);
-               //$this->export($items);
-           }
-        }
+           $this->fromStream(new MetaStream('REQUEST',$request));
+       }
+       $this->toStream();
     }
 
     /**

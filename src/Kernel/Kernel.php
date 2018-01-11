@@ -9,18 +9,22 @@ namespace Pider\Kernel;
  * specified modules and middlewares 
  */
 use Pider\Kernel\Config;
+use Pider\Kernel\MetaStream;
+use Pider\Kernel\Stream;
+use Pider\Kernel\StreamInvalid;
 
-class Kernel {
-    private $CoreModules = [];
-    private $ExtraModules = [];
-    private $ActivedModules = [];
+class Kernel implements WithStream {
+    private $cores= [];
+    private $extras= [];
+    private $actived = [];
+    private $streams = [];
     private $Configs;
 
 
     public final function __construct() {
         $this->Configs = (new Config())();
-        $this->CoreModules = $this->Configs->Modules['Cores'];
-        $this->ExtraModules = $this->Configs->Modules['Extras'];
+        $this->cores = $this->Configs->Cores;
+        $this->extras = $this->Configs->Extras;
         $this->init();
     }
 
@@ -30,8 +34,8 @@ class Kernel {
      */
     private function init() {
         //load core kenel modules
-        $this->CoreKernelModules();
-        $this->ExtraKernelModules();
+        $this->LoadCores();
+        $this->LoadExtras();
     }
 
     /**
@@ -39,12 +43,12 @@ class Kernel {
      * Load core kenel modules
      *
      */
-    private function CoreKernelModules() {
+    private function LoadCores() {
         try {
-            $cores = $this->CoreModules;
+            $cores = $this->cores;
             foreach($cores as $core) {
                 $module = new $core();
-                $this->ActivedModules[] = $module();
+                $this->actived[] = $module;
             }
         } catch(ErrorException  $exception) {
             throw new KernelError("Kernel Error: When init module ".$core);
@@ -55,15 +59,43 @@ class Kernel {
      * @method ExtraKernelModules()
      * Load extra kernel modules
      */
-    private function ExtraKernelModules() {
+    private function LoadExtras() {
         try {
-            $extras = $this->ExtraModules;
+            $extras = $this->extras;
             foreach($extras as $extra) {
                 $module = new $extra();
-                $this->ActivedModules[] = $module();
+                $this->actived[] = $module();
             }
         } catch(ErrorException  $exception) {
             throw new KernelException("Kernel Exception in module ".$extra);
         }
+    }
+
+    /**
+     * @method dispatch
+     *
+     * Dispatch Streams to different modules or handles
+     */
+    private function dispatch() {
+        foreach ($this->streams as $stream) {
+            foreach($this->actived as $module) {
+                if ($module->isstream($stream)) {
+                    $this->module->fromStream($stream);
+                }
+            }
+        }
+    }
+    /**
+     * @method fromStream()
+     * Accepted stream from other components, Stream is just like a resource request      */
+    public function fromStream(Stream $stream) {
+        if ($stream instanceof MetaStream) {
+            $this->streams[] = $stream;
+        } else {
+            throw new StreamInvalid("Invalid stream provided!");
+        }
+    }
+
+    public function toStream() {
     }
 }
