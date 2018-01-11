@@ -31,10 +31,10 @@ Examplespider.php
 
 ```php
 <?php
-use Module\Pider;
-use Module\Http\Response;
+use Pider\Spider;
+use Pider\Http\Response;
     
-class Examplespider extends Pider {
+class Examplespider extends Spider {
     protected $domains = 'www.jd.com';
     protected $urls = [
        'www.jd.com/'];
@@ -80,10 +80,10 @@ rray(46) {
 ## Create a spider with proxy
 
 ```php
-use Module\Pider;
-use Module\Http\Response;
+use Pider\Spider;
+use Pider\Http\Response;
     
-class Examplespider extends Pider {
+class Examplespider extends Spider {
     protected $domains = 'www.jd.com';
     protected $urls = [
        'www.jd.com/'];
