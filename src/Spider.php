@@ -5,8 +5,8 @@ use Pider\Template\TemplateEngine as Template;
 use Pider\Http\Response;
 use Pider\Http\Request;
 /**
- * @class Pider
- * Handle all spider operation 
+ * @class Pider\Spider
+ * Spider class is a frontend class for programmer to customize their spider. 
  */
 abstract class Spider {
     use Template;
@@ -29,7 +29,7 @@ abstract class Spider {
            $url = '';
            if ($request instanceof Request) {
                $this->request = $request;
-               $response = $this->request->request('GET',[
+               $response = $this->request->request('GET','',[
                    'on_stats' => function ($stats) use (&$url) {
                        $url = $stats->getEffectiveUri();
                    },

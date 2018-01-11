@@ -11,4 +11,6 @@ $config = [
     "IpSchedule"=>[
         "Module\IpSchedule\IpSource1",
     ],
+    "MiddleWares"=> [
+    ]
 ];

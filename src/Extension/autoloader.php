@@ -11,6 +11,7 @@ class autoloader {
     public static function autoload() {
        $autoloader = new autoloader();
        set_include_path(get_include_path().PATH_SEPARATOR.APP_ROOT);
+       set_include_path(get_include_path().PATH_SEPARATOR.PIDER_PATH);
        #Load the config at first
        $config_path = APP_ROOT.'/Config/config.php';
        include_once($config_path);
@@ -21,12 +22,7 @@ class autoloader {
        spl_autoload_register(array($autoloader,'loadExt'));
        spl_autoload_register(array($autoloader,'loadModel'));
        spl_autoload_register(array($autoloader,'loadUtil'));
-       spl_autoload_register(array($autoloader,'loadUtil'));
        spl_autoload_register(array($autoloader,'loadController'));
-    }
-
-    public static function register($name,$path) {
-
     }
 
     private function loadModule($class) {
@@ -66,10 +62,8 @@ class autoloader {
         }
     }
     private function loadCore($class) {
-        $core_path = APP_ROOT.'/phpspider/core/';
-        $library_path =APP_ROOT.'/phpspider/library/';
-        set_include_path(get_include_path().PATH_SEPARATOR.$core_path.PATH_SEPARATOR.$library_path);
-        spl_autoload_extensions('.php');
-        spl_autoload($class);
+        $classpath =  str_replace('\\',DIRECTORY_SEPARATOR,$class);
+        $real_classpath = substr($classpath,strpos($classpath,DIRECTORY_SEPARATOR)+1);
+        include_once($real_classpath.'.php');
     }
 }

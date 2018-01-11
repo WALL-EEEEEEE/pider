@@ -1,5 +1,5 @@
 <?php
-namespace Module\Http;
+namespace Pider\Http;
 
 class Selector {
 

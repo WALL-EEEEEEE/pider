@@ -1,5 +1,5 @@
 <?php
-namespace Module\Http;
+namespace Pider\Http;
 
 use GuzzleHttp\Psr7\Request as BaseRequest;
 use GuzzleHttp\Psr7\Response as BaseResponse;
@@ -12,10 +12,13 @@ class Request {
    private static $proxy_callback = '';
     private $proxy = '';
     private $client = '';
+    private $uri = '';
     public function __construct(array $config = []) {
+        if (array_key_exists('base_uri',$config)) {
+            $this->uri = $config['base_uri'];
+        }
         $this->client = new Client($config);
     }
-
     public static function proxy_handler(callable $proxy_callback) {
         self::$proxy_callback = $proxy_callback;
     }
@@ -45,8 +48,10 @@ class Request {
         }
     }
 
+    public function getUri() {
+        return $this->uri;
+    }
     public function __call($method,$args) {
         $this->client->__call($method,$args);
-
     }
 }

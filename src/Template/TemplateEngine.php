@@ -1,10 +1,10 @@
 <?php
-namespace Module\Template;
+namespace Pider\Template;
 
-use Exception\FileNotFoundException;
-use Exception\TemplateParseException;
-use Module\Template\Parser\BaseParser as BaseParser;
-use Module\Template\Parser\StateParser as StateParser;
+use Pider\Template\Exception\FileNotFoundException;
+use Pider\Template\Exception\TemplateParseException;
+use Pider\Template\Parser\BaseParser as BaseParser;
+use Pider\Template\Parser\StateParser as StateParser;
 /**
  * @trait TemplateEngine 
  * Parsing the spider template file .json

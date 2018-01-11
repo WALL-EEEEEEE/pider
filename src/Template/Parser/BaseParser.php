@@ -1,5 +1,5 @@
 <?php
-namespace Module\Template\Parser;
+namespace Pider\Template\Parser;
 
 trait BaseParser {
     use Parser;

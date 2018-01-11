@@ -1,5 +1,5 @@
 <?php
-namespace Module\Http;
+namespace Pider\Http;
 
 use GuzzleHttp\Psr7\Response as BaseResponse;
 
