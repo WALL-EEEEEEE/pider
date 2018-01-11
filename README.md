@@ -3,7 +3,25 @@
 
 # Features
 
-&ensp;&ensp; 
++ Crawler 
++ Crawler with multi-process
++ Command line interface
++ Template crawling
++ Well debug interface
++ Data cleaning
++ Data visuliazation
+
+# Requirments
+
++ PHP >= 7.1 with `pthreads` , `pcntl` and `xmlreader` extensions enabled
+
+# Installation
+
+```shell
+  git clone https://github.com/duanqiaobb/pider.git
+  chmod u+x install.sh
+  ./install.sh
+```
 
 # Usage
 
