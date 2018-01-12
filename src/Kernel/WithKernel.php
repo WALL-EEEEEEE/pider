@@ -13,9 +13,12 @@ class WithKernel implements WithStream {
         $this->fromstreams[] = $stream;
     }
     public function toStream() {
-        $kernel = new Kernel();
+        if (empty($this->kernel)) {
+            $kernel = new Kernel();
+        } 
         foreach($this->fromstreams as $stream) {
             $kernel->fromStream($stream);
         }
+        return $kernel->toStream();
     }
 }

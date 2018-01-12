@@ -3,7 +3,7 @@
  * @interface Schedule 
  * A interface of Schedule 
  */
-namespace Module\Schedule;
+namespace Pider\Schedule;
 
 interface Schedule {
     /**

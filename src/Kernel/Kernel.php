@@ -47,8 +47,7 @@ class Kernel implements WithStream {
         try {
             $cores = $this->cores;
             foreach($cores as $core) {
-                $module = new $core();
-                $this->actived[] = $module;
+                $module = (new $core())();
             }
         } catch(ErrorException  $exception) {
             throw new KernelError("Kernel Error: When init module ".$core);
@@ -80,7 +79,7 @@ class Kernel implements WithStream {
         foreach ($this->streams as $stream) {
             foreach($this->actived as $module) {
                 if ($module->isstream($stream)) {
-                    $this->module->fromStream($stream);
+                    $module->fromStream($stream);
                 }
             }
         }
@@ -97,5 +96,6 @@ class Kernel implements WithStream {
     }
 
     public function toStream() {
+        $this->dispatch();
     }
 }

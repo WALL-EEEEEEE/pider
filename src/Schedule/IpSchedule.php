@@ -1,12 +1,12 @@
 <?php
-namespace Module\IpSchedule;
-use Module\Schedule\Schedule as Schedule;
+namespace Pider\Schedule;
 
 /**
  * @class IpSchedule 
  *
  * Schedule proxy ips for request 
  */
+
 class IpSchedule implements Schedule{
     /**
      * @property $ippool 
