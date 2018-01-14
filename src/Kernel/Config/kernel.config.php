@@ -6,4 +6,7 @@ return $kernel_config = [
         "Pider\Kernel\Core\ScheduleLoader"
      ],
     "Extras"=> [],
+    "Config"=> [
+        'Config/config.php',
+    ]
 ];

@@ -16,6 +16,7 @@ class ScheduleLoader {
     }
     public function init() {
         $this->load();
+        return $this->schedules;
     }
     public function load() {
         $schedule_path = PIDER_PATH.'/'.self::DEFAULT_SCHEDULE_PATH;
@@ -26,11 +27,9 @@ class ScheduleLoader {
                 $classname = pathinfo($dir,PATHINFO_FILENAME);
                 $fclassname = self::DEFAULT_NAMESPACE_PREFIX.$classname;
                 $classes[] = new $fclassname();
-                var_dump($fclassname);
-                //$classes[] = new $schedule_path.'/'.$dir;
             }
         }
-
+        $this->schedules = $classes;
     }
 
 }

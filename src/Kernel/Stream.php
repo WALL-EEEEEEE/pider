@@ -17,6 +17,9 @@ abstract class Stream {
     public function type() {
         return $this->type;
     } 
+    public function body()  {
+        return $this->body;
+    }
     public abstract function source();
     public abstract function target();
 }

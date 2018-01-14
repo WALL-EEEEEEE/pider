@@ -29,7 +29,7 @@ abstract class Spider extends WithKernel {
            $requests = [$requests];
        }
        foreach($requests as $request) {
-           $this->fromStream(new MetaStream('REQUEST',$request));
+           $this->fromStream(new MetaStream('REQUEST',$request),$this);
        }
        $this->toStream();
     }
@@ -64,7 +64,6 @@ abstract class Spider extends WithKernel {
      *
      */
     public function export(Item $items) {
-
     }
 }
 

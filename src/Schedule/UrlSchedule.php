@@ -1,7 +1,9 @@
 <?php
 namespace Pider\Schedule;
 
-class UrlSchedule implements Schedule {
+use Pider\Kernel\WithKernel;
+
+class UrlSchedule extends WithKernel implements Schedule {
     /**
      * Add task to Schedule 
      */

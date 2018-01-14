@@ -17,14 +17,17 @@ class Kernel implements WithStream {
     private $cores= [];
     private $extras= [];
     private $actived = [];
+    private $attaches = [];
     private $streams = [];
-    private $Configs;
+    private $KernelConfigs;
+    public $Configs;
 
 
     public final function __construct() {
-        $this->Configs = (new Config())();
-        $this->cores = $this->Configs->Cores;
-        $this->extras = $this->Configs->Extras;
+        $this->Configs =  (new Config())();
+        $config = $this->Configs->KernelConfig();
+        $this->cores = $config->Cores;
+        $this->extras = $config->Extras;
         $this->init();
     }
 
@@ -48,6 +51,9 @@ class Kernel implements WithStream {
             $cores = $this->cores;
             foreach($cores as $core) {
                 $module = (new $core())();
+                if (!empty($module)) {
+                    $this->actived = array_merge($this->actived,$module);
+                }
             }
         } catch(ErrorException  $exception) {
             throw new KernelError("Kernel Error: When init module ".$core);
@@ -63,7 +69,7 @@ class Kernel implements WithStream {
             $extras = $this->extras;
             foreach($extras as $extra) {
                 $module = new $extra();
-                $this->actived[] = $module();
+                $this->actived = array_merge($this->actived, $module());
             }
         } catch(ErrorException  $exception) {
             throw new KernelException("Kernel Exception in module ".$extra);
@@ -78,16 +84,17 @@ class Kernel implements WithStream {
     private function dispatch() {
         foreach ($this->streams as $stream) {
             foreach($this->actived as $module) {
-                if ($module->isstream($stream)) {
-                    $module->fromStream($stream);
+                if ($module->isStream($stream)) {
+                    $fromstream = $module->fromStream($stream,$this);
                 }
             }
         }
     }
+
     /**
      * @method fromStream()
      * Accepted stream from other components, Stream is just like a resource request      */
-    public function fromStream(Stream $stream) {
+    public function fromStream(Stream $stream, WithStream $fromObject) {
         if ($stream instanceof MetaStream) {
             $this->streams[] = $stream;
         } else {
@@ -97,5 +104,22 @@ class Kernel implements WithStream {
 
     public function toStream() {
         $this->dispatch();
+    }
+    public function isStream(Stream $stream) {
+        if($stream instanceof MetaStream ) {
+            return true;
+        }
+        return false;
+    }
+
+    public function __get(string $attachname) {
+        if(array_key_exists($attachname,$this->attaches)) {
+            return $this->attaches[$attachname];
+        } else {
+            return '';
+        }
+    }
+    public function __set(string $attachname ,WithStream $attach) {
+        $this->attaches[$attachname] = $attach;
     }
 }

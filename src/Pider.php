@@ -6,7 +6,7 @@ date_default_timezone_set('Asia/Shanghai');
 defined('FRAMEWORK_NAME')?'':define('FRAMEWORK_NAME','Pider');
 defined('APP_ROOT')?'':define('APP_ROOT',dirname(__DIR__,1));
 defined('PIDER_PATH')?'':define('PIDER_PATH',dirname(__FILE__));
-autoloader::autoload();
+Pider\Extension\autoloader::autoload();
 
 
 
