@@ -1,10 +1,4 @@
-phpspider/config
-
-phpspider/data
-phpspider/demo
-phpspider/*.php
-phpspider/*.sql
-phpspider/*.md
+phpspider
 assets
 cache
 tags
@@ -12,13 +6,5 @@ tags
 composer.lock
 vendor
 bin/*
-!bin/scripts
-!bin/tags
-!bin/postprocess
-!bin/analyze
-!bin/spy
-bin/analyze/.data
-bin/scripts/*
 Util/Api.php
-!bin/scripts/env
 wiki
