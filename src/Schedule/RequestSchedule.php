@@ -12,7 +12,7 @@ class  RequestSchedule extends WithKernel implements Schedule{
      * Add task to Schedule 
      */
     public function add($item) {
-
+        $this->request_pool[] = $item;
     }
 
     /**
@@ -20,7 +20,6 @@ class  RequestSchedule extends WithKernel implements Schedule{
      * Schedule tasks and Generate a priority task lists
      */
     public function schedule() {
-
     }
 
     /**
@@ -41,8 +40,9 @@ class  RequestSchedule extends WithKernel implements Schedule{
         if (empty($if_exist)) {
             $kernel->RequestSchedule = new RequestSchedule();
         } 
+        //Extract request from stream and put the request into shceduler
         $request_schedule = $kernel->RequestSchedule;
-        $request_schedule->request_pool[] = $stream->body();
+        $request_schedule->add($stream->body());
     }
 
     /**
