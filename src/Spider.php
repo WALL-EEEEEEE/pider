@@ -6,6 +6,9 @@ use Pider\Http\Response;
 use Pider\Http\Request;
 use Pider\Kernel\WithKernel;
 use Pider\Kernel\MetaStream;
+use Pider\Kernel\Stream;
+use Pider\Kernel\WithStream;
+use Pider\Kernel\Kernel;
 
 /**
  * @class Pider\Spider
@@ -24,14 +27,12 @@ abstract class Spider extends WithKernel {
 
     final public function go() {
 
-       $requests  = $this->start_requests();
-       if (!is_array($requests)) {
-           $requests = [$requests];
-       }
-       foreach($requests as $request) {
-           $this->fromStream(new MetaStream('REQUEST',$request),$this);
-       }
-       $this->toStream();
+        $requests  = $this->start_requests();
+        if (!is_array($requests)) {
+            $requests = [$requests];
+        }
+        //init kernel
+        $this->kernelize($requests);
     }
 
     /**
@@ -61,9 +62,35 @@ abstract class Spider extends WithKernel {
 
     /**
      * @method export() Export data parsed in different ways.
-     *
      */
     public function export(Item $items) {
     }
-}
 
+    public function fromStream(Stream $stream, WithStream $kernel) {
+        $response = $stream->body();
+        $this->parse($response);
+    }
+
+    public function toStream() {
+    }
+
+    public function isStream(Stream $stream) {
+        $type = $stream->type();
+        return parent::isStream($stream) && ($type == "RESPONSE");
+    }
+
+    public function kernelize($requests) {
+        if(empty(self::$kernel)) {
+            self::$kernel = new Kernel();
+        }
+        $kernel = self::$kernel;
+        $if_exist = $kernel->Spider;
+        if (empty($if_exist)) {
+            $kernel->Spider = $this;
+        }
+        foreach($requests as $request) {
+            $kernel->fromStream(new MetaStream("REQUEST",$request),$this);
+        }
+        $kernel->toStream();
+    }
+}

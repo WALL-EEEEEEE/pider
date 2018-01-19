@@ -5,7 +5,9 @@ return $kernel_config = [
         "Pider\Kernel\Core\ModuleLoader",
         "Pider\Kernel\Core\ScheduleLoader"
      ],
-    "Extras"=> [],
+     "Extras"=> [
+         "Pider\Download\Downloader"
+     ],
     "Config"=> [
         'Config/config.php',
     ]

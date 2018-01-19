@@ -8,7 +8,6 @@ namespace Pider\Kernel;
 
 class MetaStream extends Stream {
     public function source() {
-
     }
     public function target() {
 

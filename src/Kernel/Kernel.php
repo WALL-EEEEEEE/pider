@@ -52,7 +52,11 @@ class Kernel implements WithStream {
             foreach($cores as $core) {
                 $module = (new $core())();
                 if (!empty($module)) {
-                    $this->actived = array_merge($this->actived,$module);
+                    if(is_array($module)) {
+                        $this->actived = array_merge($this->actived,$module);
+                    } else {
+                        $this->actived[] = $module;
+                    }
                 }
             }
         } catch(ErrorException  $exception) {
@@ -69,8 +73,14 @@ class Kernel implements WithStream {
             $extras = $this->extras;
             foreach($extras as $extra) {
                 $module = new $extra();
-                $this->actived = array_merge($this->actived, $module());
-            }
+                if (!empty($module)) {
+                    if (is_array($module())) {
+                        $this->actived = array_merge($this->actived, $module());
+                    } else {
+                        $this->actived[] = $module();
+                    }
+                }
+           }
         } catch(ErrorException  $exception) {
             throw new KernelException("Kernel Exception in module ".$extra);
         }
@@ -82,14 +92,23 @@ class Kernel implements WithStream {
      * Dispatch Streams to different modules or handles
      */
     private function dispatch() {
-        foreach ($this->streams as $stream) {
-            foreach($this->actived as $module) {
-                if ($module->isStream($stream)) {
-                    $fromstream = $module->fromStream($stream,$this);
+        $this->actived = array_merge($this->actived,$this->attaches);
+        while(!empty($this->streams)) {
+            foreach ($this->streams as $stream_uid => $stream) {
+                foreach($this->actived as $module) {
+                    if ($module->isStream($stream)) {
+                        $module->fromStream($stream,$this);
+                        $tostream = $module->toStream();
+                        if (!empty($tostream) && $this->isStream($tostream)) {
+                            $this->streams[$stream_uid] = $tostream;
+                        } else {
+                            unset($this->streams[$stream_uid]);
+                        }
+                    }
                 }
             }
         }
-    }
+   }
 
     /**
      * @method fromStream()

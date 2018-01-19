@@ -6,22 +6,12 @@ namespace Pider\Kernel;
  * Stream Api used to communicate with Kernel
  */
 
-class WithKernel implements WithStream {
-
+abstract class WithKernel implements WithStream {
     private $fromstreams = [];
-    private $kernel;
-    public function fromStream(Stream $stream, WithStream $kernel) {
-        $this->fromstreams[] = $stream;
-    }
-    public function toStream() {
-        if (empty($this->kernel)) {
-            $kernel = new Kernel();
-        } 
-        foreach($this->fromstreams as $stream) {
-            $kernel->fromStream($stream,$this);
-        }
-        return $kernel->toStream();
-    }
+    protected  static $kernel;
+    public abstract function fromStream(Stream $stream, WithStream $kernel );
+    public abstract function toStream(); 
+
     public function isStream(Stream $stream) {
         if ($stream instanceof MetaStream) {
             return true;

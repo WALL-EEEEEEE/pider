@@ -10,6 +10,9 @@ class ScheduleLoader {
     private $schedules = [];
     private const DEFAULT_SCHEDULE_PATH = "Schedule";
     private const DEFAULT_NAMESPACE_PREFIX="Pider\\Schedule\\";
+    private $no_shedules = [
+        'Pider\Schedule\UrlSchedule',
+    ];
 
     public function __invoke() {
         return $this->init();
@@ -26,7 +29,9 @@ class ScheduleLoader {
             if (!is_dir($dir) && pathinfo($dir,PATHINFO_EXTENSION) == "php" && strpos($dir,'Schedule') != 0) {
                 $classname = pathinfo($dir,PATHINFO_FILENAME);
                 $fclassname = self::DEFAULT_NAMESPACE_PREFIX.$classname;
-                $classes[] = new $fclassname();
+                if (!in_array($fclassname,$this->no_shedules)) {
+                    $classes[] = new $fclassname();
+                }
             }
         }
         $this->schedules = $classes;

@@ -2,7 +2,7 @@
 
 return $config = [
     'Request.Option'=>[
-        'proxy'=>'false',
+        'proxy'=> false,
         'user-agent'=>'Pider',
     ],
     "Proxy"=> "ProxyTest",

@@ -29,6 +29,7 @@ class IpSchedule extends WithKernel implements Schedule {
     private $ippool_limit = 20;
 
     private $sources = [];
+    private $proxy_enable = false;
 
     /**
      * @property MODE_STANDALONE 
@@ -185,41 +186,51 @@ class IpSchedule extends WithKernel implements Schedule {
     }
 
     public function fromStream(Stream $stream, WithStream $kernel) {
+        $this->fromstreams [] = $stream;
         //Check if IpSchedule initialized
         $if_exist = $kernel->IpSchedule;
         if (empty($if_exist)) {
             $kernel->IpSchedule = new IpSchedule();
-        } 
-        $ip_schedule = $kernel->IpSchedule;
-        $proxy_enable = $kernel->Configs['Request.Option']['proxy'];
-        $proxy_enable = trim($proxy_enable);
-        if (!is_bool($proxy_enable) && !($proxy_enable === 'true' || $proxy_enable === 'false' ))
-        {
-            throw new ConfigError("Invalid config option: proxy in Request.Option must be true or false!");
+            $ip_schedule = $kernel->IpSchedule;
+            $this->proxy_enable = $kernel->Configs['Request.Option']['proxy'];
+            if (!is_bool($this->proxy_enable))
+            {
+                throw new ConfigError("Invalid config option: proxy in Request.Option must be a  true or false boolean!");
 
-        }
-        //if proxy disabled  in config, don't process the stream
-        if ($proxy_enable && $proxy_enable === "false") {
-            return $stream;
-        }
-        $ipsources_path  = $kernel->Configs->Proxy;
-        if (!is_string($ipsources_path)) {
-            throw new ConfigError("Invalid config option: Proxy must be a path string!");
-        }
-        $ipsources_real_path  =  APP_ROOT.'/'.$ipsources_path;
-        if (!file_exists($ipsources_real_path)) {
-            throw new ConfigError("Invalid config option: Proxy muast be a valid path!");
-        }
-        autoloader::register($ipsources_real_path);
-        $sources = scandir($ipsources_real_path);
-        foreach($sources as $source) {
-            if(!is_dir($source) && pathinfo($source,PATHINFO_EXTENSION)) {
-                $cls =pathinfo($source,PATHINFO_FILENAME); 
-                $source =  new $cls();
-                $ip_schedule->source($source);
+            }
+            //if proxy disabled  in config, don't process the stream
+            if ($this->proxy_enable) {
+                $ipsources_path  = $kernel->Configs->Proxy;
+                if (!is_string($ipsources_path)) {
+                    throw new ConfigError("Invalid config option: Proxy must be a path string!");
+                }
+                $ipsources_real_path  =  APP_ROOT.'/'.$ipsources_path;
+                if (!file_exists($ipsources_real_path)) {
+                    throw new ConfigError("Invalid config option: Proxy muast be a valid path!");
+                }
+                autoloader::register($ipsources_real_path);
+                $sources = scandir($ipsources_real_path);
+                foreach($sources as $source) {
+                    if(!is_dir($source) && pathinfo($source,PATHINFO_EXTENSION)) {
+                        $cls =pathinfo($source,PATHINFO_FILENAME); 
+                        $source =  new $cls();
+                        $ip_schedule->source($source);
+                    }
+                }
+            }
+        } 
+    }
+
+    public function toStream() {
+        foreach($this->fromstreams as $stream) {
+            if ($this->proxy_enable) {
+                $proxy_ip = $ip_schedule->deliver();
+                $request = $stream->body();
+                $request->proxy($proxy_ip);
+                return MetaStream('REQUEST', $request);
+            } else {
+                return $stream;
             }
         }
-        $proxy_ip = $ip_schedule->deliver();
-        //if proxy enabled in config, vest the proxy ip into Request class.
     }
 }
