@@ -31,6 +31,11 @@ abstract class Spider extends WithKernel {
         if (!is_array($requests)) {
             $requests = [$requests];
         }
+        foreach($requests as &$request) {
+            if(is_string($request)) {
+                $request = new Request(['base_uri'=> $request]);
+            }
+        }
         //init kernel
         $this->kernelize($requests);
     }
