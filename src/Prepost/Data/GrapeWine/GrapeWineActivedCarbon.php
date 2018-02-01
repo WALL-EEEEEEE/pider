@@ -1,11 +1,10 @@
 <?php
-namespace Module\Data\GrapeWine;
+namespace Pider\Prepost\Data\GrapeWine;
 
-use Module\Data\ActivedCarbon;
-use Module\Data\Pore;
+use Pider\Prepost\Data\ActivedCarbon;
+use Pider\Prepost\Data\Pore;
 
 class GrapeWineActivedCarbon extends ActivedCarbon {
-
 
     /**
      * Define several pores 

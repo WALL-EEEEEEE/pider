@@ -23,6 +23,8 @@ class Downloader extends WithKernel {
         //Extract the request infomation from stream
         $request = $stream->body();
         $response = $request->request('GET');
+        $response->setOrgUrl($request->getUri());
+        $response->setUrl($request->getOrgUri());
         //Construct the response stream
         $response_stream = new MetaStream('RESPONSE',$response);
         return $response_stream;

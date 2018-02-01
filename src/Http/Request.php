@@ -13,9 +13,10 @@ class Request {
     private $proxy = '';
     private $client = '';
     private $uri = '';
+    private $org_uri = '';
     public function __construct(array $config = []) {
         if (array_key_exists('base_uri',$config)) {
-            $this->uri = $config['base_uri'];
+            $this->org_uri = $config['base_uri'];
         }
         $this->client = new Client($config);
     }
@@ -35,6 +36,11 @@ class Request {
         if (!empty($this->proxy)) {
             $options['proxy'] = $this->proxy;
         }
+        //add tracker for tracing uri
+        $uri = &$this->uri;
+        $options ['on_stats'] = function ($stats) use (&$uri) {
+            $url = $stats->getEffectiveUri();
+        };
         $response = '';
         try {
             $response = $this->client->request($method,$uri,$options);
@@ -48,6 +54,9 @@ class Request {
         }
     }
 
+    public function getOrgUri() {
+        return $this->org_uri;
+    }
     public function getUri() {
         return $this->uri;
     }

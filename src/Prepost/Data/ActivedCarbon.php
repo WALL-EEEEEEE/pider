@@ -1,6 +1,6 @@
 <?php
 
-namespace Module\Data;
+namespace Pider\Prepost\Data;
 
 /**
  * @class ActivedCarbon 

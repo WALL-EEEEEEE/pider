@@ -7,4 +7,6 @@ composer.lock
 vendor
 bin/*
 Util/Api.php
+Config
+Proxy
 wiki

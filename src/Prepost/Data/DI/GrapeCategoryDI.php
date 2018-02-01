@@ -1,5 +1,5 @@
 <?php
-namespace Module\Data\DI;
+namespace Pider\Prepost\Data\DI;
 use Extension\DBExtension;
 
 class GrapeCategoryDI extends DataInject {
