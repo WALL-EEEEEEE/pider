@@ -9,6 +9,7 @@ use Pider\Kernel\MetaStream;
 use Pider\Kernel\Stream;
 use Pider\Kernel\WithStream;
 use Pider\Kernel\Kernel;
+use Pider\Config;
 
 /**
  * @class Pider\Spider
@@ -19,10 +20,13 @@ abstract class Spider extends WithKernel {
     use Template;
     protected $urls;
     protected $domains;
-    private $request;
-    private $responses;
+    protected $request;
+    protected $responses;
+    protected static $Configs;
 
     public function __construct() {
+        //init kernel
+        $this->kernelize();
     }
 
     final public function go() {
@@ -36,8 +40,7 @@ abstract class Spider extends WithKernel {
                 $request = new Request(['base_uri'=> $request]);
             }
         }
-        //init kernel
-        $this->kernelize($requests);
+        $this->emitStreams($requests);
     }
 
     /**
@@ -84,7 +87,7 @@ abstract class Spider extends WithKernel {
         return parent::isStream($stream) && ($type == "RESPONSE");
     }
 
-    public function kernelize($requests) {
+    public function kernelize() {
         if(empty(self::$kernel)) {
             self::$kernel = new Kernel();
         }
@@ -93,9 +96,16 @@ abstract class Spider extends WithKernel {
         if (empty($if_exist)) {
             $kernel->Spider = $this;
         }
+        //init configs for spider
+        self::$Configs = Config::copy($kernel->Configs);
+    }
+
+    public function emitStreams($requests) {
+        $kernel = self::$kernel;
         foreach($requests as $request) {
             $kernel->fromStream(new MetaStream("REQUEST",$request),$this);
         }
         $kernel->toStream();
+
     }
 }

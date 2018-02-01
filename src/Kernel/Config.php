@@ -6,26 +6,31 @@ namespace Pider\Kernel;
  * @class Pider\Kernel\Config
  * 
  * Load kernel configs 
- *
  */
 
 class Config implements \ArrayAccess {
 
     private $Configs = [];
-    private $KernelConfigs = [];
+    private static $KernelConfigs = [];
+    private static $ProjectConfigs = [];
+    private static $FrameworkConfigs = [];
     private const DEFAULT_CONFIG_PATH = 'Config/kernel.config.php';
     private const DEFAULT_FRAMEWORK_CONFIG_PATH = 'Config/config.php';
-    private const DEFAULT_PROJECt_CONFIG_PATH = 'Config/config.php';
+    private const DEFAULT_PROJECT_CONFIG_PATH = 'Config/config.php';
+
+    public function __construct() {
+        $this->load();
+    }
 
     public function __invoke() {
-        $this->load();
-        $this->Configs = $this->Configs;
-        return $this;
+        $config = new Config();
+        $config->Configs = $this->Configs;
+        return $config;
     }
 
     public function KernelConfig() {
         $config = new Config();
-        $config->Configs = $this->KernelConfigs;
+        $config->Configs = self::$KernelConfigs;
         return $config;
     }
     public function __get(string $kconfig) {
@@ -39,20 +44,19 @@ class Config implements \ArrayAccess {
         $this->Configs[$kconfig] = $vconfig;
     }
     public function load() {
-        $KernelConfigs = include_once(self::DEFAULT_CONFIG_PATH);
-        $FrameworkConfigs = include_once(PIDER_PATH.DIRECTORY_SEPARATOR.self::DEFAULT_FRAMEWORK_CONFIG_PATH);
-        $ProjectConfigs = include_once(APP_ROOT.DIRECTORY_SEPARATOR.self::DEFAULT_PROJECt_CONFIG_PATH);
-        if (!is_array($KernelConfigs)) {
+        self::$KernelConfigs = !empty(self::$KernelConfigs)?self::$KernelConfigs:include_once(self::DEFAULT_CONFIG_PATH);
+        self::$FrameworkConfigs = !empty(self::$FrameworkConfigs)?self::$FrameworkConfigs:include_once(PIDER_PATH.DIRECTORY_SEPARATOR.self::DEFAULT_FRAMEWORK_CONFIG_PATH);
+        self::$ProjectConfigs = !empty(self::$ProjectConfigs)?self::$ProjectConfigs:include_once(APP_ROOT.DIRECTORY_SEPARATOR.self::DEFAULT_PROJECT_CONFIG_PATH);
+        if (!is_array(self::$KernelConfigs)) {
             throw new ConfigError("Invalid kernel config format!");
         }
-        if (!is_array($FrameworkConfigs)) {
+        if (!is_array(self::$FrameworkConfigs)) {
             throw new ConfigError("Invalid framework config format!");
         }
-        if (!is_array($ProjectConfigs)) {
+        if (!is_array(self::$ProjectConfigs)) {
             throw new ConfigError("Invalid project config format!");
         }
-        $this->KernelConfigs = $KernelConfigs;
-        $this->Configs = array_merge($FrameworkConfigs,$ProjectConfigs);
+        $this->Configs = array_merge(self::$FrameworkConfigs,self::$ProjectConfigs);
     }
 
     /**

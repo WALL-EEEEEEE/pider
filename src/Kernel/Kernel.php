@@ -20,8 +20,7 @@ class Kernel implements WithStream {
     private $attaches = [];
     private $streams = [];
     private $KernelConfigs;
-    public $Configs;
-
+    public  $Configs;
 
     public final function __construct() {
         $this->Configs =  (new Config())();
