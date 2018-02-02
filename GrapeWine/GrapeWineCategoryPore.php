@@ -1,9 +1,9 @@
 <?php
-namespace Module\Data\GrapeWine;
-use Module\Data\Pore;
-use Module\Data\Rule;
-use Module\Data\Throttle;
-use Module\Data\Reaction;
+namespace GrapeWine;
+use Pider\Prepost\Data\Pore;
+use Pider\Prepost\Data\Rule;
+use Pider\Prepost\Data\Throttle;
+use Pider\Prepost\Data\Reaction;
 
 
 class GrapeWineCategoryPore extends Pore {

@@ -1,5 +1,5 @@
 <?php
-namespace Module\Data;
+namespace Pider\Prepost\Data;
 
 class Throttle {
     private $restrict;

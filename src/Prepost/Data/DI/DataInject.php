@@ -1,5 +1,5 @@
 <?php
-namespace Module\Data\DI;
+namespace Pider\Prepost\Data\DI;
 
 abstract class DataInject {
     protected $data;

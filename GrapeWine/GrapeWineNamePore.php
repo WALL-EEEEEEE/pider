@@ -1,11 +1,11 @@
 <?php
-namespace Pider\Prepost\Data\GrapeWine;
+namespace GrapeWine;
 use Pider\Prepost\Data\Pore;
 use Pider\Prepost\Data\Rule;
 use Pider\Prepost\Data\Throttle;
 use Pider\Prepost\Data\Reaction;
 use Pider\Prepost\Data\Filter;
-use Pider\Prepost\Data\DI\GrapeCategoryDI;
+use GrapeCategoryDI;
 
 class GrapeWineNamePore extends Pore {
     
