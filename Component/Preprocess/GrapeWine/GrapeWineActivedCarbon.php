@@ -1,5 +1,5 @@
 <?php
-namespace GrapeWine;
+namespace Preprocess\GrapeWine;
 
 use Pider\Prepost\Data\ActivedCarbon;
 use Pider\Prepost\Data\Pore;

@@ -1,11 +1,26 @@
 <?php
+namespace Preprocess\GrapeWine;
 
 use Pider\Prepost\Data\DI\DataInject as DataInject;
+use Pider\Config;
+
+//Use Equote to query database
+use Illuminate\Database\Capsule\Manager as Capsule;
+use Illuminate\Events\Dispatcher;
+
 
 class GrapeCategoryDI extends DataInject {
     public function init(){
-        DBExtension::switch_db('phpspider');
-        $grapeCates = DBExtension::get_all("select grape_variety_ch,grape_variety_en from grape_variety_init");
+        $capsule = new Capsule;
+        $capsule->setAsGlobal();
+        $capsule->addConnection(Config::get('Database')['phpspider'],'phpspider');
+        $capsule->setEventDispatcher(new Dispatcher);
+        $capsule->bootEloquent();
+
+        $grapeCates = $capsule::table('grape_variety_init','phpspider')->get(['grape_variety_ch','grape_variety_en'])->toArray();
+        $grapeCates = array_map(function($value) {
+            return (array) $value;
+        },$grapeCates);
         $initData = [];
         foreach($grapeCates as  $grapeCate ) {
             $initData[$grapeCate['grape_variety_ch']] = $grapeCate['grape_variety_en'];

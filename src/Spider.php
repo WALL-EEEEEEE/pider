@@ -98,6 +98,7 @@ abstract class Spider extends WithKernel {
         }
         //init configs for spider
         self::$Configs = Config::copy($kernel->Configs);
+        self::$Configs->setAsGlobal();
     }
 
     public function emitStreams($requests) {

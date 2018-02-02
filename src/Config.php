@@ -8,6 +8,7 @@ use Pider\Exceptions\FileNotFoundException;
 class Config implements \ArrayAccess {
 
    private $Configs = [];
+   private static $instance;
 
    public static function fromArray(array $configs = []) {
        $config = new Config();
@@ -36,6 +37,19 @@ class Config implements \ArrayAccess {
        $config->Configs  = @$extra_configs[0];
        return $config;
    }
+
+   public function setAsGlobal() {
+       self::$instance = $this;
+   }
+
+   public static function get($ckey) {
+       return self::$instance->$ckey;
+   }
+
+   public static function set($ckey, $cvalue) {
+       self::$instance->$ckey = $cvalue;
+   }
+
    public function __get(string $kconfig) {
         if(array_key_exists($kconfig, $this->Configs)) {
             return $this->Configs[$kconfig];

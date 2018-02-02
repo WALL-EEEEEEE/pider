@@ -1,5 +1,5 @@
 <?php
-namespace Pider\Prepost\Data\GrapeWine;
+namespace Preprocess\GrapeWine;
 use Pider\Prepost\Data\Pore;
 use Pider\Prepost\Data\Rule;
 use Pider\Prepost\Data\Throttle;

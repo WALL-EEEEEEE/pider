@@ -11,9 +11,9 @@ class autoloader {
 
     public static function autoload() {
        $autoloader = new autoloader();
-       set_include_path(get_include_path().PATH_SEPARATOR.'.');
        set_include_path(get_include_path().PATH_SEPARATOR.APP_ROOT);
        set_include_path(get_include_path().PATH_SEPARATOR.PIDER_PATH);
+       set_include_path(get_include_path().PATH_SEPARATOR.APP_ROOT.DIRECTORY_SEPARATOR.'Component');
        #Load the config at first
        spl_autoload_register(array($autoloader,'loadCore'));
        spl_autoload_register(array($autoloader,'loadModule'));
