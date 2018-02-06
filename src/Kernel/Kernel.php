@@ -73,10 +73,10 @@ class Kernel implements WithStream {
             foreach($extras as $extra) {
                 $module = new $extra();
                 if (!empty($module)) {
-                    if (is_array($module())) {
-                        $this->actived = array_merge($this->actived, $module());
+                    if (is_array($module($this))) {
+                        $this->actived = array_merge($this->actived, $module($this));
                     } else {
-                        $this->actived[] = $module();
+                        $this->actived[] = $module($this);
                     }
                 }
            }
