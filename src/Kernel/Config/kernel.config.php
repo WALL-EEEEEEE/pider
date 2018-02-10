@@ -2,12 +2,11 @@
 
 return $kernel_config = [
     "Cores"=> [   
-        "Pider\Kernel\Core\ModuleLoader",
         "Pider\Kernel\Core\ScheduleLoader",
+        "Pider\Kernel\Core\ModuleLoader",
+        "Pider\Kernel\Core\ComponentLoader",
      ],
-     "Extras"=> [
-         "Pider\Kernel\Extra\ComponentLoader",
-         "Pider\Download\Downloader",
+     "Components"=> [
      ],
     "Config"=> [
         'Config/config.php',

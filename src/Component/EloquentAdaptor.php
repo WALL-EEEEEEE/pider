@@ -26,10 +26,8 @@ class EloquentAdaptor {
                 $capsule->addConnection($cconf, $cname);
             }
             $capsule->setEventDispatcher(new Dispatcher);
-            $capsule->bootEloquent();
             $capsule->setAsGlobal();
+            $capsule->bootEloquent();
         }
    }
 }
-
-

@@ -15,7 +15,7 @@ use Pider\Kernel\StreamInvalid;
 
 class Kernel implements WithStream {
     private $cores= [];
-    private $extras= [];
+    private $components = [];
     private $actived = [];
     private $attaches = [];
     private $streams = [];
@@ -26,7 +26,7 @@ class Kernel implements WithStream {
         $this->Configs =  (new Config())();
         $config = $this->Configs->KernelConfig();
         $this->cores = $config->Cores;
-        $this->extras = $config->Extras;
+        $this->components = $config->Components;
         $this->init();
     }
 
@@ -37,7 +37,7 @@ class Kernel implements WithStream {
     private function init() {
         //load core kenel modules
         $this->LoadCores();
-        $this->LoadExtras();
+        $this->LoadComponents();
     }
 
     /**
@@ -49,7 +49,7 @@ class Kernel implements WithStream {
         try {
             $cores = $this->cores;
             foreach($cores as $core) {
-                $module = (new $core())();
+                $module = (new $core())($this);
                 if (!empty($module)) {
                     if(is_array($module)) {
                         $this->actived = array_merge($this->actived,$module);
@@ -64,25 +64,26 @@ class Kernel implements WithStream {
     }
 
     /**
-     * @method ExtraKernelModules()
-     * Load extra kernel modules
+     * @method LoadComponents()
+     * Load kernel components 
      */
-    private function LoadExtras() {
-        try {
-            $extras = $this->extras;
-            foreach($extras as $extra) {
-                $module = new $extra();
-                if (!empty($module)) {
-                    if (is_array($module($this))) {
-                        $this->actived = array_merge($this->actived, $module($this));
-                    } else {
-                        $this->actived[] = $module($this);
+    private function LoadComponents() {
+            $components = $this->components;
+            foreach($components as $component) {
+                try {
+                    $instance = new $component();
+                    if (!empty($instance)) {
+                        if (is_array($instance($this))) {
+                            $this->actived = array_merge($this->actived, $instance($this));
+                        } else {
+                            $this->actived[] = $instance($this);
+                        }
                     }
+                } catch(ErrorException  $exception) {
+                    throw new KernelException("Kernel Exception in component ".$component);
                 }
-           }
-        } catch(ErrorException  $exception) {
-            throw new KernelException("Kernel Exception in module ".$extra);
-        }
+            }
+        
     }
 
     /**
@@ -93,15 +94,16 @@ class Kernel implements WithStream {
     private function dispatch() {
         $this->actived = array_merge($this->actived,$this->attaches);
         while(!empty($this->streams)) {
-            foreach ($this->streams as $stream_uid => $stream) {
-                foreach($this->actived as $module) {
-                    if ($module->isStream($stream)) {
-                        $module->fromStream($stream,$this);
-                        $tostream = $module->toStream();
-                        if (!empty($tostream) && $this->isStream($tostream)) {
-                            $this->streams[$stream_uid] = $tostream;
+            $stream = array_shift($this->streams);
+            foreach($this->actived as $module) {
+                if ($module->isStream($stream)) {
+                    $module->fromStream($stream,$this);
+                    $tostream = $module->toStream();
+                    if (!empty($tostream) && $this->isStream($tostream) && $tostream->type() !== "FINISHED" ) {
+                        if ($stream->type() !== $tostream->type()) {
+                            array_unshift($this->streams, $tostream);
                         } else {
-                            unset($this->streams[$stream_uid]);
+                            $stream = $tostream;
                         }
                     }
                 }

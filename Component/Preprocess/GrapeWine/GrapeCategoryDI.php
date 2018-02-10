@@ -11,13 +11,7 @@ use Illuminate\Events\Dispatcher;
 
 class GrapeCategoryDI extends DataInject {
     public function init(){
-        $capsule = new Capsule;
-        $capsule->setAsGlobal();
-        $capsule->addConnection(Config::get('Database')['phpspider'],'phpspider');
-        $capsule->setEventDispatcher(new Dispatcher);
-        $capsule->bootEloquent();
-
-        $grapeCates = $capsule::table('grape_variety_init','phpspider')->get(['grape_variety_ch','grape_variety_en'])->toArray();
+        $grapeCates = Capsule::table('grape_variety_init','phpspider')->get(['grape_variety_ch','grape_variety_en'])->toArray();
         $grapeCates = array_map(function($value) {
             return (array) $value;
         },$grapeCates);

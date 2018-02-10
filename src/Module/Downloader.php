@@ -1,5 +1,5 @@
 <?php
-namespace Pider\Download;
+namespace Pider\Module;
 
 /**
  * @class Downloader
@@ -13,7 +13,7 @@ use Pider\Kernel\MetaStream;
 
 class Downloader extends WithKernel {
 
-    private $response;
+    private $responseStream;
 
     public function __invoke() {
         return $this;
@@ -23,12 +23,10 @@ class Downloader extends WithKernel {
         //Extract the request infomation from stream
         $request = $stream->body();
         $response = $request->request('GET');
-        $response->setOrgUrl($request->getUri());
-        $response->setUrl($request->getOrgUri());
-        //Construct the response stream
-        $response_stream = new MetaStream('RESPONSE',$response);
-        return $response_stream;
-    }
+        $response->setOrgUrl($request->getOrgUri());
+        $response->setUrl($request->getUri());
+        return new MetaStream('RESPONSE',$response);
+   }
 
     public function isStream(Stream $stream) {
         return parent::isStream($stream) && $stream->type() == 'REQUEST';
@@ -40,11 +38,11 @@ class Downloader extends WithKernel {
             $kernel->Downloader = new Downloader();
         } 
         $downloader = $kernel->Downloader;
-        $this->response = $downloader->download($stream);
+        $this->responseStream  = $downloader->download($stream);
     }
 
     public function toStream() {
-        return $this->response;
+        return $this->responseStream;
     }
 }
 

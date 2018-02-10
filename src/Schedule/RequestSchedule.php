@@ -7,6 +7,7 @@ use Pider\Kernel\Stream;
 
 class  RequestSchedule extends WithKernel implements Schedule{
     private $request_pool = [];
+    private $current_request ;
     /**
      * @method add()
      * Add task to Schedule 
@@ -43,6 +44,7 @@ class  RequestSchedule extends WithKernel implements Schedule{
         //Extract request from stream and put the request into shceduler
         $request_schedule = $kernel->RequestSchedule;
         $request_schedule->add($stream->body());
+        $this->current_request = $stream;
     }
 
     /**
@@ -50,6 +52,7 @@ class  RequestSchedule extends WithKernel implements Schedule{
      *
      */
     public function toStream() {
+        return $this->current_request;
     }
 
     /** 

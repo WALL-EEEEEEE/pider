@@ -7,7 +7,6 @@ namespace Pider\Kernel;
  */
 
 abstract class WithKernel implements WithStream {
-    private $fromstreams = [];
     protected  static $kernel;
     public abstract function fromStream(Stream $stream, WithStream $kernel );
     public abstract function toStream(); 

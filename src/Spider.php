@@ -80,6 +80,7 @@ abstract class Spider extends WithKernel {
     }
 
     public function toStream() {
+        return new MetaStream('FINISHED','');
     }
 
     public function isStream(Stream $stream) {

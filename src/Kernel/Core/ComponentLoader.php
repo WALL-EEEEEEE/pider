@@ -1,5 +1,5 @@
 <?php
-namespace Pider\Kernel\Extra;
+namespace Pider\Kernel\Core;
 
 use Pider\Kernel\Kernel as Kernel;
 

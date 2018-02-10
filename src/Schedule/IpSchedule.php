@@ -30,6 +30,7 @@ class IpSchedule extends WithKernel implements Schedule {
 
     private $sources = [];
     private $proxy_enable = false;
+    private $fromstream;
 
     /**
      * @property MODE_STANDALONE 
@@ -186,7 +187,7 @@ class IpSchedule extends WithKernel implements Schedule {
     }
 
     public function fromStream(Stream $stream, WithStream $kernel) {
-        $this->fromstreams [] = $stream;
+        $this->fromstream = $stream;
         //Check if IpSchedule initialized
         $if_exist = $kernel->IpSchedule;
         if (empty($if_exist)) {
@@ -222,15 +223,14 @@ class IpSchedule extends WithKernel implements Schedule {
     }
 
     public function toStream() {
-        foreach($this->fromstreams as $stream) {
-            if ($this->proxy_enable) {
-                $proxy_ip = $ip_schedule->deliver();
-                $request = $stream->body();
-                $request->proxy($proxy_ip);
-                return MetaStream('REQUEST', $request);
-            } else {
-                return $stream;
-            }
+        $stream = $this->fromstream;
+        if ($this->proxy_enable) {
+            $proxy_ip = $ip_schedule->deliver();
+            $request = $stream->body();
+            $request->proxy($proxy_ip);
+            return MetaStream('REQUEST', $request);
+        } else {
+            return $stream;
         }
     }
 }

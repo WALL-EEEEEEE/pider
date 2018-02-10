@@ -9,16 +9,17 @@ use GuzzleHttp\Exception\ConnectException;
 
 class Request {
 
-   private static $proxy_callback = '';
+    private static $proxy_callback = '';
+    private static $client;
     private $proxy = '';
-    private $client = '';
     private $uri = '';
     private $org_uri = '';
     public function __construct(array $config = []) {
         if (array_key_exists('base_uri',$config)) {
             $this->org_uri = $config['base_uri'];
         }
-        $this->client = new Client($config);
+        //Keep client being a singleton
+        self::$client = empty(self::$client)? new Client($config):self::$client;
     }
     public static function proxy_handler(callable $proxy_callback) {
         self::$proxy_callback = $proxy_callback;
@@ -36,14 +37,18 @@ class Request {
         if (!empty($this->proxy)) {
             $options['proxy'] = $this->proxy;
         }
+        if (!empty($uri)) {
+            $this->org_uri = $uri;
+        }
+
         //add tracker for tracing uri
-        $uri = &$this->uri;
-        $options ['on_stats'] = function ($stats) use (&$uri) {
-            $url = $stats->getEffectiveUri();
+        $uri_tracker = &$this->uri;
+        $options ['on_stats'] = function ($stats) use (&$uri_tracker) {
+            $uri_tracker = $stats->getEffectiveUri();
         };
         $response = '';
         try {
-            $response = $this->client->request($method,$uri,$options);
+            $response = self::$client->request($method,$this->org_uri,$options);
         } catch(ConnectException $e) {
             throw new \Exception($e->getMessage());
         } finally {
@@ -61,6 +66,6 @@ class Request {
         return $this->uri;
     }
     public function __call($method,$args) {
-        $this->client->__call($method,$args);
+        return self::$client->__call($method,$args);
     }
 }
