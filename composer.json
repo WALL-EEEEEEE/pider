@@ -1,5 +1,15 @@
 {
-    "require": {
+    "require":{
+       "phpunit/phpunit":"4.8.*",
+        "phpunit/php-invoker": "^1.1",
+        "phpunit/phpunit-selenium": "2.0.2",
+        "workerman/workerman": "^3.5",
+        "react/zmq": "^0.3.0",
+        "guzzlehttp/guzzle": "~6.0",
+        "phpoffice/phpexcel": "^1.8",
+        "nuovo/spreadsheet-reader": "^0.5.11",
+        "stolt/json-lines": "^2.0",
+        "laravel/laravel": "^5.5"
         "doctrine/dbal": "^2.6"
     }
 }
