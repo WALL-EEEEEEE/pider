@@ -1,19 +1,24 @@
+<div align='right'><strong>Language:</strong> English <a href="https://raw.githubusercontent.com/duanqiaobb/pider/develop/doc/chinese.md">Chinese</a></div>
+
 # Introduction
-&ensp;&ensp; Pider is an elegant,powerful,modulized,templatized spider framework.It aims to fertilize the php community and make easier for PHP developer to write a spider.
+&ensp;&ensp; Pider is an elegant,powerful,modulized,templatized spider framework.It aims to fertilize the php community and make easier for PHP deveoper to write a spider. view [document](https://github.com/duanqiaobb/pider/wiki) in details.
 
 # Features
 
-+ Crawler 
-+ Crawler with multi-process
-+ Command line interface
-+ Template crawling
-+ Well debug interface
-+ Data cleaning
-+ Data visuliazation
++ [x] Crawler (Support)
++ [ ] Crawler with multi-process (Not unpport)
++ [x] Command line interface (Not full support )
++ [ ] Template crawling(Not support)
++ [ ] Well debug interface(Not support)
++ [x] Data cleaning(Not full support)
++ [ ] Data visuliazation(Not support)
 
 # Requirments
 
-+ PHP >= 7.1 with `pthreads` , `pcntl` and `xmlreader` extensions enabled
++ PHP >= 7.1 
++ pthreads (optional for multi-threads support)
++ pcntl (optional for multi-processes support)
++ xmlreader (optional for XML file processing support) 
 
 # Installation
 
@@ -24,17 +29,25 @@
 ```
 
 # Usage
+&ensp;&ensp;&ensp;&ensp; Hereinafter, I assume that you had set pider up ,not only environment but also the framework itself.  
 
-## Create a simple spider
+## Basic Spider
 
-Examplespider.php
+&ensp;&ensp;&ensp;&ensp;This spider crawles categories of product in index page of  [jd.com](http://www.jd.com)
+
+```shell
+cd pider
+mkdir example
+cd example && touch JdIndexCategorySpider.php
+```
 
 ```php
+//In file JdIndexCategorySpider.php
 <?php
 use Pider\Spider;
 use Pider\Http\Response;
     
-class Examplespider extends Spider {
+class JdIndexCategorySpider extends Spider {
     protected $domains = 'www.jd.com';
     protected $urls = [
        'www.jd.com/'];
@@ -49,15 +62,11 @@ class Examplespider extends Spider {
 
 ```
 
-Run the spider:
-
 ```shell
-./pider Examplespider.php
-
+../pider JdIndexCategorySpider.php
 ```
-Scrape Result:
 ```
-rray(46) {
+array(46) {
   [0] =>
   string(12) "家用电器"
   [1] =>
@@ -77,17 +86,22 @@ rray(46) {
   ...
 }
 ```
-## Create a spider with proxy
+## Spider with proxy
+
+```shell
+touch JdIndexCategoryWithProxySpider.php
+```
 
 ```php
 use Pider\Spider;
 use Pider\Http\Response;
     
-class Examplespider extends Spider {
+class JdIndexCategoryWithProxySpider extends Spider {
     protected $domains = 'www.jd.com';
     protected $urls = [
        'www.jd.com/'];
 
+    //Generate urls to be crawled
     public function start_requests():array {
         $std_urls = ['www.jd.com'];
         Request::proxy_handler(function(){
@@ -107,12 +121,11 @@ class Examplespider extends Spider {
 ```
 
 ```shell
-./pider Examplespider.php
+../pider Examplespider.php
 
 ```
-Scrape Result:
 ```
-rray(46) {
+array(46) {
   [0] =>
   string(12) "家用电器"
   [1] =>
@@ -132,3 +145,8 @@ rray(46) {
   ...
 }
 ```
+
+# Todo
+
+# Contribution
+&ensp;&ensp;&ensp;&ensp; If you have any ideas about this project, please don't hesitate to pull a request.
