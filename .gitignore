@@ -10,3 +10,4 @@ Util/Api.php
 Config
 Proxy
 wiki
+*.pyc
