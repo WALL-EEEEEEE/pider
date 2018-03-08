@@ -14,9 +14,17 @@ class Request {
     private $proxy = '';
     private $uri = '';
     private $org_uri = '';
-    public function __construct(array $config = []) {
+    public  $callback = [];
+    public function __construct(array $config = [], $callback = '' ) {
         if (array_key_exists('base_uri',$config)) {
             $this->org_uri = $config['base_uri'];
+        }
+        if (!empty($callback)) {
+            if(is_array($callback)) {
+                $this->callback = $callback;
+            } else {
+                $this->callback[] = $callback;
+            }
         }
         //Keep client being a singleton
         self::$client = empty(self::$client)? new Client($config):self::$client;
@@ -29,6 +37,15 @@ class Request {
         $this->$proxy = $proxy;
     }
 
+    /**
+     * @method request() 
+     * Emit a request for a url with a specified method and return response of it.
+     * @param string            $method    request method 
+     * @param string            $uri       request url, will override base_uri in constructor
+     * @param callable | array  $callback  request callback,will perform after request ends 
+     * @paran array             $options   other request options
+     * @return Response  
+     */
     public function request($method, $uri = '', array $options = []) {
         if(!empty(self::$proxy_callback)) {
             $proxy_callback = self::$proxy_callback;
@@ -40,7 +57,6 @@ class Request {
         if (!empty($uri)) {
             $this->org_uri = $uri;
         }
-
         //add tracker for tracing uri
         $uri_tracker = &$this->uri;
         $options ['on_stats'] = function ($stats) use (&$uri_tracker) {

@@ -9,6 +9,8 @@ class Response {
     private $outputEncode = '';
     private $url = '';
     private $org_url = '';
+    public  $callback;
+    
 
     public function __construct(BaseResponse $baseResponse){
         $this->response = $baseResponse;

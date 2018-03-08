@@ -25,6 +25,7 @@ class Downloader extends WithKernel {
         $response = $request->request('GET');
         $response->setOrgUrl($request->getOrgUri());
         $response->setUrl($request->getUri());
+        $response->callback = $request->callback;
         return new MetaStream('RESPONSE',$response);
    }
 

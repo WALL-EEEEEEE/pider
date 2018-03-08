@@ -18,7 +18,7 @@ use Pider\Config;
 abstract class Spider extends WithKernel {
 
     use Template;
-    protected $urls;
+    protected $start_urls;
     protected $domains;
     protected $request;
     protected $responses;
@@ -55,14 +55,14 @@ abstract class Spider extends WithKernel {
      */
     public function start_requests():array {
         $start_requests = [];
-        if (!isset($this->urls) || empty($this->urls)) {
+        if (!isset($this->start_urls) || empty($this->start_urls)) {
             return [];
         }
-        if (is_string($this->urls)) {
-            $this->urls = [$this->urls];
+        if (is_string($this->start_urls)) {
+            $this->urls = [$this->start_urls];
         }
 
-        foreach($this->urls as $url) {
+        foreach($this->start_urls as $url) {
             $start_requests[] = new Request(['base_uri'=> $url]);
         }
         return $start_requests;
@@ -76,7 +76,20 @@ abstract class Spider extends WithKernel {
 
     public function fromStream(Stream $stream, WithStream $kernel) {
         $response = $stream->body();
-        $this->parse($response);
+        $callbacks = $response->callback;
+        if (empty($callbacks)) {
+            $response = $this->parse($response);
+        } else if (is_array($callbacks)) {
+            foreach($callbacks as $callback) {
+               $response = $callback($response);
+            }
+        } else {
+               $response = $callbacks($response);
+        }
+        //if $response is a new request, render it as a new request stream.
+        if ($response instanceof Request ) {
+            $this->transferRequest($response);
+        }
     }
 
     public function toStream() {
@@ -108,6 +121,9 @@ abstract class Spider extends WithKernel {
             $kernel->fromStream(new MetaStream("REQUEST",$request),$this);
         }
         $kernel->toStream();
+    }
 
+    public function transferRequest($request) {
+        self::$kernel->fromStream(new MetaStream('REQUEST',$request), $this);
     }
 }

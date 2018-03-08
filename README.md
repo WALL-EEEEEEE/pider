@@ -6,7 +6,7 @@
 # Features
 
 + [x] Crawler (Support)
-+ [ ] Crawler with multi-process (Not unpport)
++ [ ] Crawler with multi-process (Not support)
 + [x] Command line interface (Not full support )
 + [ ] Template crawling(Not support)
 + [ ] Well debug interface(Not support)
