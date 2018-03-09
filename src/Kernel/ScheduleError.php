@@ -1,5 +1,5 @@
 <?php
-namespace Pider\Schedule;
+namespace Pider\Kernel;
 
 /**
  * @class ScheduleError

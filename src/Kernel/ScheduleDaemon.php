@@ -1,5 +1,5 @@
 <?php
-namespace Module\Schedule;
+namespace Pider\Kernel;
 
 /**
  * @class ScheduleDaemoned 

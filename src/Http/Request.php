@@ -6,7 +6,6 @@ use GuzzleHttp\Psr7\Response as BaseResponse;
 use GuzzleHttp\Client  as Client;
 use GuzzleHttp\Exception\ConnectException;
 
-
 class Request {
 
     private static $proxy_callback = '';
@@ -14,7 +13,8 @@ class Request {
     private $proxy = '';
     private $uri = '';
     private $org_uri = '';
-    public  $callback = [];
+    public  $callback;
+    public  $attachment = [];
     public function __construct(array $config = [], $callback = '' ) {
         if (array_key_exists('base_uri',$config)) {
             $this->org_uri = $config['base_uri'];

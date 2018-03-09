@@ -10,7 +10,7 @@ class Response {
     private $url = '';
     private $org_url = '';
     public  $callback;
-    
+    public  $attachment;
 
     public function __construct(BaseResponse $baseResponse){
         $this->response = $baseResponse;

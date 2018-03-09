@@ -1,5 +1,5 @@
 <?php
-namespace Module\IpSchedule;
+namespace Pider\Schedule\IpSchedule;
 
 /**
  * @class IpToolkit

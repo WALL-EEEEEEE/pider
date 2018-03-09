@@ -4,6 +4,7 @@ namespace Pider\Schedule;
 use Pider\Kernel\WithKernel;
 use Pider\Kernel\WithStream;
 use Pider\Kernel\Stream;
+use Pider\Kernel\Schedule;
 
 class  RequestSchedule extends WithKernel implements Schedule{
     private $request_pool = [];

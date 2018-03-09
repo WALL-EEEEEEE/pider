@@ -10,6 +10,7 @@ use Pider\Kernel\WithKernel;
 use Pider\Kernel\WithStream;
 use Pider\Kernel\Stream;
 use Pider\Kernel\ConfigError;
+use Pider\Kernel\Schedule;
 use Pider\Extension\autoloader;
 
 class IpSchedule extends WithKernel implements Schedule {
