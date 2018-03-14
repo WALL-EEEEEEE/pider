@@ -221,3 +221,4 @@ function install() {
   fi
 }
 install
+echo 'hello'
