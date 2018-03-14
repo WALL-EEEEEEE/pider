@@ -1,0 +1,8 @@
+language: php
+
+install: ./install.sh
+
+#Only build for develop branch
+branches:
+    only:
+        -develop
