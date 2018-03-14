@@ -1,6 +1,6 @@
 # Pider
 
-<div aligh='left' style="display:inline-block"><img src="https://travis-ci.org/duanqiaobb/pider.svg?branch=develop"></img></div>
+<img align="left" style="display:inline-block" src="https://travis-ci.org/duanqiaobb/pider.svg?branch=develop"></img>
 
 <div align='right' style='display:inline-block'><strong>Docmentation:</strong> English <a href="https://raw.githubusercontent.com/duanqiaobb/pider/develop/doc/chinese.md">Chinese</a></div>
 
