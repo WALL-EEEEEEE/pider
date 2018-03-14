@@ -209,6 +209,7 @@ function package_install() {
 function install() {
   #Check if the host is centos
   eval OS_INFO=("$(os_type)")
+  echo ${OS_INFO[0]}
   if [[ ${OS_INFO[0]} == 'Centos' ]]; then
        package_install 
        if [ $? != 0 ];then
