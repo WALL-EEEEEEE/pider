@@ -6,6 +6,7 @@
 cpath=$(dirname $(readlink -f $0))/setup
 source $cpath/util.sh
 declare -a packages=("git" "wget" "curl" "gcc" "make" "bzip2" "autoconf")
+declare -a package_manager=yum 
 
 function phpmodule_exist() {
     if [ -z $1 ];then
@@ -188,7 +189,7 @@ function package_install() {
      echo -e "Adding epel-rease repository ... done"
   fi;
   echo -e "Adding essential repository ... done"
-  echo -e "Installing base pages ..."
+  echo -e "Installing base pakages ..."
   declare -a unins_packages=()
   for i in ${!packages[@]}; do 
       exist_command ${packages[$i]}
@@ -201,9 +202,7 @@ function package_install() {
   if [[ ${#unins_packages[@]} > 0 ]];then
         yum install ${unins_packages[@]} -y
   fi
-  inotify_install
   php_config
-  source $cpath/devtools_install.sh
   echo -e "Installing base pages ... done"
 }
 
@@ -221,4 +220,3 @@ function install() {
   fi
 }
 install
-echo 'hello'

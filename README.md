@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/duanqiaobb/pider.svg?branch=develop)](https://travis-ci.org/duanqiaobb/pider)
+
 <div align='right'><strong>Language:</strong> English <a href="https://raw.githubusercontent.com/duanqiaobb/pider/develop/doc/chinese.md">Chinese</a></div>
 
 # Introduction
