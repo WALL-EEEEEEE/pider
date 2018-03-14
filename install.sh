@@ -3,6 +3,8 @@
 : '
  This Scripts is used to configure a centos linux machine to a spider development hosts automatically!
 '
+set -ev
+
 cpath=$(dirname $(readlink -f $0))/setup
 source $cpath/util.sh
 declare -a packages=("git" "wget" "curl" "gcc" "make" "bzip2" "autoconf")
