@@ -10,6 +10,7 @@ declare -a package_manager='yum'
 declare -a package_manager_remove='yum erase'
 declare -a package_manager_install='yum install'
 declare -a os=Centos
+declare -a ip_loc_api='http://ipinfo.io'
 
 function phpmodule_exist() {
     if [ -z $1 ];then
@@ -32,21 +33,32 @@ function php_config() {
         $package_manager_remove php php-common php-cli -y 
     fi
     if_installed=$(exist_command php7.1)
-    #check if this script has been executed,avoid being compiled over and over again.
+   #check if this script has been executed,avoid being compiled over and over again.
     if [[  $? == 1 ]] || [ -e '/usr/local/php7.1' ];then
         return 1
     fi;
     echo  "Installing php 7.1 ..."
     cd /usr/local/src 
+    # check your location
+    echo "Detect your machine location ..."
+    current_loc=$(curl -s ${ip_loc_api}'/country')
+    echo "Detect your machine location ... done"
+    echo "Your location is: $current_loc "
     if [ ! -e "/usr/local/src/php-7.1.9.tar.bz2" ];then
-        sudo wget -c http://cn2.php.net/distributions/php-7.1.9.tar.bz2
+        if [[ $current_loc == 'CN' ]]; then
+            echo "Select China download channel for you ...";
+            sudo wget -c http://cn2.php.net/distributions/php-7.1.9.tar.bz2
+        else 
+            echo "Select Non-China download channel for you ..."
+            sudo wget -c http://am1.php.net/distributions/php-7.1.9.tar.bz2
+        fi
         if [[ $? != 0 ]];then
             echo -e "Failed to download php7.1.9 source file."
             exit 0
         fi;
     fi;
     if [ ! -e "/usr/local/src/php-7.1.9" ];then
-        tar xvf  php-7.1.9.tar.bz2
+        sudo tar xvf  php-7.1.9.tar.bz2
     fi;
     cd php-7.1.9
     ./configure  --prefix=/usr/local/php7.1 --enable-fpm --with-mysql  --with-mysqli --with-zlib --with-curl --with-gd --with-jpeg-dir --with-png-dir --with-freetype-dir --with-openssl --enable-mbstring --enable-xml --enable-session --enable-ftp --enable-pdo --enable-shmop --enable-maintainer-zts  
