@@ -61,7 +61,7 @@ function php_config() {
         sudo tar xvf  php-7.1.9.tar.bz2 > /dev/null 
     fi;
     cd php-7.1.9
-    ./configure  --prefix=/usr/local/php7.1 --enable-fpm --with-mysql  --with-mysqli --with-zlib --with-curl --with-gd --with-jpeg-dir --with-png-dir --with-freetype-dir --with-openssl --enable-mbstring --enable-xml --enable-session --enable-ftp --enable-pdo --enable-shmop --enable-maintainer-zts  
+    ./configure  --prefix=/usr/local/php7.1 --enable-fpm --with-mysqli --enable-mysqlnd --with-pdo-mysql --with-zlib --with-curl --with-gd --with-jpeg-dir --with-png-dir --with-freetype-dir --with-openssl --enable-mbstring --enable-xml --enable-session --enable-ftp --enable-pdo --enable-shmop --enable-maintainer-zts  
     make clean && make && make install 
     if [ $? -eq 0 ];then
         ln -sf /usr/local/php7.1/bin/php  /usr/bin/php7.1 
