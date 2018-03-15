@@ -39,7 +39,7 @@ function php_config() {
     echo  "Installing php 7.1 ..."
     cd /usr/local/src 
     if [ ! -e "/usr/local/src/php-7.1.9.tar.bz2" ];then
-        wget -c http://cn2.php.net/distributions/php-7.1.9.tar.bz2
+        sudo wget -c http://cn2.php.net/distributions/php-7.1.9.tar.bz2
         if [[ $? != 0 ]];then
         echo -e "Failed to download php7.1.9 source file."
         exit 0
@@ -139,7 +139,7 @@ function php_config() {
           #Because this pthread version in pecl repositry have some incompatiable problems with php7.1,so proning to compile it from source hosted in github
           echo -e "Compiling pthreads for php7.1 multi-threads ..."
 	  if [ ! -e "/tmp/pthreads" ];then
-              cd /tmp/
+ [200~[![Build Status](https://travis-ci.org/duanqiaobb/pider.svg?branch=develop)][200~[![Build Status](https://travis-ci.org/duanqiaobb/pider.svg?branch=develop)]((             cd /tmp/
               git clone https://github.com/krakjoe/pthreads.git
               if [[ $? != 0 ]];then 
                  echo -e "Failed to download php7.1 pthreads source file."
