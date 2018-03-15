@@ -1,5 +1,5 @@
 language: php
-
+sudo: true
 install: ./install.sh
 
 #Only build for develop branch

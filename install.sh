@@ -210,9 +210,8 @@ function package_install() {
         $package_manager_install ${unins_packages[@]} -y
   fi
   php_config
-  echo -e "Installing base pages ... done"
+  echo -e "Installing base packagees ... done"
 }
-
 
 function dependency_install() {
   #Check if the host is centos
@@ -223,7 +222,7 @@ function dependency_install() {
       package_manager_install='yum install'
       package_manager_remove='yum erase'
   elif [[ ${OS_INFO[0]} == 'Ubuntu' ]]; then 
-      package_manager='apt'
+      package_madnager='apt'
       package_manager_install='apt-get install'
       package_manager_remove='apt-get remove'
   fi
