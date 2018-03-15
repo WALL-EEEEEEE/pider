@@ -83,9 +83,9 @@ function php_config() {
                 echo -e "Check php7.1 pcntl extension if enabled  ... no"
                 echo -e "Modifying the configuration file to activate php7.1 pcntl extension ... "
                 if [ ! -e "/usr/local/php7.1/lib/php.ini" ];then
-                    cp /usr/local/src/php-7.1.9/php.ini-development  /usr/local/php7.1/lib/php.ini
+                   sudo cp /usr/local/src/php-7.1.9/php.ini-development  /usr/local/php7.1/lib/php.ini
                 fi;
-                sed '912  a \ extension=pcntl.so' /usr/local/php7.1/lib/php.ini>/usr/local/php7.1/lib/php.ini.tmp && mv /usr/local/php7.1/lib/php.ini.tmp /usr/local/php7.1/lib/php.ini 
+                sed '912  a \ extension=pcntl.so' /usr/local/php7.1/lib/php.ini>/usr/local/php7.1/lib/php.ini.tmp && sudo mv /usr/local/php7.1/lib/php.ini.tmp /usr/local/php7.1/lib/php.ini 
                 if [ $? == 0 ];then   
                     echo -e "Modifying the configuration file to activate php7.1 pcntl extension ... done"
                 else 
@@ -99,15 +99,15 @@ function php_config() {
             #Compile pcntl extension for php7.1 for multi-process
             echo -e "Compiling pcntl for php7.1  multi-processes ... " 
             cd /usr/local/src/php-7.1.9/ext/pcntl
-            phpize . 
-            ./configure --with-php-config=/usr/local/php7.1/bin/php-config && make clean && make && make install 
+            sudo phpize . 
+            sudo ./configure --with-php-config=/usr/local/php7.1/bin/php-config && sudo make clean && sudo make && sudo make install 
             if [[ $? == 0 ]];then
                 echo -e "Compiling pcntl for php7.1 mulit-process ... done"
                 echo -e "Modifying the configuration file to activate php7.1 pcntl extension ... "
                 if [ ! -e "/usr/local/php7.1/lib/php.ini" ];then
-                    cp /usr/local/src/php-7.1.9/php.ini-development  /usr/local/php7.1/lib/php.ini
+                   sudo cp /usr/local/src/php-7.1.9/php.ini-development  /usr/local/php7.1/lib/php.ini
                 fi;
-                sed '912  a \ extension=pcntl.so' /usr/local/php7.1/lib/php.ini>/usr/local/php7.1/lib/php.ini.tmp && mv /usr/local/php7.1/lib/php.ini.tmp /usr/local/php7.1/lib/php.ini 
+                sed '912  a \ extension=pcntl.so' /usr/local/php7.1/lib/php.ini>/usr/local/php7.1/lib/php.ini.tmp && sudo mv /usr/local/php7.1/lib/php.ini.tmp /usr/local/php7.1/lib/php.ini 
                 if [ $? == 0 ];then   
                     echo -e "Modifying the configuration file to activate php7.1 pcntl extension ... done"
                 else 
@@ -137,9 +137,9 @@ function php_config() {
                 echo -e "Check php7.1 pthreads extension if enabled ... no"
                 echo -e "Modifying the configuration file to activate php7.1 pthreads extension ... "
                 if [ ! -e "/usr/local/php7.1/lib/php.ini" ];then
-                    cp /usr/local/src/php-7.1.9/php.ini-development  /usr/local/php7.1/lib/php.ini
+                   sudo cp /usr/local/src/php-7.1.9/php.ini-development  /usr/local/php7.1/lib/php.ini
                 fi;
-                sed '912  a \ extension=pthreads.so' /usr/local/php7.1/lib/php.ini>/usr/local/php7.1/lib/php.ini.tmp && mv /usr/local/php7.1/lib/php.ini.tmp /usr/local/php7.1/lib/php.ini 
+                sed '912  a \ extension=pthreads.so' /usr/local/php7.1/lib/php.ini>/usr/local/php7.1/lib/php.ini.tmp && sudo mv /usr/local/php7.1/lib/php.ini.tmp /usr/local/php7.1/lib/php.ini 
                 if [ $? == 0 ];then   
                     echo -e "Modifying the configuration file to activate php7.1 pthreads extension ... done"
                 else 
@@ -161,14 +161,14 @@ function php_config() {
             #Check out for the specified version,the newest version have some incompatiable problems with php7.1
             cd /tmp/pthreads 
             git checkout c521adc7b645b9a60f8c3e9b6f1331c7dc6b428b
-            phpize . && ./configure --with-php-config=/usr/local/php7.1/bin/php-config && make clean &&  make && make install
+            sudo phpize . && sudo ./configure --with-php-config=/usr/local/php7.1/bin/php-config && sudo make clean && sudo make && sudo make install
             if [[ $? == 0 ]];then
                 echo -e "Compiling pthreads for php7.1  multi-threads ... done"
                 echo -e "Modifying the configuration file to activate php7.1 pthreads extension ... "
                 if [ ! -e "/usr/local/php7.1/lib/php.ini" ];then
-                    cp /usr/local/src/php-7.1.9/php.ini-development  /usr/local/php7.1/lib/php.ini
+                    sudo cp /usr/local/src/php-7.1.9/php.ini-development  /usr/local/php7.1/lib/php.ini
                 fi;
-                sed '912  a \ extension=pthreads.so' /usr/local/php7.1/lib/php.ini>/usr/local/php7.1/lib/php.ini.tmp && mv /usr/local/php7.1/lib/php.ini.tmp /usr/local/php7.1/lib/php.ini 
+                sed '912  a \ extension=pthreads.so' /usr/local/php7.1/lib/php.ini>/usr/local/php7.1/lib/php.ini.tmp && sudo mv /usr/local/php7.1/lib/php.ini.tmp /usr/local/php7.1/lib/php.ini 
                 if [ $? == 0 ];then   
                     echo -e "Modifying the configuration file to activate php7.1 pthreads extension ... done"
                 else 
