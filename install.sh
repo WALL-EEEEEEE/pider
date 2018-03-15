@@ -33,18 +33,18 @@ function php_config() {
         $package_manager_remove php php-common php-cli -y 
     fi
     if_installed=$(exist_command php7.1)
-   #check if this script has been executed,avoid being compiled over and over again.
+    #check if this script has been executed,avoid being compiled over and over again.
     if [[  $? == 1 ]] || [ -e '/usr/local/php7.1' ];then
         return 1
     fi;
     echo  "Installing php 7.1 ..."
     cd /usr/local/src 
     # check your location
-    echo "Detect your machine location ..."
-    current_loc=$(curl -s ${ip_loc_api}'/country')
-    echo "Detect your machine location ... done"
-    echo "Your location is: $current_loc "
     if [ ! -e "/usr/local/src/php-7.1.9.tar.bz2" ];then
+        echo "Detect your machine location ..."
+        current_loc=$(curl -s ${ip_loc_api}'/country')
+        echo "Detect your machine location ... done"
+        echo "Your location is: $current_loc "
         if [[ $current_loc == 'CN' ]]; then
             echo "Select China download channel for you ...";
             sudo wget -c http://cn2.php.net/distributions/php-7.1.9.tar.bz2
