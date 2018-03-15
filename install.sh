@@ -6,7 +6,10 @@
 cpath=$(dirname $(readlink -f $0))/setup
 source $cpath/util.sh
 declare -a packages=("git" "wget" "curl" "gcc" "make" "bzip2" "autoconf")
-declare -a package_manager=yum 
+declare -a package_manager='yum'
+declare -a package_manager_remove='yum erase'
+declare -a package_manager_install='yum install'
+declare -a os=Centos
 
 function phpmodule_exist() {
     if [ -z $1 ];then
@@ -23,12 +26,14 @@ function phpmodule_exist() {
 #install php and config php
 function php_config() {
     #check if system has pre-installed a php version
-    if_pre=$(exist_command php && exist_package php)
+    set -o pipefail
+    if_pre=$(exist_package php)
     if [ $? -ne 0 ];then
-         yum erase php php-common php-cli -y 
+         $package_manager_remove php php-common php-cli -y 
     fi
+    if_installed=$(exist_command php7.1)
     #check if this script has been executed,avoid being compiled over and over again.
-    if [ -e '/usr/local/php7.1' ] && [[ $(exist_command php7.1) == 1 ]];then
+    if [[  $? == 1 ]] || [ -e '/usr/local/php7.1' ];then
          return 1
     fi;
     echo  "Installing php 7.1 ..."
@@ -176,19 +181,21 @@ function php_config() {
     return 1;
 }
 function package_install() {
-  echo -e "Adding essential repository ... " 
-  echo -e "Adding epel-release repository ..."
-  exist_package epel-release
-  if [[ $? == 0 ]];then
-     yum install  epel-release -y 
-     if [[ $? == 0 ]];then
-       echo -e "Adding epel-realse repository ... done"
-     else 
-       echo -e "Failed to install epel-realse repository"
-     fi;
-     echo -e "Adding epel-rease repository ... done"
-  fi;
-  echo -e "Adding essential repository ... done"
+  if [[ $os == 'Centos' ]]; then
+      echo -e "Adding essential repository ... " 
+      echo -e "Adding epel-release repository ..."
+      exist_package epel-release
+      if [[ $? == 0 ]];then
+          $package_manager_install  epel-release -y 
+          if [[ $? == 0 ]];then
+              echo -e "Adding epel-realse repository ... done"
+          else 
+              echo -e "Failed to install epel-realse repository"
+          fi;
+          echo -e "Adding epel-rease repository ... done"
+      fi;
+      echo -e "Adding essential repository ... done"
+  fi
   echo -e "Installing base pakages ..."
   declare -a unins_packages=()
   for i in ${!packages[@]}; do 
@@ -200,24 +207,32 @@ function package_install() {
       fi 
   done
   if [[ ${#unins_packages[@]} > 0 ]];then
-        yum install ${unins_packages[@]} -y
+        $package_manager_install ${unins_packages[@]} -y
   fi
   php_config
   echo -e "Installing base pages ... done"
 }
 
-function install() {
+
+function dependency_install() {
   #Check if the host is centos
   eval OS_INFO=("$(os_type)")
-  echo ${OS_INFO[0]}
+  os=${OS_INFO[0]}
   if [[ ${OS_INFO[0]} == 'Centos' ]]; then
-       package_install 
-       if [ $? != 0 ];then
-           echo -e "Error: Unknow error occured in processing package installation!"
-       fi;
-       echo "Installing composer dependency ..."
-       composer install
-       echo "Installing composer dependency ... done"
+      package_manager='yum'
+      package_manager_install='yum install'
+      package_manager_remove='yum erase'
+  elif [[ ${OS_INFO[0]} == 'Ubuntu' ]]; then 
+      package_manager='apt'
+      package_manager_install='apt-get install'
+      package_manager_remove='apt-get remove'
   fi
+  package_install 
+  if [ $? != 0 ];then
+      echo -e "Error: Unknow error occured in processing package installation!"
+  fi;
+  echo "Installing composer dependency ..."
+  composer install
+  echo "Installing composer dependency ... done"
 }
-install
+dependency_install
