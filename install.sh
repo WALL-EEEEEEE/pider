@@ -62,16 +62,16 @@ function php_config() {
     fi;
     cd php-7.1.9
     sudo ./configure  --prefix=/usr/local/php7.1 --enable-fpm --with-mysqli --enable-mysqlnd --with-pdo-mysql --with-zlib --with-curl --with-gd --with-jpeg-dir --with-png-dir --with-freetype-dir --with-openssl --enable-mbstring --enable-xml --enable-session --enable-ftp --enable-pdo --enable-shmop --enable-maintainer-zts  
-    make clean && make && make install 
+    sudo make clean && sudo  make && sudo make install 
     if [ $? -eq 0 ];then
-        ln -sf /usr/local/php7.1/bin/php  /usr/bin/php7.1 
-        ln -sf /usr/local/php7.1/bin/phpize /usr/bin/phpize7.1
-        ln -sf /usr/local/php7.1/bin/pecl  /usr/bin/pecl7.1
-        ln -sf /usr/local/php7.1/bin/pear  /usr/bin/pear7.1
-        ln -sf /usr/bin/php7.1  /usr/bin/php
-        ln -sf /usr/bin/phpize7.1  /usr/bin/phpize
-        ln -sf /usr/bin/pecl7.1  /usr/bin/pecl
-        ln -sf /usr/bin/pear7.1  /usr/bin/pear
+        sudo ln -sf /usr/local/php7.1/bin/php  /usr/bin/php7.1 
+        sudo ln -sf /usr/local/php7.1/bin/phpize /usr/bin/phpize7.1
+        sudo ln -sf /usr/local/php7.1/bin/pecl  /usr/bin/pecl7.1
+        sudo ln -sf /usr/local/php7.1/bin/pear  /usr/bin/pear7.1
+        sudo ln -sf /usr/bin/php7.1  /usr/bin/php
+        sudo ln -sf /usr/bin/phpize7.1  /usr/bin/phpize
+        sudo ln -sf /usr/bin/pecl7.1  /usr/bin/pecl
+        sudo ln -sf /usr/bin/pear7.1  /usr/bin/pear
         echo -e "Installing php 7.1 ... done"
         # Check if php7.1 pcntl is installed  
         echo -e "Checking php7.1 pcntl extension if installed ... "
