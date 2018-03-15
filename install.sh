@@ -58,7 +58,7 @@ function php_config() {
         fi;
     fi;
     if [ ! -e "/usr/local/src/php-7.1.9" ];then
-        sudo tar xvf  php-7.1.9.tar.bz2
+        sudo tar xvf  php-7.1.9.tar.bz2 > /dev/null 
     fi;
     cd php-7.1.9
     ./configure  --prefix=/usr/local/php7.1 --enable-fpm --with-mysql  --with-mysqli --with-zlib --with-curl --with-gd --with-jpeg-dir --with-png-dir --with-freetype-dir --with-openssl --enable-mbstring --enable-xml --enable-session --enable-ftp --enable-pdo --enable-shmop --enable-maintainer-zts  
