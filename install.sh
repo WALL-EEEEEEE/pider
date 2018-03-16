@@ -85,7 +85,7 @@ function php_config() {
                 if [ ! -e "/usr/local/php7.1/lib/php.ini" ];then
                    sudo cp /usr/local/src/php-7.1.9/php.ini-development  /usr/local/php7.1/lib/php.ini
                 fi;
-                sudo sed '912  a \ extension=pcntl.so' /usr/local/php7.1/lib/php.ini>/usr/local/php7.1/lib/php.ini.tmp && sudo mv /usr/local/php7.1/lib/php.ini.tmp /usr/local/php7.1/lib/php.ini 
+                sudo sh -c 'sed "912  a \ extension=pcntl.so" /usr/local/php7.1/lib/php.ini>/usr/local/php7.1/lib/php.ini.tmp' && sudo mv /usr/local/php7.1/lib/php.ini.tmp /usr/local/php7.1/lib/php.ini 
                 if [ $? == 0 ];then   
                     echo -e "Modifying the configuration file to activate php7.1 pcntl extension ... done"
                 else 
@@ -107,7 +107,7 @@ function php_config() {
                 if [ ! -e "/usr/local/php7.1/lib/php.ini" ];then
                    sudo cp /usr/local/src/php-7.1.9/php.ini-development  /usr/local/php7.1/lib/php.ini
                 fi;
-                sudo sed '912  a \ extension=pcntl.so' /usr/local/php7.1/lib/php.ini>/usr/local/php7.1/lib/php.ini.tmp && sudo mv /usr/local/php7.1/lib/php.ini.tmp /usr/local/php7.1/lib/php.ini 
+                sudo sh -c 'sed "912  a \ extension=pcntl.so" /usr/local/php7.1/lib/php.ini >/usr/local/php7.1/lib/php.ini.tmp' && sudo mv /usr/local/php7.1/lib/php.ini.tmp /usr/local/php7.1/lib/php.ini 
                 if [ $? == 0 ];then   
                     echo -e "Modifying the configuration file to activate php7.1 pcntl extension ... done"
                 else 
@@ -139,7 +139,7 @@ function php_config() {
                 if [ ! -e "/usr/local/php7.1/lib/php.ini" ];then
                    sudo cp /usr/local/src/php-7.1.9/php.ini-development  /usr/local/php7.1/lib/php.ini
                 fi;
-                sudo sed '912  a \ extension=pthreads.so' /usr/local/php7.1/lib/php.ini>/usr/local/php7.1/lib/php.ini.tmp && sudo mv /usr/local/php7.1/lib/php.ini.tmp /usr/local/php7.1/lib/php.ini 
+                sudo sh -c 'sed "912  a \ extension=pthreads.so" /usr/local/php7.1/lib/php.ini>/usr/local/php7.1/lib/php.ini.tmp' && sudo mv /usr/local/php7.1/lib/php.ini.tmp /usr/local/php7.1/lib/php.ini 
                 if [ $? == 0 ];then   
                     echo -e "Modifying the configuration file to activate php7.1 pthreads extension ... done"
                 else 
@@ -168,7 +168,7 @@ function php_config() {
                 if [ ! -e "/usr/local/php7.1/lib/php.ini" ];then
                     sudo cp /usr/local/src/php-7.1.9/php.ini-development  /usr/local/php7.1/lib/php.ini
                 fi;
-                sudo sed '912  a \ extension=pthreads.so' /usr/local/php7.1/lib/php.ini>/usr/local/php7.1/lib/php.ini.tmp && sudo mv /usr/local/php7.1/lib/php.ini.tmp /usr/local/php7.1/lib/php.ini 
+                sudo sh -c 'sed "912  a \ extension=pthreads.so" /usr/local/php7.1/lib/php.ini>/usr/local/php7.1/lib/php.ini.tmp' && sudo mv /usr/local/php7.1/lib/php.ini.tmp /usr/local/php7.1/lib/php.ini 
                 if [ $? == 0 ];then   
                     echo -e "Modifying the configuration file to activate php7.1 pthreads extension ... done"
                 else 
