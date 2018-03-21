@@ -1,5 +1,5 @@
 <?php
-namespace Module\Process;
+namespace Pider\Kernel\Process;
 
 /**
  * @class Processd 
@@ -7,7 +7,7 @@ namespace Module\Process;
  * Manage several processes as a process manager
  *
  */
-use Module\Schedule\Schedule;
+use Pider\Kernel\Schedule;
 
 class Processd  implements Schedule{
     /**

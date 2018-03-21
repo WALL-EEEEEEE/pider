@@ -5,8 +5,12 @@ use Pider\Kernel\WithKernel;
 use Pider\Kernel\WithStream;
 use Pider\Kernel\Stream;
 use Pider\Kernel\Schedule;
+use Pider\Support\Traits\ScheduleMultiplexTrait as ScheduleMultiplex;
+use Pider\Kernel\Process\Process;
+Use Pider\Kernel\Process\Processd;
 
 class  RequestSchedule extends WithKernel implements Schedule{
+    use ScheduleMultiplex;
     private $request_pool = [];
     private $current_request ;
     /**
@@ -29,12 +33,10 @@ class  RequestSchedule extends WithKernel implements Schedule{
      * Start the schedule process
      */
     public function run(){
-
     }
 
     /**
      * @method fromStream()
-     * 
      */
     public function fromStream(Stream $stream, WithStream $kernel) {
         $request_schdule = '';

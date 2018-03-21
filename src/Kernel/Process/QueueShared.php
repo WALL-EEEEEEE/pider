@@ -1,5 +1,5 @@
 <?php
-namespace Module\Process;
+namespace Pider\Kernel\Process;
 
 /**
  * @class QueueShared

@@ -1,5 +1,5 @@
 <?php
-namespace Module\Process;
+namespace Pider\Kernel\Process;
 /**
  * @class Shared 
  * This function is a briage for shareing data between processes

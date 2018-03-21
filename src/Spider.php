@@ -10,6 +10,7 @@ use Pider\Kernel\Stream;
 use Pider\Kernel\WithStream;
 use Pider\Kernel\Kernel;
 use Pider\Config;
+use Pider\Support\Traits\SpiderTwigTrait as SpiderTwigTrait;
 
 /**
  * @class Pider\Spider
@@ -18,6 +19,7 @@ use Pider\Config;
 abstract class Spider extends WithKernel {
 
     use Template;
+    use SpiderTwigTrait;
     protected $start_urls;
     protected $domains;
     protected $request;
@@ -40,7 +42,7 @@ abstract class Spider extends WithKernel {
                 $request = new Request(['base_uri'=> $request]);
             }
         }
-        $this->emitStreams($requests);
+        $this->twigs($requests);
     }
 
     /**
