@@ -3,6 +3,7 @@
 
 define('PIDER_PATH',__DIR__.'/src'); 
 define('APP_ROOT',__DIR__);
+
 function runPider($classpath) {
    if(!file_exists($classpath)){
         exit('Error: File not exists!');
