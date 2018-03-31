@@ -5,7 +5,7 @@ This Scripts is used to configure a centos linux machine to a spider development
 '
 cpath=$(dirname $(readlink -f $0))/setup
 source $cpath/util.sh
-declare -a packages=("git" "wget" "curl" "gcc" "make" "bzip2" "autoconf")
+declare -a packages=("git" "wget" "curl" "gcc" "make" "bzip2" "autoconf" "libxml2-devel" "openssl-devel" "libcurl-devel" "openjpeg-devel" "libwebp-devel" "gd-devel")
 declare -a package_manager='yum'
 declare -a package_manager_remove='yum erase'
 declare -a package_manager_install='yum install'

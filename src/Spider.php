@@ -11,14 +11,15 @@ use Pider\Kernel\WithStream;
 use Pider\Kernel\Kernel;
 use Pider\Config;
 use Pider\Support\Traits\SpiderTwigTrait as SpiderTwigTrait;
+use Pider\Support\Traits\SpiderProcessTrait as SpiderProcessTrait;
 
 /**
  * @class Pider\Spider
  * Spider class is a frontend class for programmer to customize their spider. 
  */
 abstract class Spider extends WithKernel {
-
     use Template;
+    use SpiderProcessTrait;
     use SpiderTwigTrait;
     protected $start_urls;
     protected $domains;
@@ -26,13 +27,12 @@ abstract class Spider extends WithKernel {
     protected $responses;
     protected static $Configs;
 
-    public function __construct() {
+    public final function __construct() {
         //init kernel
         $this->kernelize();
     }
 
     final public function go() {
-
         $requests  = $this->start_requests();
         if (!is_array($requests)) {
             $requests = [$requests];
@@ -104,7 +104,7 @@ abstract class Spider extends WithKernel {
     }
 
     public function kernelize() {
-        if(empty(self::$kernel)) {
+        if(empty(self::$kernel) || $this->processes > 1) {
             self::$kernel = new Kernel();
         }
         $kernel = self::$kernel;
