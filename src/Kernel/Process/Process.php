@@ -7,14 +7,22 @@ namespace Pider\Kernel\Process;
  */
 class Process {
     public $task;
-    public function __construct(Callable $callback){
+    public $name;
+    public function __construct(Callable $callback,$name = ''){
         $this->task = $callback;
+        if (!empty($name)) {
+            $this->name = $name;
+        }
     }
     public function run() {
         $task = $this->task;
+        cli_set_process_title($this->name);
         $task($this);
     }
-    public function __invoke() {
+    public function __invoke($name = '') {
+        if (!empty($name) && empty($this->name)) {
+            $this->name = $name;
+        }
         $this->run();
     }
     public function shared() {
