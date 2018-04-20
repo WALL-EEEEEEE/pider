@@ -25,6 +25,7 @@ abstract class Spider extends WithKernel {
     protected $domains;
     protected $request;
     protected $responses;
+    protected $name;
     protected static $Configs;
 
     public final function __construct() {

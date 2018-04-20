@@ -23,6 +23,16 @@ class Processd  implements Schedule{
     private $process_pool = [];
 
     private $feedbacks = [];
+
+    private $daemon;
+    private $t_name;
+    private $default_ct_name = "twig(child:pid)";
+
+    public function __construct($name = 'twig(master)',$daemon = false) {
+        $this->t_name = $name;
+        $this->daemon = $daemon;
+        cli_set_process_title($name);
+    }
     /**
      *@method add(callback | Process $process )  attach a process to manager
      *@param $process mix $process can be only a callback or a Process object
@@ -80,6 +90,36 @@ class Processd  implements Schedule{
      * @return void
      */
     public function run() {
+        //run under no daemonize
+        if ($this->daemon == false) {
+            $this->_nodaemonize();
+       //run under daemonize
+        } else  {
+            echo "run under daemon".PHP_EOL;
+            $this->_daemonize();
+        }
+    }
+
+    public function _daemonize() {
+        $secure_wrapper = pcntl_fork();
+
+        if ($secure_wrapper == -1) {
+            throw new \ErrorException('Error: Processd can\'t fork a new subprocess');
+        } else if ($secure_wrapper) {
+            exit(0);
+        } else {
+            $session = posix_setsid();
+            var_dump($session);
+            if ($session == -1) {
+                throw new \ErrorException("DaemonProcessError: Can't detach from terminal");
+            }
+            $this->_nodaemonize();
+
+        }
+   }
+
+    public function _nodaemonize() {
+        
         while($process = $this->schedule()) {
             $pid_flag = pcntl_fork();
             switch($pid_flag) {
@@ -87,12 +127,13 @@ class Processd  implements Schedule{
                 throw new \ErrorException('Error: Processd can\'t fork a new subprocess');
                 break;
             case 0:
-                $process();
+                $default_ct_name = preg_replace('/pid/i',getmypid(),$this->default_ct_name);
+                $process($default_ct_name);
                 exit(0);
                 break;
             default:
                 $this->process_pool[$pid_flag] = ['task'=>$process,'status'=>1];
-           }
+            }
         }
 
         foreach($this->process_pool as $pid => $pcallback) {
@@ -102,6 +143,5 @@ class Processd  implements Schedule{
         }
         $this->__feedbacks();
         Shared::destory(getmypid());
-   }
-
+    }
 }

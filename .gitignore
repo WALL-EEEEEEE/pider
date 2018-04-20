@@ -10,5 +10,6 @@ Util/Api.php
 Config
 Proxy
 wiki
+extern
 examples/company
 *.pyc
