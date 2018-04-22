@@ -41,11 +41,10 @@ class Selector {
     }
 
     public function extract_first() {
-        if (is_array($this->selected) && !empty($this->selected)) {
-            return $this->selected[0];
-        } else {
-            return  $this->selected;
-        }
+        if (empty(self::$selected)) {
+            return [];
+        } 
+        return trim(self::$selected[0]->nodeValue);
     }
 }
 

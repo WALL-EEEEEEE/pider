@@ -95,7 +95,6 @@ class Processd  implements Schedule{
             $this->_nodaemonize();
        //run under daemonize
         } else  {
-            echo "run under daemon".PHP_EOL;
             $this->_daemonize();
         }
     }
@@ -109,7 +108,6 @@ class Processd  implements Schedule{
             exit(0);
         } else {
             $session = posix_setsid();
-            var_dump($session);
             if ($session == -1) {
                 throw new \ErrorException("DaemonProcessError: Can't detach from terminal");
             }

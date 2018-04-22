@@ -89,11 +89,17 @@ abstract class Spider extends WithKernel {
         } else {
                $response = $callbacks($response);
         }
-        //if $response is a new request, render it as a new request stream.
-        if ($response instanceof Request ) {
-            $this->transferRequest($response);
+        //if $response is a new request or new request string, render it as a new request stream.
+        if (is_array($response)) {
+            foreach($response as $per_response) {
+                if ($per_response instanceof Request ) {
+                    $this->transferRequest($per_response);
+                }
+            }
+        } else if ( $response instanceof Request ) {
+                    $this->transferRequest($response);
         }
-    }
+   }
 
     public function toStream() {
         return new MetaStream('FINISHED','');
