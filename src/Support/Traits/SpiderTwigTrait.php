@@ -1,7 +1,7 @@
 <?php
 namespace Pider\Support\Traits;
-use Pider\Kernel\Process\Processd;
-use Pider\Kernel\Process\Process;
+use Twig\Process\Processd;
+use Twig\Process\Process;
 
 trait SpiderTwigTrait{
     protected $processes = 1;
