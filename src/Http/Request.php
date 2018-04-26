@@ -13,9 +13,10 @@ class Request {
     private $proxy = '';
     private $uri = '';
     private $org_uri = '';
+    private $headers = [];
     public  $callback;
     public  $attachment = [];
-    public function __construct(array $config = [], $callback = '' ) {
+    public function __construct(array $config = [], Callable $callback = NULL ) {
         if (array_key_exists('base_uri',$config)) {
             $this->org_uri = $config['base_uri'];
         }
@@ -64,6 +65,14 @@ class Request {
         };
         $response = '';
         try {
+            
+            if (!empty($this->headers)) {
+                $options['headers'] = $this->headers;
+            }
+            if ($this->org_uri === 'https://mdskip.taobao.com/core/initItemDetail.htm?itemId=525238203484') {
+               // var_dump(self::$client);
+               // var_dump($options);
+            }
             $response = self::$client->request($method,$this->org_uri,$options);
         } catch(ConnectException $e) {
             throw new \Exception($e->getMessage());
@@ -73,6 +82,9 @@ class Request {
             }
             return new Response($response);
         }
+    }
+    public function setHeaders(array $headers) {
+        $this->headers = $headers;
     }
 
     public function getOrgUri() {

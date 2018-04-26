@@ -9,8 +9,10 @@ namespace Pider\Schedule;
 use Pider\Kernel\WithKernel;
 use Pider\Kernel\WithStream;
 use Pider\Kernel\Stream;
+use Pider\Kernel\MetaStream;
 use Pider\Kernel\ConfigError;
 use Pider\Kernel\Schedule;
+use Pider\Kernel\ScheduleError;
 use Pider\Extension\autoloader;
 
 class IpSchedule extends WithKernel implements Schedule {
@@ -50,7 +52,7 @@ class IpSchedule extends WithKernel implements Schedule {
      *@param $limit_count int  the capacibilty of ips, IpSchedule can store, 20 by default.
      *@param $mode   const int the mode IpSchedule will run under. There are two modes, MODE_SANDALONE, MODE_BOUND
      */
-    public function __construct(int $limit_count = 20, int $mode = 0 ) {
+    public function __construct(int $limit_count = 5, int $mode = 0 ) {
         $this->ippool_limit = $limit_count;
         if ( $mode != self::MODE_BOUND && $mode != self::MODE_STANDALONE) {
             throw new \InvalidArgumentException("Unknown mode specified!");
@@ -192,8 +194,6 @@ class IpSchedule extends WithKernel implements Schedule {
         //Check if IpSchedule initialized
         $if_exist = $kernel->IpSchedule;
         if (empty($if_exist)) {
-            $kernel->IpSchedule = new IpSchedule();
-            $ip_schedule = $kernel->IpSchedule;
             $this->proxy_enable = $kernel->Configs['Request.Option']['proxy'];
             if (!is_bool($this->proxy_enable))
             {
@@ -206,30 +206,32 @@ class IpSchedule extends WithKernel implements Schedule {
                 if (!is_string($ipsources_path)) {
                     throw new ConfigError("Invalid config option: Proxy must be a path string!");
                 }
-                $ipsources_real_path  =  APP_ROOT.'/'.$ipsources_path;
+                $ipsources_real_path  =  APP_ROOT.DIRECTORY_SEPARATOR.$ipsources_path;
                 if (!file_exists($ipsources_real_path)) {
-                    throw new ConfigError("Invalid config option: Proxy muast be a valid path!");
+                    throw new ConfigError("Invalid config option: Proxy must be a valid path!");
                 }
                 autoloader::register($ipsources_real_path);
                 $sources = scandir($ipsources_real_path);
                 foreach($sources as $source) {
                     if(!is_dir($source) && pathinfo($source,PATHINFO_EXTENSION)) {
-                        $cls =pathinfo($source,PATHINFO_FILENAME); 
+                        $cls = pathinfo($source,PATHINFO_FILENAME); 
+                        include_once($cls.'.php');
                         $source =  new $cls();
-                        $ip_schedule->source($source);
+                        $this->source($source);
                     }
                 }
             }
+            $kernel->IpSchedule = $this;
         } 
-    }
+    } 
 
     public function toStream() {
         $stream = $this->fromstream;
         if ($this->proxy_enable) {
-            $proxy_ip = $ip_schedule->deliver();
+            $proxy_ip = $this->deliver();
             $request = $stream->body();
             $request->proxy($proxy_ip);
-            return MetaStream('REQUEST', $request);
+            return new MetaStream('REQUEST', $request);
         } else {
             return $stream;
         }
