@@ -82,11 +82,15 @@ abstract class Spider extends WithKernel {
         $callbacks = $response->callback;
         if (empty($callbacks)) {
             $response = $this->parse($response);
-        } else if (is_array($callbacks)) {
+        } else if (is_array($callbacks) && ! is_callable($callbacks)) {
             foreach($callbacks as $callback) {
-               $response = $callback($response);
+                if (is_callable($callback)) {
+                    $response = $callback($response);
+                } else {
+                    throw new ErrorException('Invalid callbacks passed in request');
+                }
             }
-        } else {
+        } else if (is_callable($callbacks)){
                $response = $callbacks($response);
         }
         //if $response is a new request or new request string, render it as a new request stream.
