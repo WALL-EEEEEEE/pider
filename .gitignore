@@ -11,4 +11,5 @@ Config
 Proxy
 wiki
 examples/company
+extern
 *.pyc
