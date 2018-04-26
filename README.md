@@ -16,6 +16,7 @@
 + [ ] Well debug interface(Not support)
 + [x] Data cleaning(Not full support)
 + [ ] Data visuliazation(Not support)
++ [ ] Distribution
 
 # Requirments
 

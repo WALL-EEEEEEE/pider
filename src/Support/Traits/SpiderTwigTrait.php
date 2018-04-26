@@ -1,7 +1,7 @@
 <?php
 namespace Pider\Support\Traits;
-use Pider\Kernel\Process\Processd;
-use Pider\Kernel\Process\Process;
+use Twig\Process\Processd;
+use Twig\Process\Process;
 
 trait SpiderTwigTrait{
     protected $processes = 1;
@@ -13,15 +13,17 @@ trait SpiderTwigTrait{
             $this->kernelize();
             $this->emitStreams($requests);
        } else {
-            $steam = new Processd();
+            $steam_name = isset($this->name) ? 'Pider ('.$this->name.'-master)':'Pider ( master )';
+            $steam = new Processd($steam_name,true);
             $count = (int)(count($requests)/$processes);
             for($i = 0; $i < $processes ; $i++) {
                 $slice_requests = array_slice($requests,$i==0?0:$i*$count,($i==$processes-1)?NULL:$count);
+                $twig_name = isset($this->name)?'Pider ('.$this->name.'-child:'.$i.')':'Pider ( child:'.$i.')';
                 $twig = new Process(function() use ($slice_requests){
                     $this->total = count($slice_requests);
                     $this->kernelize();
                     $this->emitStreams($slice_requests);
-                });
+                },$twig_name);
                 $steam->add($twig);
             }
             $steam->run();
