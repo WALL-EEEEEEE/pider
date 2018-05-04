@@ -13,6 +13,9 @@
 
 @@html:&ensp;&ensp;&ensp;&ensp;@@ 详细的使用用法，请[[https://github.com/duanqiaobb/pider/tree/develop/doc/zh_cn/Introduction.md][参考文档]]。
 
+1. [[https://github.com/duanqiaobb/pider/blob/develop/doc/zh_cn/Introduction.md][介绍]]
+
+2. [[https://github.com/duanqiaobb/pider/blob/develop/doc/zh_cn/Installation.md][安装]]
 
 
 
