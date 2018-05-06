@@ -17,6 +17,6 @@
 
 2. [[https://github.com/duanqiaobb/pider/blob/develop/doc/zh_cn/Installation.md][安装]]
 
-
+3. [[https://github.com/duanqiaobb/pider/blob/develop/doc/zh_cn/QuickStart.md][快速开始]]
 
 
