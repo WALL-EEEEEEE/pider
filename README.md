@@ -2,7 +2,7 @@
 
 <a href='https://travis-ci.org/duanqiaobb/pider' > <img align="left" style="display:inline-block" src="https://travis-ci.org/duanqiaobb/pider.svg?branch=develop"></img><a>
 
-<div align='right' style='display:inline-block'><strong>Docmentation:</strong> English <a href="https://raw.githubusercontent.com/duanqiaobb/pider/develop/doc/chinese.md">Chinese</a></div>
+<div align='right' style='display:inline-block'><strong>Docmentation:</strong> English <a href="https://github.com/duanqiaobb/pider/blob/develop/doc/zh_cn/Brief.md">Chinese</a></div>
 
 # Introduction
 &ensp;&ensp; Pider is an elegant,powerful,modulized,templatized spider framework.It aims to fertilize the php community and make easier for PHP deveoper to write a spider. view [document](https://github.com/duanqiaobb/pider/wiki) in details.

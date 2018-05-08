@@ -13,3 +13,5 @@ wiki
 extern
 examples/company
 *.pyc
+*~
+*#
