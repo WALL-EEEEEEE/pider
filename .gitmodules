@@ -4,6 +4,3 @@
 [submodule "src/Mime"]
 	path = src/Mime
 	url = https://github.com/duanqiaobb/Mime.git
-[submodule "Mime"]
-	path = Mime
-	url = ./src/Mime/
