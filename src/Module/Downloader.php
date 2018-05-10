@@ -22,7 +22,7 @@ class Downloader extends WithKernel {
     public function download(Stream $stream) {
         //Extract the request infomation from stream
         $request = $stream->body();
-        $response = $request->request('GET');
+        $response = $request->request();
         $response->setOrgUrl($request->getOrgUri());
         $response->setUrl($request->getUri());
         $response->callback = $request->callback;

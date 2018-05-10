@@ -1,3 +1,6 @@
 [submodule "src/Twig"]
 	path = src/Twig
 	url = https://github.com/duanqiaobb/Twig.git
+[submodule "src/Mime"]
+	path = src/Mime
+	url = https://github.com/duanqiaobb/Mime.git
