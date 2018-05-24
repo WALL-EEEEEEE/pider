@@ -102,6 +102,8 @@ class GrapeWineCountryPore extends Pore {
         $GrapeWineCountryPropertyExist = new Throttle(function($data) {
             $subdata = [];
             foreach($data as $p_name => $p_value ) {
+                $p_name = trim($p_name);
+                $p_value = trim($p_value);
                 if (in_array($p_value,$this->self_datas) || array_key_exists($p_value,$this->self_datas)){
                     $subdata[$p_name] = $p_value;
                 } else {
@@ -121,8 +123,9 @@ class GrapeWineCountryPore extends Pore {
                 if (count($data) == 0) {
                     $clean_data['country_ch'] = '';
                     $clean_data['country_en'] = '';
-                } else if (count($data) == 1){
+                } else {
                     foreach($data as $key => $value) {
+                        $value = trim($value);
                         foreach($pore->self_datas as $k => $v) {
                             if (preg_match("/($k|$v)/i",$value)) {
                                 $clean_data['country_ch']  = $k;
