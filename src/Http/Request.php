@@ -14,12 +14,16 @@ class Request {
     private $uri = '';
     private $org_uri = '';
     private $headers = [];
+    private $options;
+    private $method;
     public  $callback;
     public  $attachment = [];
-    public function __construct(array $config = [], Callable $callback = NULL ) {
+    public function __construct(array $config = [], Callable $callback = NULL , $method = 'GET', array $options = []) {
         if (array_key_exists('base_uri',$config)) {
             $this->org_uri = $config['base_uri'];
         }
+        $this->method = $method;
+        $this->options = $options;
         if (!empty($callback)) {
             if(is_array($callback)) {
                 $this->callback = $callback;
@@ -47,7 +51,7 @@ class Request {
      * @paran array             $options   other request options
      * @return Response  
      */
-    public function request($method, $uri = '', array $options = []) {
+    public function request($method = '', $uri = '', array $options = []) {
         if(!empty(self::$proxy_callback)) {
             $proxy_callback = self::$proxy_callback;
             $options['proxy'] = $proxy_callback(); 
@@ -58,20 +62,22 @@ class Request {
         if (!empty($uri)) {
             $this->org_uri = $uri;
         }
+        if (empty($method)) {
+            $method = $this->method;
+        }
+        if (empty($options)) {
+            $options = $this->options;
+        }
         //add tracker for tracing uri
         $uri_tracker = &$this->uri;
         $options ['on_stats'] = function ($stats) use (&$uri_tracker) {
             $uri_tracker = $stats->getEffectiveUri();
         };
-        $response = '';
+       $response = '';
         try {
             
             if (!empty($this->headers)) {
                 $options['headers'] = $this->headers;
-            }
-            if ($this->org_uri === 'https://mdskip.taobao.com/core/initItemDetail.htm?itemId=525238203484') {
-               // var_dump(self::$client);
-               // var_dump($options);
             }
             $response = self::$client->request($method,$this->org_uri,$options);
         } catch(ConnectException $e) {

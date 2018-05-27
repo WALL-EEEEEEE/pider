@@ -7,6 +7,10 @@ use Pider\Prepost\Data\Reaction;
 
 
 class GrapeWineCategoryPore extends Pore {
+    private $ikeywords = [
+        '葡萄酒种类',
+        '葡萄酒类型'
+    ];
     
     protected function selfFeatures():array {
         $this->self_datas = [
@@ -25,7 +29,10 @@ class GrapeWineCategoryPore extends Pore {
         $WineCategoryPropertyExist = new Throttle(function($data) {
             $subdata = [];
             foreach($data as $p_name => $p_value ) {
-                if (preg_match('/葡萄酒类型/i',$p_name) || array_key_exists($p_value,$this->self_datas) || in_array($p_value,$this->self_datas)) {
+                $p_name_regex = '/'.implode($this->ikeywords,'|').'/i';
+                $p_value = trim($p_value);
+                $p_name = trim($p_name);
+                if (preg_match($p_name_regex,$p_name) || array_key_exists($p_value,$this->self_datas) || in_array($p_value,$this->self_datas)) {
                     $subdata[$p_name] = $p_value;
                 }
             }
@@ -38,13 +45,21 @@ class GrapeWineCategoryPore extends Pore {
                 if (count($data) == 0) {
                     $clean_data['type_ch'] = '';
                     $clean_data['type_en'] = '';
-                } else if (count($data) == 1){
+                } else if (count($data) >= 1){
                     foreach($data as $key => $value) {
-                        $clean_data['type_ch']  = $value;
-                        $clean_data['type_en']  = $pore->self_datas[$value];
+                        if (in_array($key,$pore->self_datas)) {
+                            $self_data = array_reverse($pore->self_datas);
+                            $clean_data['type_ch']  = $self_data[$value];
+                            $clean_data['type_en']  = $value;
+                        } else if (array_key_exists($value,$pore->self_datas)) {
+                            $clean_data['type_en']  = $value;
+                            $clean_data['type_en']  = @$pore->self_datas[$value];
+                        }
                     }
                 } else {
-                }
+                    $clean_data['type_ch'] = '';
+                    $clean_data['type_en'] = '';
+                } 
                 return $clean_data;
             }
         };

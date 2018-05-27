@@ -11,6 +11,7 @@
         "stolt/json-lines": "^2.0",
         "laravel/laravel": "^5.5",
         "doctrine/dbal": "^2.6",
-        "phing/phing": "2.*"
+        "phing/phing": "2.*",
+        "phpoffice/phpspreadsheet": "^1.2"
     }
 }

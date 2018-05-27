@@ -25,13 +25,12 @@ class GrapeWineColorPore extends Pore {
                 if (count($data) == 0) {
                     $clean_data['color_ch'] = '';
                     $clean_data['color_en'] = '';
-                } else if (count($data) == 1){
+                } else {
                     foreach($data as $key => $value) {
                         $clean_data['color_ch']  = $value;
                         $clean_data['color_en']  = '';
                     }
-                } else {
-                }
+                } 
                 return $clean_data;
             }
         };

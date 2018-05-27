@@ -25,16 +25,17 @@ class GrapeCategoryPore extends Pore {
                 if (count($data) == 0) {
                     $clean_data['grape_variety_ch'] = '';
                     $clean_data['grape_variety_en'] = '';
-                } else if (count($data) == 1){
+                } else if (count($data) > 0){
                     foreach($data as $key => $value) {
+                        $value = trim($value);
                         if(in_array($value,$pore->self_datas) || array_key_exists($value,$pore->self_datas)) {
                             $clean_data['grape_variety_ch'] = $value; 
                             $clean_data['grape_variety_en']  = $pore->self_datas[$value];
+                        } else {
+                            $clean_data['grape_variety_ch'] = ''; 
+                            $clean_data['grape_variety_en']  = '';
                         }
-                        $clean_data['grape_variety_ch'] = ''; 
-                        $clean_data['grape_variety_en']  = '';
                     }
-                } else {
                 }
                 return $clean_data;
             }
