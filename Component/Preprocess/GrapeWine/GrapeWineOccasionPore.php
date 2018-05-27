@@ -6,13 +6,13 @@ use Pider\Prepost\Data\Rule;
 use Pider\Prepost\Data\Throttle;
 use Pider\Prepost\Data\Reaction;
 
-class GrapeWineColorPore extends Pore {
+class GrapeWineOccasionPore extends Pore {
     
     protected function selfFeatures():array {
        $WineColorPropertyExist = new Throttle(function($data) {
             $subdata = [];
             foreach($data as $p_name => $p_value ) {
-                if (preg_match('/颜色/i',$p_name)) {
+                if (preg_match('/场合/i',$p_name)) {
                     $subdata[$p_name] = $p_value;
                 }
             }
@@ -23,14 +23,14 @@ class GrapeWineColorPore extends Pore {
             public function react(array $data,Pore $pore):array {
                 $clean_data = [];
                 if (count($data) == 0) {
-                    $clean_data['color_ch'] = '';
-                    $clean_data['color_en'] = '';
+                    $clean_data['occasion_ch'] = '';
+                    $clean_data['occasion_en'] = '';
                 } else {
                     foreach($data as $key => $value) {
-                        $clean_data['color_ch']  = $value;
-                        $clean_data['color_en']  = '';
+                        $clean_data['occasion_ch']  = trim($value);
+                        $clean_data['occasion_en']  = '';
                     }
-                } 
+                }
                 return $clean_data;
             }
         };
