@@ -6,6 +6,9 @@ use Pider\Prepost\Data\Throttle;
 use Pider\Prepost\Data\Reaction;
 
 class GrapeWineCountryPore extends Pore {
+    private $ikeywords = [
+        ''
+    ];
     protected function selfFeatures():array {
         $this->self_datas = [
             '捷克共和国'=>'The Czech Republic',
