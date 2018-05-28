@@ -45,12 +45,18 @@ class GrapeWineCategoryPore extends Pore {
                 if (count($data) == 0) {
                     $clean_data['type_ch'] = '';
                     $clean_data['type_en'] = '';
-                } else if (count($data) >= 1){
+                } else {
                     foreach($data as $key => $value) {
-                        $clean_data['type_ch']  = $value;
-                        $clean_data['type_en']  = $pore->self_datas[$value];
+                        if (in_array($key,$pore->self_datas)) {
+                            $self_data = array_reverse($pore->self_datas);
+                            $clean_data['type_ch']  = $self_data[$value];
+                            $clean_data['type_en']  = $value;
+                        } else if (array_key_exists($value,$pore->self_datas)) {
+                            $clean_data['type_en']  = $value;
+                            $clean_data['type_en']  = @$pore->self_datas[$value];
+                        }
                     }
-                } 
+                }
                 return $clean_data;
             }
         };

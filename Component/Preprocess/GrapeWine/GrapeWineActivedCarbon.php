@@ -18,6 +18,9 @@ class GrapeWineActivedCarbon extends ActivedCarbon {
             new GrapeWineSugarPore(),
             new GrapeWineColorPore(),
             new GrapeWinePackagePore(),
+            new GrapeWineOccasionPore(),
+            new GrapeWineCapacityPore(),
+            new GrapeWineBreathPore()
         ];
         return $pores;
     }
