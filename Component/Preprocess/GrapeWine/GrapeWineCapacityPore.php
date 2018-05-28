@@ -9,7 +9,8 @@ use Pider\Prepost\Data\Reaction;
 class GrapeWineCapacityPore extends Pore {
     private $ikeywords = [
         '规格',
-        '容量'
+        '容量',
+        '净含量'
     ];
     private $vkeywords = [
         'L',

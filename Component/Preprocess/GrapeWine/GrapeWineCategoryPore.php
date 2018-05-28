@@ -11,6 +11,10 @@ class GrapeWineCategoryPore extends Pore {
         '葡萄酒种类',
         '葡萄酒类型'
     ];
+    private $vstops = [
+         ',',
+         '/',
+    ];
     
     protected function selfFeatures():array {
         $this->self_datas = [
@@ -45,21 +49,17 @@ class GrapeWineCategoryPore extends Pore {
                 if (count($data) == 0) {
                     $clean_data['type_ch'] = '';
                     $clean_data['type_en'] = '';
-                } else if (count($data) >= 1){
+                } else {
                     foreach($data as $key => $value) {
-                        if (in_array($key,$pore->self_datas)) {
-                            $self_data = array_reverse($pore->self_datas);
-                            $clean_data['type_ch']  = $self_data[$value];
-                            $clean_data['type_en']  = $value;
-                        } else if (array_key_exists($value,$pore->self_datas)) {
-                            $clean_data['type_en']  = $value;
-                            $clean_data['type_en']  = @$pore->self_datas[$value];
+                        foreach($pore->self_datas as $k => $v) {
+                            $regex = '/('.$k.'|'.$v.')/i';
+                            if (preg_match($regex,$value)) {
+                                $clean_data['type_ch']  = $k;
+                                $clean_data['type_en']  = $v;
+                            } 
                         }
                     }
-                } else {
-                    $clean_data['type_ch'] = '';
-                    $clean_data['type_en'] = '';
-                } 
+                }
                 return $clean_data;
             }
         };
