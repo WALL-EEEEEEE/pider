@@ -46,7 +46,6 @@ class GrapeWineSugarPore extends Pore {
                     $clean_data['sugar_ch'] = '';
                     $clean_data['sugar_en'] = '';
                 } else if (count($data) >= 1){
-                    var_dump($data);
                     foreach($data as $key => $value) {
                         if ($value == '其他') {
                             $clean_data['sugar_ch'] = '';

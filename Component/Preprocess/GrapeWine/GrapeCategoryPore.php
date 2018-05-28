@@ -25,17 +25,23 @@ class GrapeCategoryPore extends Pore {
                 if (count($data) == 0) {
                     $clean_data['grape_variety_ch'] = '';
                     $clean_data['grape_variety_en'] = '';
-                } else if (count($data) > 0){
+                } else {
+                    $grape_variety_ch = [];
+                    $grape_variety_en = [];
                     foreach($data as $key => $value) {
                         $value = trim($value);
-                        if(in_array($value,$pore->self_datas) || array_key_exists($value,$pore->self_datas)) {
-                            $clean_data['grape_variety_ch'] = $value; 
-                            $clean_data['grape_variety_en']  = $pore->self_datas[$value];
-                        } else {
-                            $clean_data['grape_variety_ch'] = ''; 
-                            $clean_data['grape_variety_en']  = '';
+                        foreach($pore->self_datas as $k => $v) {
+                            $regex = '/('.addcslashes($k,'()/').'|'.addcslashes($v,'()/').')/i';
+                            if (preg_match($regex,$value)) {
+                                $grape_variety_ch[] = $k; 
+                                $grape_variety_en[] = $v;
+                            }
                         }
                     }
+                    $grape_variety_ch = array_unique($grape_variety_ch);
+                    $grape_variety_en = array_unique($grape_variety_en);
+                    $clean_data['grape_variety_ch'] = implode($grape_variety_ch,',');
+                    $clean_data['grape_variety_en'] = implode($grape_variety_en,',');
                 }
                 return $clean_data;
             }
