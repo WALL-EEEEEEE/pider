@@ -23,7 +23,7 @@ class GrapeWineNamePore extends Pore {
        $NotGrapeWineNameFilter = new class($GrapeWineNameExistsRule) extends Filter {
             public function filter(array $data, Pore $pore) {
                 $interferons = ['刀','酒具','酒架','酒柜','杯','酒瓶','酒桶','酒坛','酒托','衣','摆件','酒罐','酒精计',
-                '鞋','汽车','礼品袋','醒酒器','倒酒片','礼袋','包装盒'];
+                '鞋','汽车','礼品袋','醒酒器','倒酒片','礼袋','包装盒','补差价','补邮'];
                 $assoc = ['\+','送','赠'];
                 $keyword = ['葡萄酒','红酒'];
 

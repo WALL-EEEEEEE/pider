@@ -50,8 +50,7 @@ class GrapeWineCategoryPore extends Pore {
                         $clean_data['type_ch']  = $value;
                         $clean_data['type_en']  = $pore->self_datas[$value];
                     }
-                } else {
-                }
+                } 
                 return $clean_data;
             }
         };
