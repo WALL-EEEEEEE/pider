@@ -1,7 +1,25 @@
+#!/bin/php7.1
+
 <?php
+define('PIDER_PATH',dirname(__DIR__)); 
+define('APP_ROOT',dirname(__DIR__,2));
+include(PIDER_PATH.DIRECTORY_SEPARATOR.'Piderd.php');
 
-/**
- * Entrance for managing spider or jobs in a distributed way.
- **/
-
-
+if (PHP_SAPI != 'cli') {
+    echo('This command must be run under cli!');
+    exit(0);
+} else {
+    if ( $argc != 1 && $argc != 2 ) {
+        echo("piderd [option]".PHP_EOL. 
+            "   Distributed management tool, default run as a server".PHP_EOL.
+            "   [option] ".PHP_EOL.
+            "      -s run as a server ".PHP_EOL.
+            "      -c run as a cient  ".PHP_EOL);
+        exit(0);
+    }
+    if ( $argc == 1 ) {
+        Piderd::runAsServer();
+    } else if ($argc == 2) {
+        runDigest($argv[2]);
+    }
+}

@@ -1,0 +1,12 @@
+#!/bin/php7.1
+
+<?php
+include(dirname(__FILE__,2).DIRECTORY_SEPARATOR.'vendor/autoload.php');
+include(dirname(__FILE__,2).DIRECTORY_SEPARATOR.'src/Pider.php');
+
+class UnitTest {
+    public static function  Run() {
+        echo "Test for Pider ... hold on several minutes ...".PHP_EOL;
+    }
+}
+UnitTest::Run();
