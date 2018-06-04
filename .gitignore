@@ -12,6 +12,7 @@ Proxy
 wiki
 extern
 examples/company
+spiders/company
 *.pyc
 *~
 *#
