@@ -1,7 +1,60 @@
-<?php
+#!/bin/php7.1
 
+<?php
 /**
  * Entrance for managing spider or jobs in a distributed way.
  **/
+define('PIDER_PATH',dirname(__DIR__)); 
+define('APP_ROOT',dirname(__DIR__,2));
+include_once(PIDER_PATH.'/Pider.php');
 
+use Twig\Pollen\Oscillated;
+use Twig\Process\Processd;
+use Twig\Process\Process;
+
+
+if (PHP_SAPI != 'cli') {
+    exit('This command must be run under cli!');
+} else {
+    if ( $argc != 1 && $argc != 2 ) {
+        exit("piderd [piderclass] ".PHP_EOL.
+            "   Run a pider in a distributed ...".PHP_EOL.
+            "   if pider class is provided, piderd run piderclass as a distributed client".PHP_EOL.
+            "   else it run as a distributed server   ".PHP_EOL);
+    }
+    if ($argc == 1) {
+        runAsServer();
+    } else {
+        runAsClient();
+    }
+}
+
+function runAsServer() {
+    echo "run as server ...".PHP_EOL;
+    $pm = new Processd('Piderd[server]',true);
+    $process = new Process(function() {
+        $osci_server = new Oscillated('127.0.0.1',1228);
+        $osci_server->on('GET_URL',function() {
+                return 'www.jd.com';
+        });
+        $osci_server->on('GET_URL_FILTER',function() {
+                return 'item.jd.com/11119.html';
+        });
+        $osci_server->listen();
+    },'Piderd[server]');
+    $pm->add($process);
+    $pm->run();
+}
+
+function runAsClient() {
+    echo "run as client ... ".PHP_EOL;
+    $pm = new Processd('Piderd[server]');
+    $process = new Process(function() {
+        $osci_server = new Oscillated('127.0.0.1',1228);
+        $osci_server->listen();
+    },'Piderd[server]');
+    $pm->add($process);
+    $pm->run();
+
+}
 
