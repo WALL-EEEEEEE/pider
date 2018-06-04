@@ -15,8 +15,14 @@ class URLCenterUnitTest extends TestCase{
     }
 
     public function testCanputOne() {
-        $url = 'http://item.jd.com/1192891.html';
-        $this->uc->putOne($url);
+        $url = [
+                'http://item.jd.com/1192891.html',
+                'http://item.jd.com/1192892.html',
+                'http://item.jd.com/1192893.html'
+            ];
+        foreach($url as $u) {
+            $this->uc->putOne($u);
+        }
     }
 
     public function testCangetOne() {

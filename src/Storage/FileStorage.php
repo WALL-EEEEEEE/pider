@@ -34,12 +34,11 @@ class FileStorage {
             $buffer_size = $this->default_buffer_size;
         }
         $buffer_size = $size;
-        $this->_valid_read();
-        $fhandler = fopen($this->fname,'w+');
-        $data = fwrite($fhandler,$content,$buffer_size);
-        var_dump($data);
+        $this->_valid_write();
+        $fhandler = fopen($this->fname,'a+');
+        $size = fwrite($fhandler,$content,$buffer_size);
         fclose($fhandler);
-        return $data;
+        return $size;
     }
 
     public function _read(int $size = 1024):string {
@@ -48,8 +47,11 @@ class FileStorage {
         }
         $buffer_size = $size;
         $this->_valid_read();
-        $this->fhandler = fopen($this->fname,'w+');
-        $data = fread($this->fhandler,$buffer_size);
+        $fhandler = fopen($this->fname,'r');
+        while($data = fread($fhandler,$buffer_size)) {
+            var_dump($data);
+        }
+        fclose($fhandler);
         return $data;
     }
 
@@ -57,7 +59,7 @@ class FileStorage {
         $file = $this->fname;
         if (!file_exists($file) && !$this->if_create) {
             throw new FileNotFoundException("File ".$file." not exist");
-        } else if (!file_exists($file && $this->if_create)){
+        } else if (!file_exists($file) && $this->if_create){
             $parent = dirname($file);
             $this->_valid_write($parent);
             if(!file_exists($parent)) {
@@ -81,7 +83,7 @@ class FileStorage {
         if (empty($file)) {
             $file = $this->fname;
         }
-        if (!is_readable($file)) {
+        if (!is_writable($file)) {
             throw new FilePermissionException("You don't have the permission to write".$file." ");
         }
 

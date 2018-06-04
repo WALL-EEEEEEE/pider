@@ -14,13 +14,12 @@ class URLCenter {
     private $cache;
 
     public function __construct() {
-        $this->cache = new Cache('/tmp/url_center.text',true);
+        $this->cache = new Cache('/tmp/ue.txt',true);
     }
 
     public function getOne() {
         $url = $this->cache->readLine();
         return $url;
-
     }
 
     public function putOne($url) {
