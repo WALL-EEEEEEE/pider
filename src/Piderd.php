@@ -6,6 +6,11 @@ use Twig\Pollen\Oscillate;
 use Twig\Process\Processd   as Processd;
 use Twig\Process\Process    as Process;
 use Pider\Support\URLCenter as URLCenter;
+use Pider\Extension\autoloader;
+use Pider\Kernel\Kernel;
+use Pider\Config;
+
+
 
 /**
  * @class Piderd
@@ -15,15 +20,23 @@ use Pider\Support\URLCenter as URLCenter;
 
 class Piderd {
 
+    private static $configs;
+    private static $ucenter;
+    private static $kernel;
     /**
      * @method runAsServer()
      * Start a Osci server as sever end
      */
     public static function runAsServer() {
-        $ucenter = new URLCenter();
-        $pm = new Processd('Piderd');
+        self::__init();
+       $pm = new Processd('Piderd');
+        $ucenter = self::$ucenter;
         $process = new Process(function() use ($ucenter){
             $osci_server = new Oscillated('127.0.0.1', 1180);
+            $osci_server->on('CREATE',function() use (&$ucenter) {
+                var_dump("Fetching URL into URLCenter");
+                $ucenter->init();
+            });
             $osci_server->on('GET_URL_FILTER',function($connection, $domain) use ($ucenter) {
                 var_dump("GET URL from $domain");
                 return $ucenter->getOne().PHP_EOL;
@@ -47,5 +60,27 @@ class Piderd {
      * Start a Osci client as client end
      */
     public static function runAsClient() {
+    }
+
+    public static function __init() {
+        if(empty(self::$kernel)) {
+            self::$kernel = new Kernel();
+        }
+        $kernel = self::$kernel;
+        //init configs for spider
+        self::$configs = Config::copy($kernel->Configs);
+        self::$configs->setAsGlobal();
+        self::$ucenter = new URLCenter();
+        $directory = APP_ROOT.'/'.self::$configs['URLCenter'];
+        autoloader::register($directory);
+        $sources = scandir($directory);
+        foreach($sources as $source) {
+            if(!is_dir($source) && pathinfo($source,PATHINFO_EXTENSION)) {
+                $source_cls = pathinfo($source,PATHINFO_FILENAME); 
+                include_once($source_cls.'.php');
+                $source_obj =  new $source_cls();
+                self::$ucenter->addSource($source_obj);
+            }
+        }
     }
 }
