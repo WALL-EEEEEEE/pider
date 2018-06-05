@@ -29,7 +29,7 @@ class Piderd {
      */
     public static function runAsServer() {
         self::__init();
-       $pm = new Processd('Piderd');
+        $pm = new Processd('Piderd');
         $ucenter = self::$ucenter;
         $process = new Process(function() use ($ucenter){
             $osci_server = new Oscillated('127.0.0.1', 1180);
@@ -60,8 +60,17 @@ class Piderd {
      * Start a Osci client as client end
      */
     public static function runAsClient() {
+        self::__init();
+        $osci_client = new Oscillate('127.0.0.1',1180);
+        var_dump($osci_client->get_url());
     }
 
+    /**
+     *@method __init()
+     * 
+     * Initialization
+     *
+     */
     public static function __init() {
         if(empty(self::$kernel)) {
             self::$kernel = new Kernel();

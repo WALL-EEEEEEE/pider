@@ -19,6 +19,6 @@ if (PHP_SAPI != 'cli') {
     if ( $argc == 1 ) {
         Piderd::runAsServer();
     } else if ($argc == 2) {
-        runDigest($argv[2]);
+        Piderd::runAsClient();
     }
 }
