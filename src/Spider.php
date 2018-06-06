@@ -21,7 +21,7 @@ abstract class Spider extends WithKernel {
     use Template;
     use SpiderProcessTrait;
     use SpiderTwigTrait;
-    protected $start_urls;
+    protected $start_urls = [];
     protected $domains;
     protected $request;
     protected $responses;
@@ -64,7 +64,6 @@ abstract class Spider extends WithKernel {
         if (is_string($this->start_urls)) {
             $this->urls = [$this->start_urls];
         }
-
         foreach($this->start_urls as $url) {
             $start_requests[] = new Request(['base_uri'=> $url]);
         }
@@ -126,6 +125,8 @@ abstract class Spider extends WithKernel {
         //init configs for spider
         self::$Configs = Config::copy($kernel->Configs);
         self::$Configs->setAsGlobal();
+        //regist event 
+        $kernel->on('SPIDER_CLOSE',[$this,'close']);
     }
 
     public function emitStreams($requests) {
@@ -138,5 +139,42 @@ abstract class Spider extends WithKernel {
 
     public function transferRequest($request) {
         self::$kernel->fromStream(new MetaStream('REQUEST',$request), $this);
+    }
+
+    /**
+     * @method getName()
+     * get spider name
+     * @return name of spider 
+     */
+    public function getName() {
+        return $this->name;
+    }
+
+    /**
+     * @method getDomains()
+     * get spider domains
+     *
+     * @return domains of spider
+     */
+    public function getDomains() {
+        return $this->domains;
+    }
+
+    /**
+     * @method fromURLs()
+     * 
+     */
+    public function fromURLs($urls) {
+        if (is_array($urls)) {
+            $this->start_urls = array_merge($this->start_urls,$urls);
+        } else {
+            $this->start_urls[] = $urls;
+        }
+    }
+
+    public function close() {
+    }
+
+    public final function __destruct() {
     }
 }

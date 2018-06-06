@@ -12,13 +12,23 @@ use Pider\Kernel\Config;
 use Pider\Kernel\MetaStream;
 use Pider\Kernel\Stream;
 use Pider\Kernel\StreamInvalid;
+use Pider\Kernel\Event\Dispenser;
+use Pider\Kernel\Event\Listener;
+use Pider\Kernel\Event\Event;
 
 class Kernel implements WithStream {
+    use Dispenser;
+    use Listener;
+
     private $cores= [];
     private $components = [];
     private $actived = [];
     private $attaches = [];
     private $streams = [];
+    private $events = [
+        'SPIDER_START',
+        'SPIDER_CLOSE',
+    ];
     private $KernelConfigs;
     public  $Configs;
 
@@ -28,6 +38,7 @@ class Kernel implements WithStream {
         $this->cores = $config->Cores;
         $this->components = $config->Components;
         $this->init();
+        $this->dispense(new Event('SPIDER_START'));
     }
 
     /**
@@ -109,6 +120,7 @@ class Kernel implements WithStream {
                 }
             }
         }
+        $this->dispense(new Event('SPIDER_CLOSE'));
    }
 
     /**

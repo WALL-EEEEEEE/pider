@@ -7,6 +7,7 @@ use Twig\Process\Processd   as Processd;
 use Twig\Process\Process    as Process;
 use Pider\Support\URLCenter as URLCenter;
 use Pider\Extension\autoloader;
+use Pider\Support\SpiderWise;
 use Pider\Kernel\Kernel;
 use Pider\Config;
 
@@ -62,7 +63,7 @@ class Piderd {
     public static function runAsClient() {
         self::__init();
         $osci_client = new Oscillate('127.0.0.1',1180);
-        var_dump($osci_client->get_url());
+        SpiderWise::dispatchSpider($osci_client->get_url(),1);
     }
 
     /**
@@ -80,16 +81,24 @@ class Piderd {
         self::$configs = Config::copy($kernel->Configs);
         self::$configs->setAsGlobal();
         self::$ucenter = new URLCenter();
-        $directory = APP_ROOT.'/'.self::$configs['URLCenter'];
-        autoloader::register($directory);
-        $sources = scandir($directory);
-        foreach($sources as $source) {
-            if(!is_dir($source) && pathinfo($source,PATHINFO_EXTENSION)) {
-                $source_cls = pathinfo($source,PATHINFO_FILENAME); 
-                include_once($source_cls.'.php');
-                $source_obj =  new $source_cls();
-                self::$ucenter->addSource($source_obj);
+        if (!empty(self::$configs['URLCenter'])) {
+            $directory = APP_ROOT.'/'.self::$configs['URLCenter'];
+            if(is_dir($directory) && file_exists($directory)) {
+                autoloader::register($directory);
+                $sources = scandir($directory);
+                foreach($sources as $source) {
+                    if(!is_dir($source) && pathinfo($source,PATHINFO_EXTENSION)) {
+                        $source_cls = pathinfo($source,PATHINFO_FILENAME); 
+                        include_once($source_cls.'.php');
+                        $source_obj =  new $source_cls();
+                        self::$ucenter->addSource($source_obj);
+                    }
+                }
+            } else {
+                        throw new \ErrorException("Invalid directory ".$dirctory." for URLCenter");
             }
+        } else {
+                        throw new \ErrorException("Please configure URLCenter in your config at first !");
         }
     }
 }

@@ -13,7 +13,7 @@ use Pider\Support\URLSource;
 
 class URLCenter {
     private $cache;
-    private $sources;
+    private $sources = [];
     private $urls;
     private $memory_limit;
 

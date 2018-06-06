@@ -9,14 +9,23 @@ use Pider\Support\SpiderWise;
 class SpiderWiseUnitTest extends TestCase {
 
     public function testIsSpider() {
-        $spiders = '/home/jhbian/pider/examples/company/TmallWineStatusSpider.php';
-        var_dump(SpiderWise::isSpider($spiders));
+        $spiders = APP_ROOT.'/examples/company/TmallWineStatusSpider.php';
+        $this->assertTrue(SpiderWise::isSpider($spiders));
     }
 
     public function testListSpiders() {
-        $directory = '/home/jhbian/pider/examples/company';
-        var_dump(SpiderWise::listSpider($directory));
+        $directory = APP_ROOT.'/examples/company';
+        $this->assertNotEmpty(SpiderWise::listSpider($directory));
     }
+
+    public function testLinkedSpidersWithoutURL() {
+        var_dump(SpiderWise::linkSpider());
+    }
+
+    public function testLinkedSpidersWithURL() {
+        var_dump(SpiderWise::linkSpider('https://item.jd.com/16290805360.html'));
+    }
+
 }
 
 
