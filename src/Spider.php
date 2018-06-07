@@ -170,9 +170,11 @@ abstract class Spider extends WithKernel {
         } else {
             $this->start_urls[] = $urls;
         }
+        var_dump($this->start_urls);
     }
 
     public function close() {
+        echo "hello,closed";
     }
 
     public final function __destruct() {
