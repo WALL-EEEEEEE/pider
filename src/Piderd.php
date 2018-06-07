@@ -59,8 +59,16 @@ class Piderd {
      */
     public static function runAsClient() {
         self::__init();
-        $osci_client = new Oscillate('127.0.0.1',1180);
-        SpiderWise::dispatchSpider($osci_client->get_url(),1);
+        while(true) {
+            $osci_client = new Oscillate('127.0.0.1',1180);
+            $url = $osci_client->get_url();
+            if (!empty($url)) {
+                SpiderWise::dispatchSpider($url,100);
+            } else {
+                sleep(1);
+            }
+
+        }
     }
 
     /**

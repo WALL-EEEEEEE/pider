@@ -29,6 +29,10 @@ abstract class Spider extends WithKernel {
     protected static $Configs;
 
     public final function __construct() {
+        $this->open();
+    }
+
+    public function open() {
     }
 
     public final function go() {
@@ -176,5 +180,6 @@ abstract class Spider extends WithKernel {
     }
 
     public final function __destruct() {
+        self::$kernel = NULL;
     }
 }

@@ -69,15 +69,23 @@ class SpiderWise {
     public static function dispatchSpider($url, int $size) {
         $spiders = self::linkSpider($url);
         foreach($spiders as $spider) {
-            if(empty(self::$wait_queue[$spider]) || count(self::$wait_queue[$spider]) < $size )  {
-                self::$wait_queue[$spider][] = $url;
+            if(empty(self::$wait_queue[$spider]) || count(self::$wait_queue[$spider]) < $size  || !in_array($url,self::$wait_queue[$spider]))  {
+                    self::$wait_queue[$spider][] = $url;
+                    array_unique(self::$wait_queue[$spider]);
             } 
             if (!empty(self::$wait_queue[$spider]) && count(self::$wait_queue[$spider]) >= $size){
-               $spider_obj = self::$spiders[$spider];
+               $spider_obj = new $spider();
                $spider_obj->fromUrls(self::$wait_queue[$spider]);
                $spider_obj->go();
+               //clean wait_queue
+               self::clear_queue($spider);
             }
         }
     }
+
+    private static function clear_queue(string $spider) {
+        self::$wait_queue[$spider] = [];
+    }
+
 } 
 
