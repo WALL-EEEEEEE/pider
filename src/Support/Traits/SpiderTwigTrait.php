@@ -14,11 +14,9 @@ trait SpiderTwigTrait{
             $this->emitStreams($requests);
        } else {
             $steam_name = isset($this->name) ? 'Pider ('.$this->name.'-master)':'Pider ( master )';
-            var_dump($this);
             $steam = new Processd($steam_name,true);
             $count = (int)(count($requests)/$processes);
             for($i = 0; $i < $processes ; $i++) {
-                #var_dump($this);
                 $slice_requests = array_slice($requests,$i==0?0:$i*$count,($i==$processes-1)?NULL:$count);
                 $twig_name = isset($this->name)?'Pider ('.$this->name.'-child:'.$i.')':'Pider ( child:'.$i.')';
                 $twig = new Process(function() use ($slice_requests){

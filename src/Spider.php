@@ -29,11 +29,10 @@ abstract class Spider extends WithKernel {
     protected static $Configs;
 
     public final function __construct() {
-        //init kernel
-        $this->kernelize();
     }
 
-    final public function go() {
+    public final function go() {
+        $this->kernelize();
         $requests  = $this->start_requests();
         if (!is_array($requests)) {
             $requests = [$requests];
@@ -114,7 +113,7 @@ abstract class Spider extends WithKernel {
     }
 
     public function kernelize() {
-        if(empty(self::$kernel) || $this->processes > 1) {
+        if(empty(self::$kernel) || (!empty(self::$kernel) && $this->processes > 1)) {
             self::$kernel = new Kernel();
         }
         $kernel = self::$kernel;
@@ -122,7 +121,7 @@ abstract class Spider extends WithKernel {
         if (empty($if_exist)) {
             $kernel->Spider = $this;
         }
-        //init configs for spider
+       //init configs for spider
         self::$Configs = Config::copy($kernel->Configs);
         self::$Configs->setAsGlobal();
         //regist event 
@@ -170,11 +169,10 @@ abstract class Spider extends WithKernel {
         } else {
             $this->start_urls[] = $urls;
         }
-        var_dump($this->start_urls);
     }
 
     public function close() {
-        echo "hello,closed";
+        echo "hello,closed".PHP_EOL;
     }
 
     public final function __destruct() {

@@ -35,15 +35,12 @@ class Piderd {
         $process = new Process(function() use ($ucenter){
             $osci_server = new Oscillated('127.0.0.1', 1180);
             $osci_server->on('CREATE',function() use (&$ucenter) {
-                var_dump("Fetching URL into URLCenter");
                 $ucenter->init();
             });
             $osci_server->on('GET_URL_FILTER',function($connection, $domain) use ($ucenter) {
-                var_dump("GET URL from $domain");
                 return $ucenter->getOne().PHP_EOL;
             });
             $osci_server->on('GET_URL',function() use ($ucenter){
-                var_dump("GET URL");
                 return $ucenter->getOne().PHP_EOL;
             });
             $osci_server->on('PUT_URL',function($connection,$url) use($ucenter){
@@ -70,7 +67,6 @@ class Piderd {
      *@method __init()
      * 
      * Initialization
-     *
      */
     public static function __init() {
         if(empty(self::$kernel)) {
