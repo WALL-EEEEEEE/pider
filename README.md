@@ -10,13 +10,13 @@
 # Features
 
 + [x] Crawler (Support)
-+ [x] Crawler with multi-process
++ [x] Crawler with multi-process (Support)
 + [x] Command line interface (Not full support )
 + [ ] Template crawling(Not support)
 + [ ] Well debug interface(Not support)
 + [x] Data cleaning(Not full support)
 + [ ] Data visuliazation(Not support)
-+ [ ] Distribution ( Coming soon )
++ [x] Distribution (Support)
 
 # Requirments
 
