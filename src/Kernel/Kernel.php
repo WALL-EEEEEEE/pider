@@ -134,6 +134,15 @@ class Kernel implements WithStream {
         }
     }
 
+
+    public function pushStream(Stream $stream, WithStream $fromObject) {
+        if ($stream instanceof MetaStream) {
+            array_unshift($this->streams,$stream);
+        } else {
+            throw new StreamInvalid("Invalid stream provided!");
+        }
+    }
+
     public function toStream() {
         $this->dispatch();
     }

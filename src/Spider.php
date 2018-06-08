@@ -141,7 +141,7 @@ abstract class Spider extends WithKernel {
     }
 
     public function transferRequest($request) {
-        self::$kernel->fromStream(new MetaStream('REQUEST',$request), $this);
+        self::$kernel->pushStream(new MetaStream('REQUEST',$request), $this);
     }
 
     /**
@@ -176,7 +176,6 @@ abstract class Spider extends WithKernel {
     }
 
     public function close() {
-        echo "hello,closed".PHP_EOL;
     }
 
     public final function __destruct() {
