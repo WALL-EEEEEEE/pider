@@ -7,16 +7,14 @@ composer.lock
 vendor
 bin/*
 Util/Api.php
+src/Helper/Api.php
 Config
 Proxy
 wiki
 extern
 examples/company
-<<<<<<< HEAD
 extern
-=======
 spiders/company
->>>>>>> 5b093e94899a3affaf1f3a64cec9765c92eefe6e
 *.pyc
 *~
 *#
