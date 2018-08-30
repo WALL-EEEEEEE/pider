@@ -11,6 +11,8 @@ tags
 composer.lock
 vendor
 bin/*
+Util/Api.php
+test/ApiTest.php
 !bin/scripts
 !bin/tags
 bin/scripts/*
