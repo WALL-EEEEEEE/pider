@@ -13,6 +13,7 @@ vendor
 bin/*
 Util/Api.php
 test
+examples/
 !bin/scripts
 !bin/tags
 bin/scripts/*
