@@ -15,6 +15,5 @@ Util/Api.php
 test
 examples/
 !bin/scripts
-!bin/tags
 bin/scripts/*
 !bin/scripts/env
