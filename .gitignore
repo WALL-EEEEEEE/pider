@@ -17,3 +17,4 @@ examples
 !bin/scripts
 bin/scripts/*
 !bin/scripts/env
+extern
