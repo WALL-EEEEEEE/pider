@@ -10,6 +10,10 @@ Util/Api.php
 src/Helper/Api.php
 Config
 Proxy
+Model
+Controller
+URLRepository
+Component
 wiki
 extern
 examples/company
