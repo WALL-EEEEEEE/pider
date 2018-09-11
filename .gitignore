@@ -18,3 +18,8 @@ spiders/company
 *.pyc
 *~
 *#
+test
+examples
+!bin/scripts
+bin/scripts/*
+!bin/scripts/env
