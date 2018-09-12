@@ -28,6 +28,7 @@
 # Installation
 
 **Use docker**
+
 &ensp;&ensp;&ensp;&ensp; There are a out-of-box docker environment for use. You can just `pull` and use it right away.
 ```shell
 docker pull jhbian/pider
@@ -37,6 +38,7 @@ composer install
 ```
 
 **Install into your laptop (only linux supported currently)**
+
 &ensp;&ensp;&ensp;&ensp; You can run `install.sh` under root directory of the project whatever you prefer to install an environment into your laptop.
 
 + Install `composer` at first.(Details can be pored over on [https://getcomposer.org/](https://getcomposer.org/))
