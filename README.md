@@ -27,11 +27,28 @@
 
 # Installation
 
+**Use docker**
+&ensp;&ensp;&ensp;&ensp; There are a out-of-box docker environment for use. You can just `pull` and use it right away.
+```shell
+docker pull jhbian/pider
+git clone https://github.com/duanqiaobb/pider
+cd pider
+composer install
+```
+
+**Install into your laptop (only linux supported currently)**
+&ensp;&ensp;&ensp;&ensp; You can run `install.sh` under root directory of the project whatever you prefer to install an environment into your laptop.
+
++ Install `composer` at first.(Details can be pored over on [https://getcomposer.org/](https://getcomposer.org/))
+
++ Set up environment
+
 ```shell
   git clone https://github.com/duanqiaobb/pider.git
   chmod u+x install.sh
   ./install.sh
 ```
+
 
 # Usage
 &ensp;&ensp;&ensp;&ensp; Hereinafter, I assume that you had set pider up ,not only environment but also the framework itself.  
