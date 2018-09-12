@@ -19,11 +19,16 @@ class SpiderWiseUnitTest extends TestCase {
     }
 
     public function testLinkedSpidersWithoutURL() {
-        var_dump(SpiderWise::linkSpider());
+        $this->assertEmpty(SpiderWise::linkSpider());
     }
 
     public function testLinkedSpidersWithURL() {
-        var_dump(SpiderWise::linkSpider('https://item.jd.com/16290805360.html'));
+        $spiders = [
+                    "JdWineAllTagsSpider",     
+                    "JdWineLinkConsistentCensor",
+                ];
+        $linked_spiders = SpiderWise::linkSpider('https://item.jd.com/16290805360.html');
+        $this->assertEquals($linked_spiders,$spiders);
     }
 
 }

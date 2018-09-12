@@ -160,7 +160,23 @@ abstract class Spider extends WithKernel {
      * @return domains of spider
      */
     public function getDomains() {
-        return $this->domains;
+        $domains = $this->domains;
+        $vdomains = [];
+        if (is_string($domains) || is_array($domains)) {
+            $domains = is_string($domains)?[$domains]:$domains;
+            foreach($domains as $domain ) {
+                if(!empty($domain)) {
+                    $vdomain = parse_url($domain,PHP_URL_HOST);
+                    if(!empty($vdomain)) {
+                        $vdomains[] = $vdomain;
+                    } else if (preg_match('/\w+\.\w+\.\w+/i',$domain)) {
+                        $vdomains[] = $domain;
+                    }
+
+                }
+            }
+        } 
+        return $vdomains;
     }
 
     /**

@@ -1,0 +1,15 @@
+#!/bin/php7.1
+<?php
+
+define('PIDER_PATH',dirname(__DIR__)); 
+define('APP_ROOT',dirname(__DIR__,2));
+include_once(PIDER_PATH.'/Pider.php');
+
+use Pider\Console\Terminal;
+use Pider\Console\ConsoleCommand;
+
+$terminal = new Terminal(); 
+$terminal->add(new ConsoleCommand());
+$terminal->run();
+
+

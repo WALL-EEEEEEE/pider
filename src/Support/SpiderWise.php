@@ -38,6 +38,8 @@ class SpiderWise {
         $specific_spiders = [];
         if (!empty($url)) {
             $domain = parse_url($url,PHP_URL_HOST);
+        } else {
+            return [];
         }
         $spiders = self::listSpider(APP_ROOT.'/examples/company');
         foreach($spiders as $spider) {
@@ -53,11 +55,7 @@ class SpiderWise {
                 }
             }
         }
-        if (!empty($url)) {
-            return $specific_spiders;
-        } else {
-            return $linked_spiders;
-        }
+        return $specific_spiders;
     }
 
 
