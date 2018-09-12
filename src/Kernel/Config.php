@@ -44,19 +44,26 @@ class Config implements \ArrayAccess {
         $this->Configs[$kconfig] = $vconfig;
     }
     public function load() {
+        $fconfig = PIDER_PATH.DIRECTORY_SEPARATOR.self::DEFAULT_FRAMEWORK_CONFIG_PATH;
+        $pconfig = APP_ROOT.DIRECTORY_SEPARATOR.self::DEFAULT_PROJECT_CONFIG_PATH;
         self::$KernelConfigs = !empty(self::$KernelConfigs)?self::$KernelConfigs:include_once(self::DEFAULT_CONFIG_PATH);
-        self::$FrameworkConfigs = !empty(self::$FrameworkConfigs)?self::$FrameworkConfigs:include_once(PIDER_PATH.DIRECTORY_SEPARATOR.self::DEFAULT_FRAMEWORK_CONFIG_PATH);
-        self::$ProjectConfigs = !empty(self::$ProjectConfigs)?self::$ProjectConfigs:include_once(APP_ROOT.DIRECTORY_SEPARATOR.self::DEFAULT_PROJECT_CONFIG_PATH);
+        self::$FrameworkConfigs = !empty(self::$FrameworkConfigs)?self::$FrameworkConfigs:include_once($fconfig);
+        self::$ProjectConfigs = !empty(self::$ProjectConfigs)?self::$ProjectConfigs:@include_once($pconfig);
+
         if (!is_array(self::$KernelConfigs)) {
             throw new ConfigError("Invalid kernel config format!");
         }
         if (!is_array(self::$FrameworkConfigs)) {
             throw new ConfigError("Invalid framework config format!");
         }
-        if (!is_array(self::$ProjectConfigs)) {
+        if (file_exists($pconfig) && !is_array(self::$ProjectConfigs)) {
             throw new ConfigError("Invalid project config format!");
         }
-        $this->Configs = array_merge(self::$FrameworkConfigs,self::$ProjectConfigs);
+        if(empty(self::$ProjectConfigs)) {
+            $this->Configs = self::$FrameworkConfigs;
+        } else {
+            $this->Configs = array_merge(self::$FrameworkConfigs,self::$ProjectConfigs);
+        }
     }
 
     /**
