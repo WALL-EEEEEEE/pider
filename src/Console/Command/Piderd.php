@@ -12,10 +12,9 @@ class Piderd extends Command {
     public $isExec = true;
 
     protected function configure() {
-
+        $this->setName('piderd');
     }
     protected function execute(InputInterface $input, OutputInterface $output) {
-
     }
 }
 

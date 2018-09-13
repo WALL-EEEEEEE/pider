@@ -46,3 +46,4 @@ if (PHP_SAPI != 'cli') {
         runDigest($argv[2]);
     }
 }
+

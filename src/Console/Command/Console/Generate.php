@@ -1,5 +1,5 @@
 <?php
-namespace Pider\Console;
+namespace Pider\Console\Command\Console;
 
 /**
  * Define `pider` command under console
@@ -8,7 +8,9 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ConsoleCommand extends Command {
+class Generate extends Command {
+
+    public $isExec = True;
 
     protected function configure() {
         $this->setName('generate')

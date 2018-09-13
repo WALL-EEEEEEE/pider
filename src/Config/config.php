@@ -6,5 +6,8 @@ return $config = [
        "user-agent"=>'Pider',
    ],
    "MiddleWares"=> [
+   ],
+   "Spiders"=> [
+       'spiders'
    ]
 ];
