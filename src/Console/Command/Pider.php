@@ -46,15 +46,21 @@ class Pider extends Command {
                 $this->setName('crawl')
                      ->setDescription("crawl urls supplied")
                      ->addArgument('url',InputArgument::OPTIONAL,'url to crawled')
-                     ->addOption('file','f',InputOption::VALUE_REQUIRED,'file contains urls to be crawled');
+                     ->addOption('file','f',InputOption::VALUE_REQUIRED,'file contains urls to be crawled')
+                     ->addOption('attach','a',InputOption::VALUE_OPTIONAL,'data will be attached to request,json format');
             }
 
             public function execute(InputInterface $in,OutputInterface $out) {
-                $spiderwise = new SpiderWise();
                 $io = new SymfonyStyle($in,$out);
-
                 if($in->hasArgument('url')) {
+                    $url = $in->getArgument('url');
+                    $attach = $in->hasOption('attach')?$in->getOption('attach'):'';
+                    if(!empty($url)) {
+                        $attach = !empty($attach) && !is_null(@json_decode($attach)) ?json_decode($attach,true):[];
+                        SpiderWise::dispatchSpider($url,1,$attach);
+                    }
                 }
+                parent::execute($in,$out);
 
             }
         });

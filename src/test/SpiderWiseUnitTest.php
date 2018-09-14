@@ -38,7 +38,11 @@ class SpiderWiseUnitTest extends TestCase {
                 ];
         $linked_spiders = SpiderWise::linkSpider('item.jd.com');
         $this->assertEquals($linked_spiders,$spiders);
+    }
 
+    public function testdispatcherSpiderWithURL(){
+        $linked_spiders = SpiderWise::dispatchSpider('https://item.jd.com/16290805360.html',1);
+        $this->assertEmpty('');
     }
 
 }

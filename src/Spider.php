@@ -27,6 +27,8 @@ abstract class Spider extends WithKernel {
     protected $responses;
     protected $name;
     protected static $Configs;
+    protected $isFromURLs = false;
+
 
     public final function __construct() {
         $this->open();
@@ -37,7 +39,12 @@ abstract class Spider extends WithKernel {
 
     public final function go() {
         $this->kernelize();
-        $requests  = $this->start_requests();
+        if ($this->isFromURLs) {
+            $requests = $this->start_urls;
+        } else {
+            $requests  = $this->start_requests();
+        }
+
         if (!is_array($requests)) {
             $requests = [$requests];
         }
@@ -183,11 +190,23 @@ abstract class Spider extends WithKernel {
      * @method fromURLs()
      * 
      */
-    public function fromURLs($urls) {
+    public function fromURLs($urls,$params = []) {
+        $this->isFromURLs = true;
         if (is_array($urls)) {
-            $this->start_urls = array_merge($this->start_urls,$urls);
+            foreach($urls as $url) {
+                $request = new Request(['base_uri'=> $url]);
+                if (!empty($params)){
+                    $request->attachment=$params;
+                }
+                $this->start_urls[] = $request;
+            }
         } else {
-            $this->start_urls[] = $urls;
+            $request = new Request(['base_uri'=> $urls]);
+            if (!empty($params)) {
+                $request->attachment=$params;
+            }
+            $this->start_urls[] = $request;
+  urls;
         }
     }
 
