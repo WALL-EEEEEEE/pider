@@ -31,6 +31,16 @@ class SpiderWiseUnitTest extends TestCase {
         $this->assertEquals($linked_spiders,$spiders);
     }
 
+    public function testLinkedSpidersWithDomain() {
+        $spiders = [
+                    "JdWineAllTagsSpider",     
+                    "JdWineLinkConsistentCensor",
+                ];
+        $linked_spiders = SpiderWise::linkSpider('item.jd.com');
+        $this->assertEquals($linked_spiders,$spiders);
+
+    }
+
 }
 
 
