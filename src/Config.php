@@ -42,12 +42,20 @@ class Config implements \ArrayAccess {
        self::$instance = $this;
    }
 
+   public static function unsetAsGlobal() {
+       self::$instance = '';
+   }
+
    public static function get($ckey) {
        return self::$instance->$ckey;
    }
 
    public static function set($ckey, $cvalue) {
        self::$instance->$ckey = $cvalue;
+   }
+
+   public function toArray() {
+       return $this->Configs;
    }
 
    public function __get(string $kconfig) {

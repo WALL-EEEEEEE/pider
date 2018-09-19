@@ -8,6 +8,7 @@ return $config = [
    "MiddleWares"=> [
    ],
    "Spiders"=> [
-       'spiders'
+       'spiders',
+       'examples/company'
    ]
 ];

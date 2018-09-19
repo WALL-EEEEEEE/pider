@@ -2,6 +2,7 @@
 namespace Pider\Support;
 
 use Pider\Spider;
+use Pider\Config;
 
 class SpiderWise {
 
@@ -20,7 +21,10 @@ class SpiderWise {
 
     public static function listSpider(string $directory) {
         $spiders = [];
-        $files = scandir($directory); 
+        $files = [];
+        if(file_exists($directory)) {
+            $files = array_diff(scandir($directory),['.','..']); 
+        } 
         foreach($files as $file) {
             $file = $directory.DIRECTORY_SEPARATOR.$file;
             if(!is_dir($file) && pathinfo($file,PATHINFO_EXTENSION)) {
@@ -41,17 +45,27 @@ class SpiderWise {
         } else {
             return [];
         }
-        $spiders = self::listSpider(APP_ROOT.'/examples/company');
+        $paths = self::loadSpiderPathes();
+        $spiders = [];
+        foreach($paths as $path) {
+            $container_path = APP_ROOT.'/'.$path;
+            $spider_container = self::listSpider($container_path);
+            $spider_container = array_map(function($value) use ($container_path) {
+                $spider_path = $container_path.'/'.$value.'.php';
+                return ['name'=> $value,'locate'=>$spider_path];
+            },$spider_container);
+            $spiders = array_merge($spiders,$spider_container);
+        }
         foreach($spiders as $spider) {
-            include_once(APP_ROOT.'/examples/company/'.$spider.'.php');
-            $spider_obj = new $spider;
-            self::$spiders[$spider] = $spider_obj;
+            @include_once($spider['locate']);
+            $spider_obj = new $spider['name'];
+            self::$spiders[$spider['name']] = $spider_obj;
             $domains = $spider_obj->getDomains();
-            $linked_spiders[$spider]  = $domains;
+            $linked_spiders[$spider['name']]  = $domains;
             if (!empty($url)) {
                 $match_domain = (is_array($domains) && in_array($domain,$domains)) || (is_string($domains) && $domains == $domain);
                 if($match_domain) {
-                    $specific_spiders [] = $spider;
+                    $specific_spiders [] = $spider['name'];
                 }
             }
         }
@@ -83,6 +97,17 @@ class SpiderWise {
 
     private static function clear_queue(string $spider) {
         self::$wait_queue[$spider] = [];
+    }
+
+    private static function loadSpiderPathes() {
+        $spiders_path = Config::get('Spiders');
+        if (is_array($spiders_path)) {
+            return $spiders_path;
+        } else if (is_string($spiders_path)) {
+            return [$spiders_path];
+        }
+        return [];
+ 
     }
 
 } 

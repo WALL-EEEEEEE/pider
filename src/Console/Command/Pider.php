@@ -12,6 +12,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Input\ArrayInput;
 use Pider\Support\SpiderWise;
 use Pider\Console\Command;
+use Pider\Config;
 
 class Pider extends Command {
 
@@ -32,11 +33,16 @@ class Pider extends Command {
                      ->setDescription("list all availabe spiders");
             }
         })->setCode(function($in,$out){
-            $spider_path = APP_ROOT.'/examples/company';
+            $spider_pathes = Config::get('Spiders');
             $spiderwise = new SpiderWise();
+            $spiders = [];
+            foreach ($spider_pathes as $path) {
+                $spider_container = $spiderwise->listSpider($path);
+                $spiders = array_merge($spiders,$spider_container);
+            }
             $io = new SymfonyStyle($in,$out);
             $out->writeln(['<comment>All Available Spiders:</comment>']);
-            $io->listing($spiderwise->listSpider($spider_path));
+            $io->listing($spiders);
 
         });
 

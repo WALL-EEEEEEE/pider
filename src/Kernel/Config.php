@@ -46,9 +46,9 @@ class Config implements \ArrayAccess {
     public function load() {
         $fconfig = PIDER_PATH.DIRECTORY_SEPARATOR.self::DEFAULT_FRAMEWORK_CONFIG_PATH;
         $pconfig = APP_ROOT.DIRECTORY_SEPARATOR.self::DEFAULT_PROJECT_CONFIG_PATH;
-        self::$KernelConfigs = !empty(self::$KernelConfigs)?self::$KernelConfigs:include_once(self::DEFAULT_CONFIG_PATH);
-        self::$FrameworkConfigs = !empty(self::$FrameworkConfigs)?self::$FrameworkConfigs:include_once($fconfig);
-        self::$ProjectConfigs = !empty(self::$ProjectConfigs)?self::$ProjectConfigs:@include_once($pconfig);
+        self::$KernelConfigs = !empty(self::$KernelConfigs)?self::$KernelConfigs:include(self::DEFAULT_CONFIG_PATH);
+        self::$FrameworkConfigs = !empty(self::$FrameworkConfigs)?self::$FrameworkConfigs:include($fconfig);
+        self::$ProjectConfigs = !empty(self::$ProjectConfigs)?self::$ProjectConfigs:@include($pconfig);
 
         if (!is_array(self::$KernelConfigs)) {
             throw new ConfigError("Invalid kernel config format!");
