@@ -3,7 +3,7 @@ namespace Pider;
 
 use Pider\Kernel\Config as BaseConfig;
 use Pider\Kernel\ConfigError as ConfigError;
-use Pider\Exceptions\FileNotFoundException;
+use Pider\Exceptions\FileNotFoundException as FileNotFoundException;
 
 class Config implements \ArrayAccess {
 
@@ -19,7 +19,7 @@ class Config implements \ArrayAccess {
    public static function fromFile(string $filename) {
 
        if (!file_exists($filename)) {
-           throw FileNotFoundException("Config file ".$filename.' not found, check you path carefully!');
+           throw new FileNotFoundException("Config file ".$filename.' not found, check you path carefully!');
        } else {
            $configs = include($filename);
            if (!is_array($configs)) {

@@ -63,29 +63,30 @@ class Pider extends Command {
             public function execute(InputInterface $in,OutputInterface $out) {
                 $logger = Logger::getLogger();
                 $io = new SymfonyStyle($in,$out);
-                $loglevel = $in->hasOption('loglevel')?$in->getOption('loglevel'):'';
+                $loglevel = $in->getOption('loglevel');
                 if (!empty($loglevel)) {
                         defined('LOG_LEVEL')?'':define('LOG_LEVEL',$loglevel);
                 } else {
                         defined('LOG_LEVEL')?'':define('LOG_LEVEL','OUTPUT');
                 }
-                if($in->hasArgument('url') && !$in->hasOption('file')) {
-                    $url = $in->getArgument('url');
-                    $attach = $in->hasOption('attach')?$in->getOption('attach'):'';
+		$url = $in->getArgument('url');
+		$file = $in->getOption('file');
+                if(!empty($url) && empty($file)) {
+                    $attach = $in->getOption('attach');
                    if(!empty($url)) {
                         $attach = !empty($attach) && !is_null(@json_decode($attach)) ?json_decode($attach,true):[];
                         SpiderWise::dispatchSpider($url,1,$attach);
                     }
                 }
-                if ($in->hasOption('file')) {
-                    $file = $in->getOption('file');
+                if (empty($url) && !empty($file)) {
                     $real_file = realpath($file);
                     if (!file_exists($real_file)) {
                         $logger->error('File '.$real_file.' doesn\'t exists');
                     }
                     $detect_type = pathinfo($real_file,PATHINFO_EXTENSION);
-                    $filetype = $in->hasOption('filetype')?$in->getOption('filetype'):'';
-                    $filetype = empty($flietype)?$detect_type:$filetype;
+                    $filetype = $in->getOption('filetype');
+                    $filetype = empty($filetype)?$detect_type:$filetype;
+		    print('hello');
                     if(!empty($filetype)) {
                         $filetype = strtolower($filetype);
                         if ($filetype == 'xlsx') {

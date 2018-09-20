@@ -8,6 +8,19 @@ use Symfony\Component\Console\Formatter\OutputFormatter;
 
 
 trait ConsoleOutputDirect {
+   //priority of loglevel, low to high as defined order as array items.
+   //OUTPUT < DEBUG < NOTICE < WARN < ERROR
+   //It also controls the output behavior of different level log message.
+   //All rules followed is that the highers must be outputed more prioritily
+   //than the lowers.For example, if `OUTPUT` loglevel is admited, all loglevels 
+   //prior than  `OUTPUT` mustn't be ignored. 
+   private $level_priority = [
+	   'OUTPUT',
+	   'DEBUG',
+	   'NOTICE',
+	   'WARN',
+	   'ERROR',
+   ];
 
     public function redirect() {
         ob_start([$this,'beautify'],1);
@@ -41,21 +54,17 @@ trait ConsoleOutputDirect {
             $section = '<fg=red;options=bold>['.$loglevel.']</>';
             $formattedLine = $section.' '.$out;
             break;
-
         default:
             $formattedLine = $formatter->formatSection($loglevel,$out);
         }
-        /**
-        $output->writeln('<fg=green>foo</>');
-        $output->writeln('<fg=black;bg=magenta>foo</>');
-        $output->writeln('<bg=yellow;options=bold>foo</>');
-        $output->writeln('<bg=yellow;options=blink>foo</>');
-        $output->writeln('<options=bold,underscore>foo</>');
-        $output->writeln('<options=bold,underscore>foo</>');
-        */
-        $defined_level = defined('LOG_LEVEL')?LOG_LEVEL:'OUTPUT';
-        $level_match = strtoupper($defined_level) == strtoupper($loglevel);
-        if (!empty($out) && $level_match) {
+	$defined_level = defined('LOG_LEVEL')?LOG_LEVEL:'OUTPUT';
+	$defined_level = strtoupper($defined_level);
+	$level_allowed = $this->level_priority;
+	if (in_array($defined_level,$this->level_priority)){
+		$pos = array_search($defined_level,$this->level_priority);
+		$level_allowed = array_slice($this->level_priority,$pos);
+	} 
+        if (!empty($out) && in_array($format_level,$level_allowed)) {
             $output->writeln($formattedLine);
         } 
         return '';
