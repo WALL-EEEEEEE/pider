@@ -20,6 +20,7 @@ class Log {
          self::LOG_EMERG=> '[EMERGE]',
          self::LOG_ALERT => '[ALERT]',
          self::LOG_CRIT  => '[CRITIC]',
+         self::LOG_ERR   => '[ERROR]',
          self::LOG_WARNING=> '[WARNING]',
          self::LOG_NOTICE => '[NOTICE]',
          self::LOG_INFO   => '[INFO]',
@@ -56,7 +57,7 @@ class Log {
       *
       */
      public function error(string $msg) {
-         $this->log($msg,self::LOG_ERROR);
+         $this->log($msg,self::LOG_ERR);
      }
      /**
       * @method notice

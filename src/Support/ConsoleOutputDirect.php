@@ -6,6 +6,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Helper\FormatterHelper;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
+
 trait ConsoleOutputDirect {
 
     public function redirect() {
@@ -35,11 +36,16 @@ trait ConsoleOutputDirect {
             $section = '<fg=yellow;options=bold>'.$loglevel.'</>';
             $formattedLine = $formatter->formatSection($section,$out,'comment');
             break;
+        case 'ERROR':
+            $out = '<fg=red>'.$out.'</>';
+            $section = '<fg=red;options=bold>['.$loglevel.']</>';
+            $formattedLine = $section.' '.$out;
+            break;
+
         default:
             $formattedLine = $formatter->formatSection($loglevel,$out);
         }
         /**
-        $output->writeln('<question>foo</question>');
         $output->writeln('<fg=green>foo</>');
         $output->writeln('<fg=black;bg=magenta>foo</>');
         $output->writeln('<bg=yellow;options=bold>foo</>');
@@ -47,7 +53,8 @@ trait ConsoleOutputDirect {
         $output->writeln('<options=bold,underscore>foo</>');
         $output->writeln('<options=bold,underscore>foo</>');
         */
-        $level_match = strtoupper(LOG_LEVEL) == strtoupper($loglevel);
+        $defined_level = defined('LOG_LEVEL')?LOG_LEVEL:'OUTPUT';
+        $level_match = strtoupper($defined_level) == strtoupper($loglevel);
         if (!empty($out) && $level_match) {
             $output->writeln($formattedLine);
         } 
