@@ -15,6 +15,7 @@ class ExampleSpider extends Spider {
         echo "hello2";
         echo "request";
         print('print');
+        print_r("example spider");
         var_dump([1=>'hello',2=>'test']);
     }
 

@@ -53,7 +53,8 @@ class Pider extends Command {
                      ->setDescription("crawl urls supplied")
                      ->addArgument('url',InputArgument::OPTIONAL,'url to crawled')
                      ->addOption('file','f',InputOption::VALUE_REQUIRED,'file contains urls to be crawled')
-                     ->addOption('attach','a',InputOption::VALUE_OPTIONAL,'data will be attached to request,json format');
+                     ->addOption('attach','a',InputOption::VALUE_OPTIONAL,'data will be attached to request,json format')
+                     ->addOption('loglevel','l',InputOption::VALUE_OPTIONAL,'log which matches level option will output ');
             }
 
             public function execute(InputInterface $in,OutputInterface $out) {
@@ -61,13 +62,18 @@ class Pider extends Command {
                 if($in->hasArgument('url')) {
                     $url = $in->getArgument('url');
                     $attach = $in->hasOption('attach')?$in->getOption('attach'):'';
+                    $loglevel = $in->hasOption('loglevel')?$in->getOption('loglevel'):'';
+                    if (!empty($loglevel)) {
+                        define('LOG_LEVEL',$loglevel);
+                    } else {
+                        define('LOG_LEVEL','OUTPUT');
+                    }
                     if(!empty($url)) {
                         $attach = !empty($attach) && !is_null(@json_decode($attach)) ?json_decode($attach,true):[];
                         SpiderWise::dispatchSpider($url,1,$attach);
                     }
                 }
                 parent::execute($in,$out);
-
             }
         });
 

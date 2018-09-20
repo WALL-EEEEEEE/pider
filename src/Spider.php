@@ -12,6 +12,7 @@ use Pider\Kernel\Kernel;
 use Pider\Config;
 use Pider\Support\Traits\SpiderTwigTrait as SpiderTwigTrait;
 use Pider\Support\Traits\SpiderProcessTrait as SpiderProcessTrait;
+use Pider\Log\Log as Logger;
 
 /**
  * @class Pider\Spider
@@ -28,6 +29,7 @@ abstract class Spider extends WithKernel {
     protected $name;
     protected static $Configs;
     protected $isFromURLs = false;
+    private static $logger;
 
 
     public final function __construct() {
@@ -38,7 +40,12 @@ abstract class Spider extends WithKernel {
     }
 
     public final function go() {
+        self::$logger = Logger::getLogger();
+        $logger = self::$logger;
+        $logger->debug("Initialize kernel ...");
         $this->kernelize();
+        $logger->debug("Initialize kernel ... done");
+        $logger->debug("Initialize urls ... ");
         if ($this->isFromURLs) {
             $requests = $this->start_urls;
         } else {
@@ -53,6 +60,7 @@ abstract class Spider extends WithKernel {
                 $request = new Request(['base_uri'=> $request]);
             }
         }
+        $logger->debug("Initialize urls ... done");
         $this->twigs($requests);
     }
 
