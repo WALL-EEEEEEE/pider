@@ -55,6 +55,7 @@ class Pider extends Command {
                      ->setDescription("crawl urls supplied")
                      ->addArgument('url',InputArgument::OPTIONAL,'url to crawled')
                      ->addOption('file','f',InputOption::VALUE_REQUIRED,'file contains urls to be crawled')
+                     ->addOption('spider','s',InputOption::VALUE_OPTIONAL,'spider be appointed')
                      ->addOption('filetype','t',InputOption::VALUE_OPTIONAL,'filetype specified, defaults: txt ')
                      ->addOption('attach','a',InputOption::VALUE_OPTIONAL,'data will be attached to request,json format')
                      ->addOption('loglevel','l',InputOption::VALUE_OPTIONAL,'log which matches level option will output ');
@@ -69,13 +70,18 @@ class Pider extends Command {
                 } else {
                         defined('LOG_LEVEL')?'':define('LOG_LEVEL','OUTPUT');
                 }
-		$url = $in->getArgument('url');
-		$file = $in->getOption('file');
+                $url = $in->getArgument('url');
+                $file = $in->getOption('file');
                 if(!empty($url) && empty($file)) {
                     $attach = $in->getOption('attach');
+                    $spider = $in->getOption('spider');
                    if(!empty($url)) {
                         $attach = !empty($attach) && !is_null(@json_decode($attach)) ?json_decode($attach,true):[];
-                        SpiderWise::dispatchSpider($url,1,$attach);
+                        if(!empty($spider)) {
+                            SpiderWise::dispatchSpider($url,1,$attach,$spider);
+                        } else  {
+                            SpiderWise::dispatchSpider($url,1,$attach);
+                        }
                     }
                 }
                 if (empty($url) && !empty($file)) {

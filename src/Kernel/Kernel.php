@@ -48,7 +48,6 @@ class Kernel implements WithStream {
         $logger->debug("Load components ... done");
         $logger->debug("Actived components:");
         $logger->debug($this->getComponentsInfo());
-        $logger->debug("Spider start");
         $this->dispense(new Event('SPIDER_START'));
 
     }

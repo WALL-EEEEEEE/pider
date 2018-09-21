@@ -61,6 +61,7 @@ abstract class Spider extends WithKernel {
             }
         }
         $logger->debug("Initialize urls ... done");
+        $logger->debug('Spider start: <'.$this->name.'>');
         $this->twigs($requests);
     }
 

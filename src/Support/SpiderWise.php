@@ -78,8 +78,12 @@ class SpiderWise {
      *
      * Dispense url to spiders
      */
-    public static function dispatchSpider($url, int $size = 10, array $extern_params = []) {
+    public static function dispatchSpider($url, int $size = 10, array $extern_params = [], string $spider_appointed= '') {
         $spiders = self::linkSpider($url);
+        if (!empty($spider_appointed)) {
+            $spider_appointed = [$spider_appointed];
+            $spiders = array_intersect($spider_appointed,$spiders);
+        }
         foreach($spiders as $spider) {
             if(empty(self::$wait_queue[$spider]) || count(self::$wait_queue[$spider]) < $size  || !in_array($url,self::$wait_queue[$spider]))  {
                     self::$wait_queue[$spider][] = $url;

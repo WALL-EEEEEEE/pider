@@ -74,6 +74,7 @@ class Log {
       * @param string $msg
       */
      public function debug(string $msg) {
+         $msg = '<'.strftime('%Y-%m-%d %H:%M:%S').'> '.$msg;
          $this->log($msg,self::LOG_DEBUG);
      }
      /**
