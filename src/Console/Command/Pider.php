@@ -14,7 +14,7 @@ use Pider\Support\SpiderWise;
 use Pider\Console\Command;
 use Pider\Config;
 use Pider\Log\Log as Logger;
-use Pider\Storage\XlsxFileStorage as Xlsx;
+use Pider\Support\UrlXlsxExtractor;
 
 class Pider extends Command {
 
@@ -78,26 +78,33 @@ class Pider extends Command {
                    if(!empty($url)) {
                         $attach = !empty($attach) && !is_null(@json_decode($attach)) ?json_decode($attach,true):[];
                         if(!empty($spider)) {
-                            SpiderWise::dispatchSpider($url,1,$attach,$spider);
+                            SpiderWise::dispatchSpider([$url],1,$attach,$spider);
                         } else  {
-                            SpiderWise::dispatchSpider($url,1,$attach);
+                            SpiderWise::dispatchSpider([$url],1,$attach);
                         }
                     }
                 }
                 if (empty($url) && !empty($file)) {
                     $real_file = realpath($file);
+                    $spider = $in->getOption('spider');
                     if (!file_exists($real_file)) {
                         $logger->error('File '.$real_file.' doesn\'t exists');
                     }
                     $detect_type = pathinfo($real_file,PATHINFO_EXTENSION);
                     $filetype = $in->getOption('filetype');
                     $filetype = empty($filetype)?$detect_type:$filetype;
-		    print('hello');
                     if(!empty($filetype)) {
                         $filetype = strtolower($filetype);
                         if ($filetype == 'xlsx') {
-                            $xlsx = Xlsx::getWriter();
-                        }
+                            $urls = (new UrlXlsxExtractor($real_file))->extract();
+                            if (!empty($urls)) {
+                                if (!empty($spider)) {
+                                    SpiderWise::dispatchSpider($urls,100,[],$spider);
+                                } else {
+                                    SpiderWise::dispatchSpider($urls,100);
+                                }
+                            }
+                       }
                     }
                 }
                 parent::execute($in,$out);
@@ -138,6 +145,14 @@ class Pider extends Command {
 
     public function execute(InputInterface $input, OutputInterface $output) {
         $io = new SymfonyStyle($input,$output);
+        $ascii="
+.______    __   _______   _______ .______      
+|   _  \  |  | |       \ |   ____||   _  \     
+|  |_)  | |  | |  .--.  ||  |__   |  |_)  |    
+|   ___/  |  | |  |  |  ||   __|  |      /     
+|  |      |  | |  '--'  ||  |____ |  |\  \----.
+| _|      |__| |_______/ |_______|| _| `._____|";
+        $io->writeln($ascii);
         $command_list = $this->list();
         $io->writeln(array("<comment>Usage:</comment>"));
         $io->text('<info>./'.$this->getName().' [command]</info>');

@@ -45,18 +45,8 @@ class SpiderWise {
         } else {
             return [];
         }
-        $paths = self::loadSpiderPathes();
-        $spiders = [];
-        foreach($paths as $path) {
-            $container_path = APP_ROOT.'/'.$path;
-            $spider_container = self::listSpider($container_path);
-            $spider_container = array_map(function($value) use ($container_path) {
-                $spider_path = $container_path.'/'.$value.'.php';
-                return ['name'=> $value,'locate'=>$spider_path];
-            },$spider_container);
-            $spiders = array_merge($spiders,$spider_container);
-        }
-        foreach($spiders as $spider) {
+        $spiders = self::allAvailableSpiders();
+       foreach($spiders as $spider) {
             @include_once($spider['locate']);
             $spider_obj = new $spider['name'];
             self::$spiders[$spider['name']] = $spider_obj;
@@ -78,25 +68,60 @@ class SpiderWise {
      *
      * Dispense url to spiders
      */
-    public static function dispatchSpider($url, int $size = 10, array $extern_params = [], string $spider_appointed= '') {
-        $spiders = self::linkSpider($url);
+    public static function dispatchSpider(array $urls, int $size = 10, array $extern_params = [], string $spider_appointed= '') {
+        $spiders = self::allAvailableSpiders(false);
         if (!empty($spider_appointed)) {
             $spider_appointed = [$spider_appointed];
             $spiders = array_intersect($spider_appointed,$spiders);
         }
-        foreach($spiders as $spider) {
-            if(empty(self::$wait_queue[$spider]) || count(self::$wait_queue[$spider]) < $size  || !in_array($url,self::$wait_queue[$spider]))  {
-                    self::$wait_queue[$spider][] = $url;
-                    array_unique(self::$wait_queue[$spider]);
-            } 
-            if (!empty(self::$wait_queue[$spider]) && count(self::$wait_queue[$spider]) >= $size){
-               $spider_obj = new $spider();
-               $spider_obj->fromUrls(self::$wait_queue[$spider],$extern_params);
-               $spider_obj->go();
-               //clean wait_queue
-               self::clear_queue($spider);
+        if (!empty($urls)) {
+            foreach($urls as $url) {
+                foreach($spiders as $spider) {
+                    $linked_spiders = self::linkSpider($url);
+                    $if_enter_queue = (isset(self::$wait_queue[$spider]) || empty(self::$wait_queue[$spider]) || count(self::$wait_queue[$spider]) < $size  || !in_array($url,self::$wait_queue[$spider])) && in_array($spider,$linked_spiders);
+                    if($if_enter_queue)  {
+                        self::$wait_queue[$spider][] = $url;
+                        array_unique(self::$wait_queue[$spider]);
+                    } 
+                    if (!empty(self::$wait_queue[$spider]) && count(self::$wait_queue[$spider]) >= $size){
+                        $spider_obj = new $spider();
+                        $spider_obj->fromUrls(self::$wait_queue[$spider],$extern_params);
+                        $spider_obj->go();
+                        //clean wait_queue
+                        self::clear_queue($spider);
+                    }
+                }
+            }
+
+            //queue remanant url 
+            foreach(self::$wait_queue as $spider => $urls_queue) {
+                if (!empty($urls_queue)) {
+                    $spider_obj = new $spider();
+                    $spider_obj->fromUrls(self::$wait_queue[$spider],$extern_params);
+                    $spider_obj->go();
+                    self::clear_queue($spider);
+                }
             }
         }
+
+    }
+
+    public static function allAvailableSpiders($showLocate = true) {
+        $paths = self::loadSpiderPathes();
+        $spiders = [];
+        foreach($paths as $path) {
+            $container_path = APP_ROOT.'/'.$path;
+            $spider_container = self::listSpider($container_path);
+            $spider_container = array_map(function($value) use ($container_path) {
+                $spider_path = $container_path.'/'.$value.'.php';
+                return ['name'=> $value,'locate'=>$spider_path];
+            },$spider_container);
+            $spiders = array_merge($spiders,$spider_container);
+        }
+        if ($showLocate) {
+            return $spiders;
+        }
+        return array_column($spiders,'name');
     }
 
     private static function clear_queue(string $spider) {

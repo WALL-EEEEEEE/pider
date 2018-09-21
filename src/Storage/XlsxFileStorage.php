@@ -27,15 +27,17 @@ class XlsxFileStorage {
         return $isLack;
     }
     public function writer() {
+        return new XlsxWriter();
     }
 
-    public function reader() {
+    public function reader(String $filename = '') {
+        return new XlsxReader($filename);
     }
 
     public static function getWriter() {
         return (new XlsxFileStorage())->writer();
     }
-    public static function getReader() {
-        return (new XlsxFileStorage())->reader();
+    public static function getReader(string $filename = '') {
+        return (new XlsxFileStorage())->reader($filename);
     }
 }
