@@ -110,6 +110,49 @@ class Pider extends Command {
                 parent::execute($in,$out);
             }
         });
+        //define `runspider` subcommand
+        $subcommands[] = (new class() extends Command {
+            public function configure() {
+                $this->setName('runspider')
+                    ->setDescription("run a spider")
+                    ->addArgument('spidername',InputArgument::OPTIONAL,'spider name to be run; you can just specify a name or specify a valid path.');
+            }
+
+            public function execute(InputInterface $in, OutputInterface $out) {
+                $spider = $in->getArgument('spidername');
+                $io = new SymfonyStyle($in,$out);
+                if (!empty($spider)) {
+                    $status = SpiderWise::runSpider($spider);
+                    if (!$status) {
+                        $io->newLine();
+                        $io->writeln(['<options=bold>'.$spider.' does\'t exist or is not a valid spider'.'.</>']);
+                        $io->newLine();
+                        $io->writeln(['<comment>Available spiders:</comment>']);
+                        $spiders = SpiderWise::allAvailableSpiders(false);
+                        $io->listing($spiders);
+                    }
+                }
+                parent::execute($in,$out);
+            } 
+
+        });
+
+        //define 'rundigest' subcommand
+        $subcommands[] = (new class() extends Command {
+            public function configure() {
+                $this->setName('rundigest')
+                    ->setDescription("run a digest")
+                    ->addArgument('digestname',InputArgument::OPTIONAL,'digest name to be run; you can just specify a name or specify a valid path.');
+            }
+
+            public function execute(InputInterface $in, OutputInterface $out) {
+                parent::execute($in,$out);
+            } 
+
+        });
+
+
+
 
         // define `checkurl` subcommand
         $subcommands[] = (new class() extends Command {

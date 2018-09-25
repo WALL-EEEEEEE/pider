@@ -10,7 +10,7 @@ class SpiderWise {
     private static $spiders = [];
 
     public static function isSpider(string $class,$directory='') {
-        include_once($class);
+        @include_once($class);
         $cls = pathinfo($class,PATHINFO_FILENAME); 
         $pcls = @class_parents($cls,false);
         if (class_exists($cls,false) && in_array('Pider\Spider',$pcls)) {
@@ -122,6 +122,36 @@ class SpiderWise {
             return $spiders;
         }
         return array_column($spiders,'name');
+    }
+
+    /**
+     * @method runSpider()
+     * @param  spidername or a valid spider path
+     * @return bool;
+     */
+    public static function runSpider($spider) {
+        $all_spiders = self::allAvailableSpiders();
+        $all_names = array_column($all_spiders,'name');
+        if(empty($spider)) {
+            return false;
+        }
+        $spider_path = '';
+        if (in_array($spider,$all_names)) {
+            $name_index = array_search($spider,$all_spiders);
+            $spider_path = $all_spiders[$name_index]['locate'];
+        } else {
+            $spider_path = $spider;
+        }
+        $isSpider = self::isSpider($spider_path);
+        $cls = pathinfo($spider_path,PATHINFO_FILENAME); 
+        if ($isSpider) {
+            $spider_obj = new $cls();
+            $spider_obj->go();
+            return true;
+        } else {
+            return false;
+        }
+
     }
 
     private static function clear_queue(string $spider) {
