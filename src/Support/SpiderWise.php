@@ -137,7 +137,7 @@ class SpiderWise {
         }
         $spider_path = '';
         if (in_array($spider,$all_names)) {
-            $name_index = array_search($spider,$all_spiders);
+            $name_index = array_search($spider,$all_names);
             $spider_path = $all_spiders[$name_index]['locate'];
         } else {
             $spider_path = $spider;

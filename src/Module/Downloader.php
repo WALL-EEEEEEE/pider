@@ -26,7 +26,12 @@ class Downloader extends WithKernel {
         self::$logger = Logger::getLogger();
         $logger = self::$logger;
         $request = $stream->body();
-        $logger->debug('Request for '.$request->getOrgUri());
+
+        if ($request->isProxied()) {
+            $logger->debug('Request for '.$request->getOrgUri().' <through proxy:'.$request->getProxy().'>');
+        } else {
+            $logger->debug('Request for '.$request->getOrgUri());
+        }
         $response = $request->request();
         $response->setOrgUrl($request->getOrgUri());
         $response->setUrl($request->getUri());

@@ -11,6 +11,7 @@ class Request {
     private static $proxy_callback = '';
     private static $client;
     private $proxy = '';
+    private $is_proxied = false;
     private $uri = '';
     private $org_uri = '';
     private $headers = [];
@@ -39,7 +40,16 @@ class Request {
     }
 
     public function proxy(string $proxy) {
-        $this->$proxy = $proxy;
+        $this->proxy = $proxy;
+        $this->is_proxied = true;
+    }
+
+    public function isProxied() {
+        return $this->is_proxied;
+    }
+
+    public function getProxy() {
+        return $this->proxy;
     }
 
     /**
