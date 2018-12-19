@@ -3,23 +3,36 @@ namespace Pider;
 
 use Pider\Kernel\Config as BaseConfig;
 use Pider\Kernel\ConfigError as ConfigError;
-use Pider\Exceptions\FileNotFoundException;
+use Pider\Exceptions\ConfigNotFoundException as ConfigNotFoundException;
 
 class Config implements \ArrayAccess {
 
    private $Configs = [];
    private static $instance;
 
+   /**
+    * @method fromArray()
+    * Construct Config class from from array
+    *
+    * @param Array $configs  config array to be loaded.
+    * @return Config  A new Config class
+    */
    public static function fromArray(array $configs = []) {
        $config = new Config();
        $config->Configs = $configs;
        return $config;
    }
 
+   /**
+    * @method fromFile()
+    * Construct Config class from config file
+    * @param string $filename config filename to be read  
+    * @return  Config  A new Config class
+    */
    public static function fromFile(string $filename) {
 
        if (!file_exists($filename)) {
-           throw FileNotFoundException("Config file ".$filename.' not found, check you path carefully!');
+           throw new ConfigNotFoundException("Config file ".$filename.' not found, check you path carefully!');
        } else {
            $configs = include($filename);
            if (!is_array($configs)) {
@@ -31,6 +44,15 @@ class Config implements \ArrayAccess {
        return $config;
    }
 
+   /**
+    *@method copy()
+    * 
+    * Construct Config class from copying
+    *
+    * @param Config  Config class to be copied
+    * @return Config A new config class
+    *
+    */
    public static function copy(BaseConfig $extra_config ) {
        $config = new Config();
        $extra_configs = array_values((array) $extra_config);
@@ -38,16 +60,51 @@ class Config implements \ArrayAccess {
        return $config;
    }
 
+   /**
+    * @method setAsGlobal()
+    *
+    * Expose Config class to global scope
+    *
+    */
    public function setAsGlobal() {
        self::$instance = $this;
    }
 
+   /**
+    * @method unsetAsGlobal()
+    *
+    * Revoke Config class from global scope 
+    */
+   public static function unsetAsGlobal() {
+       self::$instance = '';
+   }
+
+   /**
+    * @method get()
+    *
+    * Implement from ArrayAccess
+    *
+    */
    public static function get($ckey) {
        return self::$instance->$ckey;
    }
 
+   /**
+    * @method set()
+    * Implement from ArrayAccess
+    */
    public static function set($ckey, $cvalue) {
        self::$instance->$ckey = $cvalue;
+   }
+
+   /**
+    * @method toArray()
+    *
+    * Convert Config class to Array
+    *
+    */
+   public function toArray() {
+       return $this->Configs;
    }
 
    public function __get(string $kconfig) {
@@ -62,7 +119,7 @@ class Config implements \ArrayAccess {
     }
 
     /**
-     * @method offsetExist
+     * @method offsetExist()
      * implement from ArrayAccess
      *
      */
@@ -71,7 +128,7 @@ class Config implements \ArrayAccess {
     }
 
     /**
-     * @method offsetSet
+     * @method offsetSet()
      * implement from ArrayAccess
      */
 
@@ -84,7 +141,7 @@ class Config implements \ArrayAccess {
     }
 
     /**
-     * @method offsetUnset
+     * @method offsetUnset()
      * implement from ArrayAccess
      */
     public function offsetUnset($offset) {
@@ -92,7 +149,7 @@ class Config implements \ArrayAccess {
     }
 
     /**
-     * @method offsetGet
+     * @method offsetGet()
      * implement from ArrayAccess
      *
      */

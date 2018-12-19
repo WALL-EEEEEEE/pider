@@ -15,6 +15,7 @@ use Pider\Kernel\StreamInvalid;
 use Pider\Kernel\Event\Dispenser;
 use Pider\Kernel\Event\Listener;
 use Pider\Kernel\Event\Event;
+use Pider\Log\Log as Logger;
 
 class Kernel implements WithStream {
     use Dispenser;
@@ -31,14 +32,24 @@ class Kernel implements WithStream {
     ];
     private $KernelConfigs;
     public  $Configs;
+    private static $logger;
 
     public final function __construct() {
+        self::$logger = Logger::getLogger();
+        $logger = self::$logger;
+        $logger->debug('Load Config ... ');
         $this->Configs =  (new Config())();
         $config = $this->Configs->KernelConfig();
+        $logger->debug('Load Config ... done');
         $this->cores = $config->Cores;
+        $logger->debug("Load components ...");
         $this->components = $config->Components;
         $this->init();
+        $logger->debug("Load components ... done");
+        $logger->debug("Actived components:");
+        $logger->debug($this->getComponentsInfo());
         $this->dispense(new Event('SPIDER_START'));
+
     }
 
     /**
@@ -96,7 +107,15 @@ class Kernel implements WithStream {
             }
         
     }
-
+    
+    /**
+     * @method getComponentsInfo()
+     * get components info in string format
+     */
+    private function getComponentsInfo():string {
+       $components_info = '<'.implode(',',$this->components).'>';
+       return $components_info;
+    }
     /**
      * @method dispatch
      *
@@ -120,6 +139,8 @@ class Kernel implements WithStream {
                 }
             }
         }
+        $logger = self::$logger;
+        $logger->debug("Spider closed");
         $this->dispense(new Event('SPIDER_CLOSE'));
    }
 

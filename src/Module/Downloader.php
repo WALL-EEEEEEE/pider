@@ -10,10 +10,12 @@ use Pider\Kernel\WithKernel;
 use Pider\Kernel\WithStream;
 use Pider\Kernel\Stream;
 use Pider\Kernel\MetaStream;
+use Pider\Log\Log as Logger;
 
 class Downloader extends WithKernel {
 
     private $responseStream;
+    private static $logger;
 
     public function __invoke() {
         return $this;
@@ -21,12 +23,23 @@ class Downloader extends WithKernel {
 
     public function download(Stream $stream) {
         //Extract the request infomation from stream
+        self::$logger = Logger::getLogger();
+        $logger = self::$logger;
         $request = $stream->body();
+
+        if ($request->isProxied()) {
+            $logger->debug('Request for '.$request->getOrgUri().' <through proxy:'.$request->getProxy().'>');
+        } else {
+            $logger->debug('Request for '.$request->getOrgUri());
+        }
         $response = $request->request();
         $response->setOrgUrl($request->getOrgUri());
         $response->setUrl($request->getUri());
         $response->callback = $request->callback;
         $response->attachment = $request->attachment;
+        $response_log = 'Request for '.$request->getOrgUri().' < '.$response->getStatusCode().', '.$response->getReasonPhrase().' >';
+        $logger->debug($response_log);
+
         return new MetaStream('RESPONSE',$response);
    }
 

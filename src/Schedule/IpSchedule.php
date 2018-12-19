@@ -14,6 +14,7 @@ use Pider\Kernel\ConfigError;
 use Pider\Kernel\Schedule;
 use Pider\Kernel\ScheduleError;
 use Pider\Extension\autoloader;
+use Pider\Log\Log as Logger;
 
 class IpSchedule extends WithKernel implements Schedule {
     /**
@@ -30,10 +31,10 @@ class IpSchedule extends WithKernel implements Schedule {
     private $run_mode = 0;
 
     private $ippool_limit = 20;
-
     private $sources = [];
     private $proxy_enable = false;
     private $fromstream;
+    private $logger;
 
     /**
      * @property MODE_STANDALONE 
@@ -53,6 +54,7 @@ class IpSchedule extends WithKernel implements Schedule {
      *@param $mode   const int the mode IpSchedule will run under. There are two modes, MODE_SANDALONE, MODE_BOUND
      */
     public function __construct(int $limit_count = 5, int $mode = 0 ) {
+        $this->logger = Logger::getLogger();
         $this->ippool_limit = $limit_count;
         if ( $mode != self::MODE_BOUND && $mode != self::MODE_STANDALONE) {
             throw new \InvalidArgumentException("Unknown mode specified!");
@@ -139,7 +141,6 @@ class IpSchedule extends WithKernel implements Schedule {
                $src_ips = $callback();
                $this->add($src_ips);
            }
-           var_dump(count($this->ippool));
         }
     }
 
@@ -202,6 +203,8 @@ class IpSchedule extends WithKernel implements Schedule {
             }
             //if proxy disabled  in config, don't process the stream
             if ($this->proxy_enable) {
+                $this->logger->debug('Proxy enabled.');
+                $this->logger->debug('Proxy pool capacity: '.$this->ippool_limit.'');
                 $ipsources_path  = $kernel->Configs->Proxy;
                 if (!is_string($ipsources_path)) {
                     throw new ConfigError("Invalid config option: Proxy must be a path string!");
@@ -221,11 +224,17 @@ class IpSchedule extends WithKernel implements Schedule {
                     }
                 }
             }
+
+            $this->logger->debug("Initail proxy pool ...");
+            $this->pullIp();
             $kernel->IpSchedule = $this;
+            $this->logger->debug("Initail proxy pool ... done ");
+
         } 
     } 
 
     public function toStream() {
+        $logger = Logger::getLogger();
         $stream = $this->fromstream;
         if ($this->proxy_enable) {
             $proxy_ip = $this->deliver();

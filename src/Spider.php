@@ -12,6 +12,7 @@ use Pider\Kernel\Kernel;
 use Pider\Config;
 use Pider\Support\Traits\SpiderTwigTrait as SpiderTwigTrait;
 use Pider\Support\Traits\SpiderProcessTrait as SpiderProcessTrait;
+use Pider\Log\Log as Logger;
 
 /**
  * @class Pider\Spider
@@ -27,6 +28,9 @@ abstract class Spider extends WithKernel {
     protected $responses;
     protected $name;
     protected static $Configs;
+    protected $isFromURLs = false;
+    private static $logger;
+
 
     public final function __construct() {
         $this->open();
@@ -36,8 +40,18 @@ abstract class Spider extends WithKernel {
     }
 
     public final function go() {
+        self::$logger = Logger::getLogger();
+        $logger = self::$logger;
+        $logger->debug("Initialize kernel ...");
         $this->kernelize();
-        $requests  = $this->start_requests();
+        $logger->debug("Initialize kernel ... done");
+        $logger->debug("Initialize urls ... ");
+        if ($this->isFromURLs) {
+            $requests = $this->start_urls;
+        } else {
+            $requests  = $this->start_requests();
+        }
+
         if (!is_array($requests)) {
             $requests = [$requests];
         }
@@ -46,6 +60,8 @@ abstract class Spider extends WithKernel {
                 $request = new Request(['base_uri'=> $request]);
             }
         }
+        $logger->debug("Initialize urls ... done");
+        $logger->debug('Spider start: <'.$this->name.'>');
         $this->twigs($requests);
     }
 
@@ -160,18 +176,46 @@ abstract class Spider extends WithKernel {
      * @return domains of spider
      */
     public function getDomains() {
-        return $this->domains;
+        $domains = $this->domains;
+        $vdomains = [];
+        if (is_string($domains) || is_array($domains)) {
+            $domains = is_string($domains)?[$domains]:$domains;
+            foreach($domains as $domain ) {
+                if(!empty($domain)) {
+                    $vdomain = parse_url($domain,PHP_URL_HOST);
+                    if(!empty($vdomain)) {
+                        $vdomains[] = $vdomain;
+                    } else if (preg_match('/\w+\.\w+\.\w+/i',$domain)) {
+                        $vdomains[] = $domain;
+                    }
+
+                }
+            }
+        } 
+        return $vdomains;
     }
 
     /**
      * @method fromURLs()
      * 
      */
-    public function fromURLs($urls) {
+    public function fromURLs($urls,$params = []) {
+        $this->isFromURLs = true;
         if (is_array($urls)) {
-            $this->start_urls = array_merge($this->start_urls,$urls);
+            foreach($urls as $url) {
+                $request = new Request(['base_uri'=> $url]);
+                if (!empty($params)){
+                    $request->attachment=$params;
+                }
+                $this->start_urls[] = $request;
+            }
         } else {
-            $this->start_urls[] = $urls;
+            $request = new Request(['base_uri'=> $urls]);
+            if (!empty($params)) {
+                $request->attachment=$params;
+            }
+            $this->start_urls[] = $request;
+  urls;
         }
     }
 

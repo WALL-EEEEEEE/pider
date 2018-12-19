@@ -18,6 +18,7 @@ wiki
 extern
 examples/company
 spiders/company
+tests
 *.pyc
 *~
 *#
