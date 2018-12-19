@@ -9,13 +9,24 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Pider\Support\ConfigSetup;
 use Pider\Support\ConsoleOutputDirect;
+use Pider\Exceptions\ConfigNotFoundException;
+use Pider\Exceptions\ConfigError;
+
 
 class Terminal extends Application {
     use ConsoleOutputDirect;
 
     public function __construct() {
-        new ConfigSetup();
-        $this->redirect();
+	$this->redirect();
+        try
+	{
+		new ConfigSetup();
+	} catch (ConfigNotFoundException $cex) {
+		echo "[WARN] ".$cex->getMessage().PHP_EOL;
+	} catch (ConfigError $cer) {
+		echo "[ERROR] ".$cer->getMessage().PHP_EOL;
+		exit(0);
+	}
         parent::__construct();
     }
 

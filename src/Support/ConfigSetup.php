@@ -2,6 +2,8 @@
 namespace Pider\Support;
 
 use Pider\Config;
+use Pider\Exceptions\ConfigNotFoundException as ConfigNotFoundException;
+use Pider\Exceptions\ConfigError;
 
 /**
  * @class ConfigSetup
@@ -13,9 +15,9 @@ class ConfigSetup {
 
     public function __construct() {
         //load default config (alias framework config)
-        $default_config = Config::fromFile($this->default_config)->toArray();
-        //load project config
-        $project_config = Config::fromFile($this->project_config)->toArray();
+	$default_config = Config::fromFile($this->default_config)->toArray();
+	//load project config
+	$project_config = Config::fromFile($this->project_config)->toArray();
         //forge
         $configs = array_merge($default_config,$project_config);
         Config::fromArray($configs)->setAsGlobal();
